@@ -13,12 +13,35 @@ INC_DIR		=	./inc
 OBJ_DIR		=	./obj
 OBJ_DIRS	=	./obj \
 				./obj/main \
+				./obj/Request \
+				./obj/Response \
 				./obj/Server \
+				./obj/Socket \
+				./obj/utils \
 
 FILES 		=	main/main \
+				Request/ARequest \
+				Request/DELETERequest \
+				Request/GETRequest \
+				Request/InvalidRequest \
+				Request/POSTRequest \
+				Request/RequestGenerator \
+				Response/Response \
 				Server/Server \
+				Socket/ClientSocket \
+				utils/utils \
 
-HEADER		=	Server \
+HEADER		=	Request/ARequest \
+				Request/DELETERequest \
+				Request/GETRequest \
+				Request/InvalidRequest \
+				Request/POSTRequest \
+				Request/RequestGenerator \
+				Response/Response \
+				Response/responseCodes \
+				Server/Server \
+				Socket/ClientSocket \
+				utils/utils \
 
 INCL		=	$(addsuffix .hpp, $(addprefix $(INC_DIR)/, $(HEADER)))
 SRCS 		= 	$(addsuffix .cpp, $(addprefix $(SRC_DIR)/, $(FILES)))

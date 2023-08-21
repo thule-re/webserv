@@ -1,0 +1,48 @@
+/* ************************************************************************** */
+/*                                                                            */
+/*                                                        :::      ::::::::   */
+/*   ARequest.hpp                                        :+:      :+:    :+:   */
+/*                                                    +:+ +:+         +:+     */
+/*   By: treeps <treeps@student.42wolfsburg.de>     +#+  +:+       +#+        */
+/*                                                +#+#+#+#+#+   +#+           */
+/*   Created: 2023/08/21 16:08:40 by treeps            #+#    #+#             */
+/*   Updated: 2023/08/21 16:08:40 by treeps           ###   ########.fr       */
+/*                                                                            */
+/* ************************************************************************** */
+
+#ifndef WEBSERV_AREQUEST_HPP
+# define WEBSERV_AREQUEST_HPP
+
+# include <string>
+# include <fstream>
+# include "Response/Response.hpp"
+# include "Socket/ClientSocket.hpp"
+# include "utils/utils.hpp"
+
+class ARequest {
+public:
+	// constructors
+	ARequest(const ClientSocket& clientSocket, const std::string& request);
+	ARequest(const ARequest &);
+
+	// destructor
+	virtual ~ARequest();
+
+	// operator overload
+	ARequest &operator=(const ARequest &);
+
+	// member functions
+	virtual Response handle() = 0;
+
+protected:
+	// constructors
+	ARequest();
+	// member variables
+	const ClientSocket _clientSocket;
+	const std::string _request;
+
+	// protected member functions
+	std::string _extractPath(int start);
+};
+
+#endif

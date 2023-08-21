@@ -1,35 +1,33 @@
 /* ************************************************************************** */
 /*                                                                            */
 /*                                                        :::      ::::::::   */
-/*   Server.hpp                                         :+:      :+:    :+:   */
+/*   Response.hpp                                       :+:      :+:    :+:   */
 /*                                                    +:+ +:+         +:+     */
 /*   By: treeps <treeps@student.42wolfsburg.de>     +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
-/*   Created: 2023/08/17 11:29:03 by treeps            #+#    #+#             */
-/*   Updated: 2023/08/17 11:29:03 by treeps           ###   ########.fr       */
+/*   Created: 2023/08/21 16:12:06 by treeps            #+#    #+#             */
+/*   Updated: 2023/08/21 16:12:06 by treeps           ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
-#ifndef WEBSERV_SERVER_HPP
-# define WEBSERV_SERVER_HPP
+#ifndef WEBSERV_RESPONSE_HPP
+# define WEBSERV_RESPONSE_HPP
 
-# include <iostream>
 # include <string>
-# include <cstring>
 # include <sys/socket.h>
-# include <netinet/in.h>
-# include <unistd.h>
 # include <fstream>
-# include <cstdio>
+# include <exception>
+# include "Response/responseCodes.hpp"
+# include "Socket/ClientSocket.hpp"
+# include "utils/utils.hpp"
 
-# define BUFFER_SIZE 1024
-# define DEFAULT_404 \
+# define DEFAULT_ERROR_PAGE \
 "<!DOCTYPE html>\n\
 <html lang=\"en\">\n\
 <head>\n\
     <meta charset=\"UTF-8\">\n\
     <meta name=\"viewport\" content=\"width=device-width, initial-scale=1.0\">\n\
-    <title>404 Not Found</title>\n\
+    <title>STATUS_CODE STATUS_MESSAGE</title>\n\
     <style>\n\
         body {\n\
             font-family: Arial, sans-serif;\n\
@@ -51,45 +49,45 @@
     </style>\n\
 </head>\n\
 <body>\n\
-    <h1>404</h1>\n\
-    <p>Page Not Found</p>\n\
+    <h1>STATUS_CODE</h1>\n\
+    <p>STATUS_MESSAGE</p>\n\
 </body>\n\
 </html>"
 
-
-class Server {
+class Response {
 public:
 	// constructors
-	Server();
-	Server(int port, const std::string& index, const std::string& error, const std::string& folder);
-	Server(const Server &);
+	Response(const ClientSocket& clientSocket);
+	Response(const Response &);
 
 	// destructor
-	~Server();
+	~Response();
 
 	// operator overload
-	Server &operator=(const Server &);
+	Response &operator=(const Response &);
 
 	// member functions
-	void	init();
-	void	loop();
+	void send();
+	void setStatusCode(int statusCode);
+	void setBody(const std::string &body);
+	void buildErrorPage(int statusCode);
+	void setContentType(const std::string &contentType);
 
 private:
-	void	handleRequest(int clientSocket);
-	void	handleGETRequest(int clientSocket, const std::string& request);
-	void	handlePOSTRequest(int clientSocket, const std::string& request);
-	void	handleDELETERequest(int clientSocket, const std::string& request);
-	void	handleInvalidRequest(int clientSocket);
+	// constructors
+	Response();
 
-	std::string extractPath(const std::string& request, int start);
-	std::string getContentType(const std::string& path);
-	std::string getErrorPage();
+	// member variables
+	ClientSocket _clientSocket;
+	std::string _header;
+	std::string	_contentType;
+	std::string _body;
+	std::string _statusCode;
+	std::string _statusMessage;
 
-	int			_port;
-	int			_serverSocket;
-	std::string	_indexPath;
-	std::string	_errorPath;
-	std::string	_indexFolder;
+	// member functions
+	void defaultErrorPage(int statusCode);
 };
 
+std::string getHTTPErrorMessages(int statusCode);
 #endif

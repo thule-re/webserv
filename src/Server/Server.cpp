@@ -10,7 +10,7 @@
 /*                                                                            */
 /* ************************************************************************** */
 
-#include "Server.hpp"
+#include "Server/Server.hpp"
 
 // constructors
 Server::Server(): _port(80), _indexPath("garbage.html"), _errorPath("error404.html"), _indexFolder("www") {
@@ -87,33 +87,47 @@ void	Server::loop() {
 }
 
 void Server::handleRequest(int clientSocket) {
-	char buffer[BUFFER_SIZE];
-	ssize_t bytesRead;
-	std::string stringBuffer;
+	ClientSocket client(clientSocket);
 
-	while (true)
-	{
-		bytesRead =  recv(clientSocket, buffer, BUFFER_SIZE, 0);
-		if (bytesRead < 0) {
-			std::cerr << "Error reading from client socket" << std::endl;
-			exit(1);
-		}
-		stringBuffer += std::string(buffer, bytesRead);
-		if (bytesRead < BUFFER_SIZE) {
-			break;
-		}
-	}
-	if (stringBuffer.find("GET ") == 0) {
-		handleGETRequest(clientSocket, stringBuffer);
-	} else if (stringBuffer.find("POST ") == 0) {
-		handlePOSTRequest(clientSocket, stringBuffer);
-	} else if (stringBuffer.find("DELETE ") == 0) {
-		handleDELETERequest(clientSocket, stringBuffer);
-	} else {
-		handleInvalidRequest(clientSocket);
-	}
-	close(clientSocket);
+	client.setIndexFile(_indexPath);
+	client.setIndexFolder(_indexFolder);
+	client.setErrorFolder(_indexFolder);
+
+	ARequest *request = RequestGenerator::createRequest(client, client.readRequest());
+	Response response = request->handle();
+	response.send();
+	client.closeSocket();
+	delete request;
 }
+
+//void Server::handleRequest(int clientSocket) {
+//	char buffer[BUFFER_SIZE];
+//	ssize_t bytesRead;
+//	std::string stringBuffer;
+//
+//	while (true)
+//	{
+//		bytesRead =  recv(clientSocket, buffer, BUFFER_SIZE, 0);
+//		if (bytesRead < 0) {
+//			std::cerr << "Error reading from client socket" << std::endl;
+//			exit(1);
+//		}
+//		stringBuffer += std::string(buffer, bytesRead);
+//		if (bytesRead < BUFFER_SIZE) {
+//			break;
+//		}
+//	}
+//	if (stringBuffer.find("GET ") == 0) {
+//		handleGETRequest(clientSocket, stringBuffer);
+//	} else if (stringBuffer.find("POST ") == 0) {
+//		handlePOSTRequest(clientSocket, stringBuffer);
+//	} else if (stringBuffer.find("DELETE ") == 0) {
+//		handleDELETERequest(clientSocket, stringBuffer);
+//	} else {
+//		handleInvalidRequest(clientSocket);
+//	}
+//	close(clientSocket);
+//}
 
 void Server::handleGETRequest(int clientSocket, const std::string& request) {
 	std::string path = extractPath(request, 4);
@@ -174,7 +188,7 @@ void Server::handleDELETERequest(int clientSocket, const std::string& request) {
 }
 
 void Server::handleInvalidRequest(int clientSocket) {
-	std::string response = "HTTP/1.1 400 Bad Request\r\n"
+	std::string response = "HTTP/1.1 400 Bad ARequest\r\n"
 						   "Content-Type: text/html \r\n"
 						   "\r\n";
 	response += getErrorPage();
