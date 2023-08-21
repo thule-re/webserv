@@ -17,7 +17,7 @@ Server::Server(): _port(80), _indexPath("garbage.html"), _errorPath("error404.ht
 	std::cout << "Server default constructor called" << std::endl;
 }
 
-Server::Server(int port, std::string index, std::string error, std::string folder): _port(port), _indexPath(index), _errorPath(error), _indexFolder(folder) {
+Server::Server(int port, const std::string& index, const std::string& error, const std::string& folder): _port(port), _indexPath(index), _errorPath(error), _indexFolder(folder) {
 	std::cout << "Server parameter constructor called" << std::endl;
 }
 
@@ -48,7 +48,7 @@ Server &Server::operator=(const Server &other) {
 
 // member functions
 void	Server::init() {
-	struct sockaddr_in serverAddr;
+	struct sockaddr_in serverAddr = {};
 	int opt = 1;
 
 	_serverSocket = socket(AF_INET, SOCK_STREAM, 0);
@@ -87,14 +87,22 @@ void	Server::loop() {
 }
 
 void Server::handleRequest(int clientSocket) {
-	char buffer[1024];
-	ssize_t bytesRead = recv(clientSocket, buffer, sizeof(buffer), 0);
-	if (bytesRead < 0) {
-		std::cerr << "Error reading from client socket" << std::endl;
-		exit(1);
+	char buffer[BUFFER_SIZE];
+	ssize_t bytesRead;
+	std::string stringBuffer;
+
+	while (true)
+	{
+		bytesRead =  recv(clientSocket, buffer, BUFFER_SIZE, 0);
+		if (bytesRead < 0) {
+			std::cerr << "Error reading from client socket" << std::endl;
+			exit(1);
+		}
+		stringBuffer += std::string(buffer, bytesRead);
+		if (bytesRead < BUFFER_SIZE) {
+			break;
+		}
 	}
-	std::cout << "Received request:\n" << std::string(buffer, bytesRead) << std::endl;
-	std::string stringBuffer = std::string(buffer, bytesRead);
 	if (stringBuffer.find("GET ") == 0) {
 		handleGETRequest(clientSocket, stringBuffer);
 	} else if (stringBuffer.find("POST ") == 0) {
@@ -107,14 +115,17 @@ void Server::handleRequest(int clientSocket) {
 	close(clientSocket);
 }
 
-void Server::handleGETRequest(int clientSocket, std::string request) {
+void Server::handleGETRequest(int clientSocket, const std::string& request) {
 	std::string path = extractPath(request, 4);
 	if (path == "/") {
-		path = _indexPath;
+		path += _indexPath;
 	}
-	std::string fullPath = _indexFolder + path;
-	std::ifstream file(fullPath.c_str());
+	path = _indexFolder + path;
 	std::string response;
+	std::ifstream file(path.c_str());
+
+	std::cout << "GET request for file: " << path << std::endl;
+
 	if (file.is_open()) {
 		response = "HTTP/1.1 200 OK\r\n"
 				   "Content-Type: " + getContentType(path) + "\r\n"
@@ -132,16 +143,34 @@ void Server::handleGETRequest(int clientSocket, std::string request) {
 	send(clientSocket, response.c_str(), response.size(), 0);
 }
 
-void Server::handlePOSTRequest(int clientSocket, std::string request) {
+void Server::handlePOSTRequest(int clientSocket, const std::string& request) {
 	(void) clientSocket;
 	(void) request;
 	// TODO: implement
 }
 
-void Server::handleDELETERequest(int clientSocket, std::string request) {
-	(void) clientSocket;
-	(void) request;
-	// TODO: implement
+void Server::handleDELETERequest(int clientSocket, const std::string& request) {
+	std::string path = _indexFolder + extractPath(request, 7);
+	std::string response;
+	if (path == "/") {
+		path += _indexPath;
+	}
+	path = _indexFolder + path;
+
+	std::cout << "Deleting file: " << path << std::endl;
+
+	if (std::remove(path.c_str()) == 0) {
+		response = "HTTP/1.1 200 OK\r\n"
+				   "Content-Type: text/html \r\n"
+				   "\r\n"
+				   "<html><body><h1>File deleted</h1></body></html>";
+	} else {
+		response = "HTTP/1.1 404 Not Found\r\n"
+				   "Content-Type: text/html \r\n"
+				   "\r\n";
+		response += getErrorPage();
+	}
+	send(clientSocket, response.c_str(), response.size(), 0);
 }
 
 void Server::handleInvalidRequest(int clientSocket) {
@@ -152,15 +181,12 @@ void Server::handleInvalidRequest(int clientSocket) {
 	send(clientSocket, response.c_str(), response.size(), 0);
 }
 
-std::string Server::extractPath(std::string request, int start) {
-	std::string path = request.substr(start, request.find("HTTP/1.1") - 5);
-	if (path == "/") {
-		path += _indexPath;
-	}
+std::string Server::extractPath(const std::string& request, int start) {
+	std::string path = request.substr(start, request.find("HTTP/1.1") - (start + 1));
 	return path;
 }
 
-std::string Server::getContentType(std::string path) {
+std::string Server::getContentType(const std::string& path) {
 	if (path.find(".html") != std::string::npos) {
 		return "text/html";
 	} else if (path.find(".css") != std::string::npos) {
@@ -183,8 +209,7 @@ std::string Server::getContentType(std::string path) {
 std::string Server::getErrorPage() {
 	std::ifstream errorFile((_indexFolder + "/" + _errorPath).c_str());
 	if (!errorFile.good()) {
-		std::cerr << "Error opening error file. Using Default" << std::endl;
-		return "<html><body><h1>Default 404 Not Found</h1></body></html>";
+		return DEFAULT_404;
 	}
 	std::string line;
 	std::string errorPage;
