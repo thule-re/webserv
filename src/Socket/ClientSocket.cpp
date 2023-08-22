@@ -40,6 +40,14 @@ int ClientSocket::getSocketFd() const {
 	return (_socketFd);
 }
 
+std::string ClientSocket::getAllowedHTTPVersion() const {
+	return (_allowedHTTPVersion);
+}
+
+std::string ClientSocket::getAllowedMethods() const {
+	return (_allowedMethods);
+}
+
 std::string ClientSocket::getIndexFile() const {
 	return (_indexFile);
 }
@@ -65,6 +73,18 @@ std::string ClientSocket::getServerName() const {
 }
 
 // setters
+void ClientSocket::setAllowedHTTPVersion(const std::string &allowedHTTPVersion) {
+	_allowedHTTPVersion = allowedHTTPVersion;
+}
+
+void ClientSocket::setAllowedMethods(const std::string &allowedMethods) {
+	_allowedMethods = allowedMethods;
+}
+
+void ClientSocket::addToAllowedMethods(const std::string &allowedMethods) {
+	_allowedMethods += allowedMethods;
+}
+
 void ClientSocket::setIndexFile(const std::string &indexFile) {
 	_indexFile = indexFile;
 }

@@ -89,6 +89,10 @@ void	Server::loop() {
 void Server::handleRequest(int clientSocket) {
 	ClientSocket client(clientSocket);
 
+	client.setAllowedHTTPVersion(HTTP_VERSION);
+	client.addToAllowedMethods(METHOD_GET);
+	client.addToAllowedMethods(METHOD_POST);
+	client.addToAllowedMethods(METHOD_DELETE);
 	client.setIndexFile(_indexPath);
 	client.setIndexFolder(_indexFolder);
 	client.setErrorFolder(_indexFolder);

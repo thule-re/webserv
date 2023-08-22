@@ -18,6 +18,9 @@
 # include <sstream>
 
 # define HTTP_VERSION "HTTP/1.1"
+# define METHOD_GET "GET"
+# define METHOD_POST "POST"
+# define METHOD_DELETE "DELETE"
 # define CRLF "\r\n"
 
 // function prototypes

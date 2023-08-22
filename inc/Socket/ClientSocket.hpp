@@ -34,6 +34,8 @@ public:
 
 	// getter functions
 	int getSocketFd() const;
+	std::string getAllowedHTTPVersion() const;
+	std::string getAllowedMethods() const;
 	std::string getIndexFile() const;
 	std::string getIndexFolder() const;
 	std::string getErrorFolder() const;
@@ -42,6 +44,9 @@ public:
 	std::string getServerName() const;
 
 	// setter functions
+	void setAllowedHTTPVersion(const std::string &allowedHTTPVersion);
+	void setAllowedMethods(const std::string &allowedMethods);
+	void addToAllowedMethods(const std::string &allowedMethods);
 	void setIndexFile(const std::string &indexFile);
 	void setIndexFolder(const std::string &indexFolder);
 	void setErrorFolder(const std::string &errorFolder);
@@ -55,13 +60,15 @@ public:
 
 private:
 	const int	_socketFd;
-	std::string _request;
-	std::string _indexFile;
-	std::string _indexFolder;
-	std::string _errorFolder;
-	std::string _cgiFolder;
-	std::string _uploadFolder;
-	std::string _serverName;
+	std::string	_allowedHTTPVersion;
+	std::string	_allowedMethods;
+	std::string	_request;
+	std::string	_indexFile;
+	std::string	_indexFolder;
+	std::string	_errorFolder;
+	std::string	_cgiFolder;
+	std::string	_uploadFolder;
+	std::string	_serverName;
 };
 
 #endif
