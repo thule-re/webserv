@@ -33,6 +33,7 @@ public:
 
 	// member functions
 	virtual Response handle() = 0;
+	static ARequest *newRequest(const ClientSocket& clientSocket, const std::string &request);
 
 protected:
 	// constructors

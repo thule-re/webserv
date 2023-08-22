@@ -35,3 +35,7 @@ std::string ARequest::_extractPath(int start) {
 	std::string path = _request.substr(start, _request.find(HTTP_VERSION) - (start + 1));
 	return path;
 }
+
+ARequest *ARequest::newRequest(const ClientSocket &clientSocket, const std::string &request) {
+	return NULL;
+}

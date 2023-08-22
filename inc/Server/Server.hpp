@@ -22,7 +22,7 @@
 # include <fstream>
 # include <cstdio>
 
-# include "Request/RequestGenerator.hpp"
+# include "Request/ARequest.hpp"
 # include "Response/Response.hpp"
 # include "Socket/ClientSocket.hpp"
 

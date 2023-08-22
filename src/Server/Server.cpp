@@ -93,7 +93,7 @@ void Server::handleRequest(int clientSocket) {
 	client.setIndexFolder(_indexFolder);
 	client.setErrorFolder(_indexFolder);
 
-	ARequest *request = RequestGenerator::createRequest(client, client.readRequest());
+	ARequest *request = ARequest::newRequest(client, client.readRequest());
 	Response response = request->handle();
 	response.send();
 	client.closeSocket();
