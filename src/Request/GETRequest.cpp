@@ -39,10 +39,10 @@ Response GETRequest::handle() {
 	path = _clientSocket.getIndexFolder() + path;
 	std::ifstream file(path.c_str());
 	if (!file.is_open()) {
-		response.buildErrorPage(404);
+		response.buildErrorPage(NOT_FOUND);
 		return (response);
 	}
-	response.setStatusCode(200);
+	response.setStatusCode(OK);
 	response.setContentType(getContentType(path));
 	response.setBody(readFile(file));
 	return (response);

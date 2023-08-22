@@ -39,7 +39,7 @@ std::string ARequest::_extractPath(int start) {
 ARequest *ARequest::newRequest(const ClientSocket &clientSocket, const std::string &request) {
 	std::string version = request.substr(request.find("HTTP/"), request.find("\r\n") - request.find("HTTP/"));
 	if (clientSocket.getAllowedHTTPVersion() != version)
-		return (new InvalidRequest(clientSocket, request, 505));
+		return (new InvalidRequest(clientSocket, request, HTTP_VERSION_NOT_SUPPORTED));
 	else if (request.find("GET ") == 0)
 		return (new GETRequest(clientSocket, request));
 	else if (request.find("POST ")  == 0)
@@ -47,5 +47,5 @@ ARequest *ARequest::newRequest(const ClientSocket &clientSocket, const std::stri
 	else if (request.find("DELETE ") == 0)
 		return (new DELETERequest(clientSocket, request));
 	else
-		return (new InvalidRequest(clientSocket, request, 405));
+		return (new InvalidRequest(clientSocket, request, METHOD_NOT_ALLOWED));
 }

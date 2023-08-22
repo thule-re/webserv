@@ -33,6 +33,6 @@ POSTRequest &POSTRequest::operator=(const POSTRequest &other) {
 Response POSTRequest::handle() {
 	Response response(_clientSocket);
 	std::cout << "POSTRequest::handle()" << std::endl;
-	response.buildErrorPage(501);
+	response.buildErrorPage(NOT_IMPLEMENTED);
 	return (response);
 }

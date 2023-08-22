@@ -37,10 +37,10 @@ Response DELETERequest::handle() {
 		path += _clientSocket.getIndexFile();
 	path = _clientSocket.getIndexFolder() + path;
 	if (std::remove(path.c_str()) != 0) {
-		response.buildErrorPage(404);
+		response.buildErrorPage(NOT_FOUND);
 		return (response);
 	}
-	response.setStatusCode(200);
+	response.setStatusCode(OK);
 	response.setContentType("text/html");
 	response.setBody("<html><body><h1>File deleted</h1></body></html>");
 	return (response);

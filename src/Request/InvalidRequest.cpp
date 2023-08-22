@@ -16,7 +16,7 @@
 InvalidRequest::InvalidRequest() {}
 InvalidRequest::InvalidRequest(const ClientSocket& clientSocket, const std::string &request) : ARequest(clientSocket, request) {
 	_method = "INVALID";
-	_code = 400;
+	_code = BAD_REQUEST;
 }
 InvalidRequest::InvalidRequest(const ClientSocket& clientSocket, const std::string &request, int code) : ARequest(clientSocket, request), _code(code) {
 	_method = "INVALID";
