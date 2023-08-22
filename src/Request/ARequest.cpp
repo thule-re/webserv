@@ -37,5 +37,12 @@ std::string ARequest::_extractPath(int start) {
 }
 
 ARequest *ARequest::newRequest(const ClientSocket &clientSocket, const std::string &request) {
-	return NULL;
+	if (request.find("GET") == 0)
+		return (new GETRequest(clientSocket, request));
+	else if (request.find("POST")  == 0)
+		return (new POSTRequest(clientSocket, request));
+	else if (request.find("DELETE") == 0)
+		return (new DELETERequest(clientSocket, request));
+	else
+		return (new InvalidRequest(clientSocket, request));
 }
