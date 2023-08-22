@@ -63,16 +63,75 @@ void	Server::init() {
 		exit(1);
 	}
 	std::cout << "Server listening on port " << _port << std::endl;
+	setUpServerSocket();
+}
+
+void Server::removeSocket(size_t i) {
+	_clientSockets.erase(_clientSockets.begin() + i); // Remove an element
+	_clientSockets.shrink_to_fit();
+}
+
+void Server::setUpServerSocket()
+{
+	pollfd serverSocket = {};
+
+	serverSocket.fd = _serverSocket;
+	serverSocket.events = POLLIN;
+	_clientSockets.push_back(serverSocket);
+}
+
+void Server::pollThroughClientSockets()
+{
+	int pollResult = poll(_clientSockets.data(), _clientSockets.size(), -1);
+	if (pollResult == -1) {
+		std::cerr << "Error in poll" << std::endl;
+		// break;
+		// THROW EXCEPTION instead!
+	}
+}
+
+void Server::addNewConnection()
+{
+	pollfd serverSocket = _clientSockets[0];
+
+	if (serverSocket.revents & POLLIN) {
+		pollfd clientSocket = {};
+		clientSocket.fd = accept(_serverSocket, NULL, NULL);
+		if (clientSocket.fd < 0) {
+			throw std::runtime_error("Error accepting connection");
+		}
+		clientSocket.events = POLLIN;
+		if (_clientSockets.size() < MAX_CLIENT_CONNECTIONS) {
+			_clientSockets.push_back(clientSocket);
+		} else {
+			close(clientSocket.fd);
+			throw std::runtime_error("Connection limit reached. Closing the connection.");
+		}
+	}
+}
+
+void Server::handleAnyNewRequests()
+{
+	for (size_t i = 1; i < _clientSockets.size(); i++) {
+		if (_clientSockets[i].revents & POLLIN && _clientSockets[i].fd != -1)
+		{
+			handleRequest(_clientSockets[i].fd);
+			_clientSockets[i].revents = 0; // Reset events
+			removeSocket(i);
+		}
+	}
 }
 
 void	Server::loop() {
-	while (1) {
-		int clientSocket = accept(_serverSocket, NULL, NULL);
-		if (clientSocket < 0) {
-			std::cerr << "Error accepting connection" << std::endl;
-			exit(1);
+	while (true) {
+		try {
+			pollThroughClientSockets();
+			addNewConnection();
+			handleAnyNewRequests();
 		}
-		handleRequest(clientSocket);
+		catch (std::exception &e) {
+			handleLoopException(e);
+		}
 	}
 }
 
@@ -92,4 +151,8 @@ void Server::handleRequest(int clientSocket) {
 	response.send();
 	client.closeSocket();
 	delete request;
+}
+
+void Server::handleLoopException(std::exception &exception) {
+	std::cerr << exception.what() << std::endl;
 }
