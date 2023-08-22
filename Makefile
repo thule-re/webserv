@@ -25,7 +25,6 @@ FILES 		=	main/main \
 				Request/GETRequest \
 				Request/InvalidRequest \
 				Request/POSTRequest \
-				Request/RequestGenerator \
 				Response/Response \
 				Server/Server \
 				Socket/ClientSocket \
@@ -36,7 +35,6 @@ HEADER		=	Request/ARequest \
 				Request/GETRequest \
 				Request/InvalidRequest \
 				Request/POSTRequest \
-				Request/RequestGenerator \
 				Response/Response \
 				Response/responseCodes \
 				Server/Server \
