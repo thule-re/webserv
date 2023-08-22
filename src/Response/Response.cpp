@@ -51,7 +51,9 @@ void Response::setBody(const std::string &body) {
 }
 
 void Response::buildErrorPage(int statusCode) {
-	std::string path = _clientSocket.getErrorFolder() + "/" + toString(statusCode) + ".html";
+	std::string path = _clientSocket.getErrorFolder() + "/error" + toString(statusCode) + ".html";
+	setStatusCode(statusCode);
+	setContentType("text/html");
 	std::ifstream file(path.c_str());
 	if (!file.is_open())
 		defaultErrorPage(statusCode);
