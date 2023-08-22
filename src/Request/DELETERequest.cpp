@@ -29,6 +29,16 @@ DELETERequest &DELETERequest::operator=(const DELETERequest &other) {
 
 Response DELETERequest::handle() {
 	Response response(_clientSocket);
-
+	std::string path = _extractPath(7); // 7 = length of "DELETE "
+	if (path == "/")
+		path += _clientSocket.getIndexFile();
+	path = _clientSocket.getIndexFolder() + path;
+	if (std::remove(path.c_str()) != 0) {
+		response.buildErrorPage(404);
+		return (response);
+	}
+	response.setStatusCode(200);
+	response.setContentType("text/html");
+	response.setBody("<html><body><h1>File deleted</h1></body></html>");
 	return (response);
 }
