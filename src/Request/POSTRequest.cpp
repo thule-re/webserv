@@ -14,7 +14,9 @@
 
 // constructors
 POSTRequest::POSTRequest() {}
-POSTRequest::POSTRequest(const ClientSocket& clientSocket, const std::string &request) : ARequest(clientSocket, request) {}
+POSTRequest::POSTRequest(const ClientSocket& clientSocket, const std::string &request) : ARequest(clientSocket, request) {
+	_method = "POST";
+}
 POSTRequest::POSTRequest(const POSTRequest &other): ARequest(other) {}
 
 // destructor
@@ -30,6 +32,7 @@ POSTRequest &POSTRequest::operator=(const POSTRequest &other) {
 
 Response POSTRequest::handle() {
 	Response response(_clientSocket);
-
+	std::cout << "POSTRequest::handle()" << std::endl;
+	response.buildErrorPage(501);
 	return (response);
 }

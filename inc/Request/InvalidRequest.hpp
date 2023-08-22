@@ -18,10 +18,12 @@
 class InvalidRequest : public ARequest {
 public:
 	// constructors
-	InvalidRequest(ClientSocket clientSocket, const std::string& request);
+	InvalidRequest(const ClientSocket& clientSocket, const std::string& request);
+	InvalidRequest(const ClientSocket &clientSocket, const std::string &request, int code);
 	InvalidRequest(const InvalidRequest &);
 
-	// destructor
+
+// destructor
 	~InvalidRequest();
 
 	// operator overload
@@ -33,6 +35,9 @@ public:
 private:
 	// constructors
 	InvalidRequest();
+
+	// member variables
+	int _code;
 };
 
 #endif

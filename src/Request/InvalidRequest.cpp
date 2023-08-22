@@ -14,7 +14,13 @@
 
 // constructors
 InvalidRequest::InvalidRequest() {}
-InvalidRequest::InvalidRequest(ClientSocket clientSocket, const std::string &request) : ARequest(clientSocket, request) {}
+InvalidRequest::InvalidRequest(const ClientSocket& clientSocket, const std::string &request) : ARequest(clientSocket, request) {
+	_method = "INVALID";
+	_code = 400;
+}
+InvalidRequest::InvalidRequest(const ClientSocket& clientSocket, const std::string &request, int code) : ARequest(clientSocket, request), _code(code) {
+	_method = "INVALID";
+}
 InvalidRequest::InvalidRequest(const InvalidRequest &other): ARequest(other) {}
 
 // destructor
@@ -30,7 +36,6 @@ InvalidRequest &InvalidRequest::operator=(const InvalidRequest &other) {
 
 Response InvalidRequest::handle() {
 	Response response(_clientSocket);
-	response.setStatusCode(501);
-	response.buildErrorPage(501);
+	response.buildErrorPage(_code);
 	return (response);
 }

@@ -14,7 +14,9 @@
 
 // constructors
 GETRequest::GETRequest() {}
-GETRequest::GETRequest(const ClientSocket& clientSocket, const std::string &request) : ARequest(clientSocket, request) {}
+GETRequest::GETRequest(const ClientSocket& clientSocket, const std::string &request) : ARequest(clientSocket, request) {
+	_method = "GET";
+}
 GETRequest::GETRequest(const GETRequest &other): ARequest(other) {}
 
 // destructor
@@ -30,6 +32,7 @@ GETRequest &GETRequest::operator=(const GETRequest &other) {
 
 Response GETRequest::handle() {
 	Response response(_clientSocket);
+	std::cout << "GETRequest::handle()" << std::endl;
 	std::string path = _extractPath(4); // 4 = length of "GET "
 	if (path == "/")
 		path += _clientSocket.getIndexFile();

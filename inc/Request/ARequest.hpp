@@ -41,6 +41,7 @@ protected:
 	// member variables
 	const ClientSocket _clientSocket;
 	const std::string _request;
+	std::string _method;
 
 	// protected member functions
 	std::string _extractPath(int start);
