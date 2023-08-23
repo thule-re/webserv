@@ -33,6 +33,10 @@ Response DELETERequest::handle() {
 	Response response(_clientSocket);
 	std::cout << "DELETERequest::handle()" << std::endl;
 	std::string path = _extractPath(7); // 7 = length of "DELETE "
+	if (path.find("..") != std::string::npos) {
+		response.buildErrorPage(FORBIDDEN);
+		return (response);
+	}
 	if (path == "/")
 		path += _clientSocket.getIndexFile();
 	path = _clientSocket.getIndexFolder() + path;

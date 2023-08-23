@@ -31,11 +31,24 @@ POSTRequest &POSTRequest::operator=(const POSTRequest &other) {
 
 Response POSTRequest::handle() {
 	Response response(_clientSocket);
+	std::cout << "POSTRequest::handle()" << std::endl;
 
+	std::string path = _extractPath(5); // 5 = length of "POST "
+	if (path.find("..") != std::string::npos) {
+		response.buildErrorPage(FORBIDDEN);
+		return (response);
+	}
 	getBoundary();
 	_requestData = extractMultipartFormData();
 	_fileData = stripHeaderFromRequest(_requestData);
 	std::string filename = extractFileName(_requestData);
+	if (filename.empty()) {
+		response.buildErrorPage(BAD_REQUEST);
+		return (response);
+	} else if (filename.find("..") != std::string::npos) {
+		response.buildErrorPage(FORBIDDEN);
+		return (response);
+	}
 	filename = _clientSocket.getIndexFolder() + "/" + _clientSocket.getUploadFolder() + filename;
 	writeDataToOutfile(_fileData, filename);
 	response.setStatusCode(CREATED);

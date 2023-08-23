@@ -34,9 +34,6 @@ public:
 private:
 	// constructors
 	GETRequest();
-
-	// member functions
-	std::string _readFile(std::ifstream &file);
 };
 
 #endif

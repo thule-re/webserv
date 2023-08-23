@@ -29,11 +29,15 @@ GETRequest &GETRequest::operator=(const GETRequest &other) {
 	return (*this);
 }
 
-
 Response GETRequest::handle() {
 	Response response(_clientSocket);
 	std::cout << "GETRequest::handle()" << std::endl;
+
 	std::string path = _extractPath(4); // 4 = length of "GET "
+	if (path.find("..") != std::string::npos) {
+		response.buildErrorPage(FORBIDDEN);
+		return (response);
+	}
 	if (path == "/")
 		path += _clientSocket.getIndexFile();
 	path = _clientSocket.getIndexFolder() + path;
