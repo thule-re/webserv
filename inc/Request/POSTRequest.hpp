@@ -43,7 +43,7 @@ private:
 	std::string stripHeaderFromRequest(const std::string &request);
 	std::string extractMultipartFormData();
 	std::string getBoundary();
-	void writeDataToOutfile(std::string fileData);
+	void writeDataToOutfile(const std::string& fileData);
 };
 
 #endif

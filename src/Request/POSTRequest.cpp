@@ -81,7 +81,7 @@ std::string POSTRequest::stripHeaderFromRequest(const std::string& request)
 	return(request.substr(contentStart, contentEnd - contentStart));
 }
 
-void POSTRequest::writeDataToOutfile(std::string fileData)
+void POSTRequest::writeDataToOutfile(const std::string& fileData)
 {
 	std::string filename = extractFileName(_requestData);
 	std::ofstream outfile(filename);
