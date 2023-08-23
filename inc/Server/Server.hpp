@@ -60,7 +60,7 @@ private:
 
 	void removeSocket(size_t i);
 
-	void setUpServerSocket();
+	void addServerSocketToPoll();
 
 	void pollThroughClientSockets();
 
@@ -69,6 +69,15 @@ private:
 	void handleAnyNewRequests();
 
 	void handleLoopException(std::exception &exception);
+
+	void initializeServerSocket();
+
+	void setServerSocketOptions(sockaddr_in *serverAddress);
+
+	void listenOnServerSocket();
+
+	void bindServerSocket(sockaddr_in serverAddress);
+
 };
 
 #endif

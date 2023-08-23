@@ -39,7 +39,18 @@ Server &Server::operator=(const Server &other) {
 
 // member functions
 void	Server::init() {
-	struct sockaddr_in serverAddr = {};
+	struct sockaddr_in serverAddress = {};
+
+	initializeServerSocket();
+	setServerSocketOptions(&serverAddress);
+	bindServerSocket(serverAddress);
+	listenOnServerSocket();
+	addServerSocketToPoll();
+
+	std::cout << "Server listening on port " << _port << std::endl;
+}
+
+void Server::initializeServerSocket() {
 	int opt = 1;
 
 	_serverSocket = socket(AF_INET, SOCK_STREAM, 0);
@@ -51,27 +62,29 @@ void	Server::init() {
 		std::cerr << "Error setting socket options" << std::endl;
 		exit(1);
 	}
-	serverAddr.sin_family = AF_INET;
-	serverAddr.sin_addr.s_addr = INADDR_ANY;
-	serverAddr.sin_port = htons(_port);
-	if (bind(_serverSocket, (struct sockaddr *)&serverAddr, sizeof(serverAddr)) < 0) {
+}
+
+void Server::setServerSocketOptions(sockaddr_in *serverAddress) {
+	serverAddress->sin_family = AF_INET;
+	serverAddress->sin_addr.s_addr = INADDR_ANY;
+	serverAddress->sin_port = htons(_port);
+}
+
+void Server::bindServerSocket(sockaddr_in serverAddress) {
+	if (bind(_serverSocket, (struct sockaddr *)&serverAddress, sizeof(serverAddress)) < 0) {
 		std::cerr << "Error binding socket" << std::endl;
 		exit(1);
 	}
+}
+
+void Server::listenOnServerSocket() {
 	if (listen(_serverSocket, 10) < 0) {
 		std::cerr << "Error listening on socket" << std::endl;
 		exit(1);
 	}
-	std::cout << "Server listening on port " << _port << std::endl;
-	setUpServerSocket();
 }
 
-void Server::removeSocket(size_t i) {
-	_clientSockets.erase(_clientSockets.begin() + i); // Remove an element
-	_clientSockets.shrink_to_fit();
-}
-
-void Server::setUpServerSocket()
+void Server::addServerSocketToPoll()
 {
 	pollfd serverSocket = {};
 
@@ -79,6 +92,20 @@ void Server::setUpServerSocket()
 	serverSocket.events = POLLIN;
 	_clientSockets.push_back(serverSocket);
 }
+
+void	Server::loop() {
+	while (true) {
+		try {
+			pollThroughClientSockets();
+			addNewConnection();
+			handleAnyNewRequests();
+		}
+		catch (std::exception &e) {
+			handleLoopException(e);
+		}
+	}
+}
+
 
 void Server::pollThroughClientSockets()
 {
@@ -122,17 +149,9 @@ void Server::handleAnyNewRequests()
 	}
 }
 
-void	Server::loop() {
-	while (true) {
-		try {
-			pollThroughClientSockets();
-			addNewConnection();
-			handleAnyNewRequests();
-		}
-		catch (std::exception &e) {
-			handleLoopException(e);
-		}
-	}
+void Server::removeSocket(size_t i) {
+	_clientSockets.erase(_clientSockets.begin() + i); // Remove an element
+	_clientSockets.shrink_to_fit();
 }
 
 void Server::handleRequest(int clientSocket) {
