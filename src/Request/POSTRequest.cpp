@@ -35,8 +35,9 @@ Response POSTRequest::handle() {
 	getBoundary();
 	_requestData = extractMultipartFormData();
 	_fileData = stripHeaderFromRequest(_requestData);
-	writeDataToOutfile(_fileData);
-
+	std::string filename = extractFileName(_requestData);
+	filename = _clientSocket.getIndexFolder() + "/" + _clientSocket.getUploadFolder() + filename;
+	writeDataToOutfile(_fileData, filename);
 	response.setStatusCode(CREATED);
 	return (response);
 }
@@ -81,9 +82,8 @@ std::string POSTRequest::stripHeaderFromRequest(const std::string& request)
 	return(request.substr(contentStart, contentEnd - contentStart));
 }
 
-void POSTRequest::writeDataToOutfile(const std::string& fileData)
+void POSTRequest::writeDataToOutfile(const std::string& fileData, const std::string& filename)
 {
-	std::string filename = extractFileName(_requestData);
 	std::ofstream outfile(filename);
 
 	if (!outfile.is_open()) {
@@ -106,6 +106,5 @@ std::string POSTRequest::extractFileName(const std::string &request)
 			filename = request.substr(filenamePos, filenameEndPos - filenamePos);
 		}
 	}
-	filename = "./www/files/" + filename;
 	return (filename);
 }
