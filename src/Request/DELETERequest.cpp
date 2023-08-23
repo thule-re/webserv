@@ -14,7 +14,7 @@
 
 // constructors
 DELETERequest::DELETERequest() {}
-DELETERequest::DELETERequest(const ClientSocket& clientSocket, const std::string &request) : ARequest(clientSocket, request) {
+DELETERequest::DELETERequest(const ClientSocket& clientSocket) : ARequest(clientSocket) {
 	_method = "DELETE";
 }
 DELETERequest::DELETERequest(const DELETERequest &other): ARequest(other) {}

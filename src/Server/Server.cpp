@@ -13,9 +13,9 @@
 #include "Server/Server.hpp"
 
 // constructors
-Server::Server(): _port(80), _serverSocket(), _indexPath("garbage.html"), _errorPath("error404.html"), _indexFolder("www") {}
+Server::Server(): _port(80), _serverSocket(), _indexPath("garbage.html"), _errorPath("www"), _root("www") {}
 
-Server::Server(int port, const std::string& index, const std::string& error, const std::string& folder): _port(port), _serverSocket(), _indexPath(index), _errorPath(error), _indexFolder(folder) {}
+Server::Server(int port, const std::string& index, const std::string& error, const std::string& folder): _port(port), _serverSocket(), _indexPath(index), _errorPath(error), _root(folder) {}
 
 Server::Server(const Server &other) : _port(), _serverSocket() {
 	*this = other;
@@ -32,7 +32,7 @@ Server &Server::operator=(const Server &other) {
 	_serverSocket = other._serverSocket;
 	_indexPath = other._indexPath;
 	_errorPath = other._errorPath;
-	_indexFolder = other._indexFolder;
+	_root = other._root;
 
 	return (*this);
 }
@@ -162,10 +162,11 @@ void Server::handleRequest(int clientSocket) {
 	client.addToAllowedMethods(METHOD_POST);
 	client.addToAllowedMethods(METHOD_DELETE);
 	client.setIndexFile(_indexPath);
-	client.setIndexFolder(_indexFolder);
-	client.setErrorFolder(_indexFolder);
+	client.setIndexFolder(_root);
+	client.setErrorFolder(_errorPath);
 
-	ARequest *request = ARequest::newRequest(client, client.readRequest());
+	client.readRequest();
+	ARequest *request = ARequest::newRequest(client);
 	Response response = request->handle();
 	response.send();
 	client.closeSocket();

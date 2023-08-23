@@ -14,7 +14,7 @@
 
 // constructors
 GETRequest::GETRequest() {}
-GETRequest::GETRequest(const ClientSocket& clientSocket, const std::string &request) : ARequest(clientSocket, request) {
+GETRequest::GETRequest(const ClientSocket& clientSocket) : ARequest(clientSocket) {
 	_method = "GET";
 }
 GETRequest::GETRequest(const GETRequest &other): ARequest(other) {}

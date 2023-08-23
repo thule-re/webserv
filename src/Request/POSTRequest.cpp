@@ -14,7 +14,7 @@
 
 // constructors
 POSTRequest::POSTRequest() {}
-POSTRequest::POSTRequest(const ClientSocket& clientSocket, const std::string &request) : ARequest(clientSocket, request) {
+POSTRequest::POSTRequest(const ClientSocket& clientSocket) : ARequest(clientSocket) {
 	_method = "POST";
 }
 POSTRequest::POSTRequest(const POSTRequest &other): ARequest(other) {}

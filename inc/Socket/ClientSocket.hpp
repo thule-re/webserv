@@ -36,6 +36,7 @@ public:
 	int getSocketFd() const;
 	std::string getAllowedHTTPVersion() const;
 	std::string getAllowedMethods() const;
+	std::string getRawRequest() const;
 	std::string getIndexFile() const;
 	std::string getIndexFolder() const;
 	std::string getErrorFolder() const;
@@ -62,7 +63,7 @@ private:
 	const int	_socketFd;
 	std::string	_allowedHTTPVersion;
 	std::string	_allowedMethods;
-	std::string	_request;
+	std::string	_rawRequest;
 	std::string	_indexFile;
 	std::string	_indexFolder;
 	std::string	_errorFolder;

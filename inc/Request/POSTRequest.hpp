@@ -20,8 +20,8 @@
 class POSTRequest: public ARequest {
 public:
 	// constructors
-	POSTRequest(const ClientSocket& clientSocket, const std::string& request);
-	POSTRequest(const POSTRequest &);
+	POSTRequest(const ClientSocket &clientSocket);
+	POSTRequest(const POSTRequest &other);
 
 	// destructor
 	~POSTRequest();

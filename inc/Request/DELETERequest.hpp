@@ -19,7 +19,7 @@
 class DELETERequest: public ARequest {
 public:
 	// constructors
-	DELETERequest(const ClientSocket& clientSocket, const std::string& request);
+	DELETERequest(const ClientSocket &clientSocket);
 	DELETERequest(const DELETERequest &);
 
 	// destructor

@@ -18,7 +18,7 @@
 
 // constructor
 ARequest::ARequest() : _clientSocket() {}
-ARequest::ARequest(const ClientSocket& clientSocket, const std::string& request): _clientSocket(clientSocket), _request(request) {}
+ARequest::ARequest(const ClientSocket& clientSocket): _clientSocket(clientSocket), _request(clientSocket.getRawRequest()) {}
 ARequest::ARequest(const ARequest &other): _clientSocket(other._clientSocket), _request(other._request) {}
 
 // destructor
@@ -36,16 +36,17 @@ std::string ARequest::_extractPath(int start) {
 	return path;
 }
 
-ARequest *ARequest::newRequest(const ClientSocket &clientSocket, const std::string &request) {
+ARequest *ARequest::newRequest(const ClientSocket &clientSocket) {
+	std::string request = clientSocket.getRawRequest();
 	std::string version = request.substr(request.find("HTTP/"), request.find("\r\n") - request.find("HTTP/"));
 	if (clientSocket.getAllowedHTTPVersion() != version)
-		return (new InvalidRequest(clientSocket, request, HTTP_VERSION_NOT_SUPPORTED));
+		return (new InvalidRequest(clientSocket, HTTP_VERSION_NOT_SUPPORTED));
 	else if (request.find("GET ") == 0)
-		return (new GETRequest(clientSocket, request));
+		return (new GETRequest(clientSocket));
 	else if (request.find("POST ")  == 0)
-		return (new POSTRequest(clientSocket, request));
+		return (new POSTRequest(clientSocket));
 	else if (request.find("DELETE ") == 0)
-		return (new DELETERequest(clientSocket, request));
+		return (new DELETERequest(clientSocket));
 	else
-		return (new InvalidRequest(clientSocket, request, METHOD_NOT_ALLOWED));
+		return (new InvalidRequest(clientSocket, METHOD_NOT_ALLOWED));
 }

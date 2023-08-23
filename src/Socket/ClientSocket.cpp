@@ -48,6 +48,10 @@ std::string ClientSocket::getAllowedMethods() const {
 	return (_allowedMethods);
 }
 
+std::string ClientSocket::getRawRequest() const {
+	return (_rawRequest);
+}
+
 std::string ClientSocket::getIndexFile() const {
 	return (_indexFile);
 }
@@ -131,7 +135,6 @@ std::string ClientSocket::readRequest() {
 			break;
 		}
 	}
-	_request = stringBuffer;
+	_rawRequest = stringBuffer;
 	return (stringBuffer);
 }
-

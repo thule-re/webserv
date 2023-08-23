@@ -18,8 +18,8 @@
 class InvalidRequest : public ARequest {
 public:
 	// constructors
-	InvalidRequest(const ClientSocket& clientSocket, const std::string& request);
-	InvalidRequest(const ClientSocket &clientSocket, const std::string &request, int code);
+	InvalidRequest(const ClientSocket& clientSocket);
+	InvalidRequest(const ClientSocket &clientSocket, int code);
 	InvalidRequest(const InvalidRequest &);
 
 

@@ -14,11 +14,11 @@
 
 // constructors
 InvalidRequest::InvalidRequest() {}
-InvalidRequest::InvalidRequest(const ClientSocket& clientSocket, const std::string &request) : ARequest(clientSocket, request) {
+InvalidRequest::InvalidRequest(const ClientSocket& clientSocket) : ARequest(clientSocket) {
 	_method = "INVALID";
 	_code = BAD_REQUEST;
 }
-InvalidRequest::InvalidRequest(const ClientSocket& clientSocket, const std::string &request, int code) : ARequest(clientSocket, request), _code(code) {
+InvalidRequest::InvalidRequest(const ClientSocket& clientSocket, int code) : ARequest(clientSocket), _code(code) {
 	_method = "INVALID";
 }
 InvalidRequest::InvalidRequest(const InvalidRequest &other): ARequest(other) {}

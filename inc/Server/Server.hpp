@@ -49,34 +49,27 @@ public:
 	void	loop();
 
 private:
-	void	handleRequest(int clientSocket);
+	// member functions
+	void handleRequest(int clientSocket);
+	void removeSocket(size_t i);
+	void addServerSocketToPoll();
+	void pollThroughClientSockets();
+	void addNewConnection();
+	void handleAnyNewRequests();
+	void handleLoopException(std::exception &exception);
+	void initializeServerSocket();
+	void setServerSocketOptions(sockaddr_in *serverAddress);
+	void listenOnServerSocket();
+	void bindServerSocket(sockaddr_in serverAddress);
 
+	// member variables
 	int			_port;
 	int			_serverSocket;
 	std::string	_indexPath;
 	std::string	_errorPath;
-	std::string	_indexFolder;
+	std::string	_root;
 	std::vector<pollfd> _clientSockets;
 
-	void removeSocket(size_t i);
-
-	void addServerSocketToPoll();
-
-	void pollThroughClientSockets();
-
-	void addNewConnection();
-
-	void handleAnyNewRequests();
-
-	void handleLoopException(std::exception &exception);
-
-	void initializeServerSocket();
-
-	void setServerSocketOptions(sockaddr_in *serverAddress);
-
-	void listenOnServerSocket();
-
-	void bindServerSocket(sockaddr_in serverAddress);
 
 };
 

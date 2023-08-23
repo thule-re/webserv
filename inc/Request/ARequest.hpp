@@ -22,7 +22,7 @@
 class ARequest {
 public:
 	// constructors
-	ARequest(const ClientSocket& clientSocket, const std::string& request);
+	ARequest(const ClientSocket& clientSocket);
 	ARequest(const ARequest &);
 
 	// destructor
@@ -33,7 +33,7 @@ public:
 
 	// member functions
 	virtual Response handle() = 0;
-	static ARequest *newRequest(const ClientSocket& clientSocket, const std::string &request);
+	static ARequest *newRequest(const ClientSocket& clientSocket);
 
 protected:
 	// constructors

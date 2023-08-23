@@ -19,7 +19,7 @@
 class GETRequest: public ARequest {
 public:
 	// constructors
-	GETRequest(const ClientSocket& clientSocket, const std::string& request);
+	GETRequest(const ClientSocket& clientSocket);
 	GETRequest(const GETRequest &);
 
 	// destructor
