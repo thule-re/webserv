@@ -40,8 +40,6 @@ Response DELETERequest::handle() {
 		response.buildErrorPage(NOT_FOUND);
 		return (response);
 	}
-	response.setStatusCode(OK);
-	response.setContentType("text/html");
-	response.setBody("<html><body><h1>File deleted</h1></body></html>");
+	response.setStatusCode(NO_CONTENT);
 	return (response);
 }
