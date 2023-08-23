@@ -36,7 +36,10 @@
             padding: 50px;\n\
             background-color: #f4f4f4;\n\
         }\n\
-        h1 {\n\
+        main { \n\
+            padding: 20px; \n\
+        } \n\
+        main h1 {\n\
             font-size: 150px;\n\
             margin: 0;\n\
             color: #e74c3c;\n\
@@ -46,11 +49,44 @@
             margin-top: 10px;\n\
             color: #333;\n\
         }\n\
+        footer { \n\
+            background-color: #333; \n\
+            color: #fff; \n\
+            text-align: center; \n\
+            padding: 10px; \n\
+            position: fixed; \n\
+            left: 0; \n\
+            bottom: 0; \n\
+            width: 100%; \n\
+        } \n\
+        header h1 { \n\
+            background-color: #333; \n\
+            font-size: 24px; \n\
+            color: #fff; \n\
+            text-align: center; \n\
+            padding: 10px; \n\
+            position: fixed; \n\
+            left: 0; \n\
+            top: 0; \n\
+            width: 100%; \n\
+        } \n\
+        footer p { \n\
+            font-size: 12px; \n\
+            color: #fff; \n\
+        } \n\
     </style>\n\
 </head>\n\
 <body>\n\
-    <h1>STATUS_CODE</h1>\n\
-    <p>STATUS_MESSAGE</p>\n\
+    <header> \n\
+        <h1>Default Webserv Error Page</h1> \n\
+    </header> \n\
+    <main> \n\
+        <h1>STATUS_CODE</h1>\n\
+        <p>STATUS_MESSAGE</p>\n\
+    </main> \n\
+    <footer>\n\
+        <p>&copy; 2023 The Real Webserv. All rights reserved.</p>\n\
+    </footer>\n\
 </body>\n\
 </html>"
 
