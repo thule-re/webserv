@@ -31,12 +31,7 @@ std::string readFile(const std::string &path);
 std::string getContentType(const std::string& path);
 
 // template functions
-template<typename T> std::string toString(const T& value)
-{
-	std::ostringstream oss;
-	oss << value;
-	return oss.str();
-}
+template<typename T> std::string toString(const T& value);
 
 # include "utils.tpp"
 

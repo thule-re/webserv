@@ -41,7 +41,10 @@ HEADER		=	Request/ARequest \
 				Socket/ClientSocket \
 				utils/utils \
 
+TEMPLATES	=	utils/utils \
+
 INCL		=	$(addsuffix .hpp, $(addprefix $(INC_DIR)/, $(HEADER)))
+TEMP		=	$(addsuffix .tpp, $(addprefix $(INC_DIR)/, $(TEMPLATES)))
 SRCS 		= 	$(addsuffix .cpp, $(addprefix $(SRC_DIR)/, $(FILES)))
 OBJS 		= 	$(addsuffix .o, $(addprefix $(OBJ_DIR)/, $(FILES)))
 
