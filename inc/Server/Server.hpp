@@ -57,6 +57,7 @@ private:
 	void addNewConnection();
 	void handleAnyNewRequests();
 	void handleLoopException(std::exception &exception);
+	void handleARequestException(ARequest::ARequestException &, Response &);
 	void initializeServerSocket();
 	void setServerSocketOptions(sockaddr_in *serverAddress);
 	void listenOnServerSocket();

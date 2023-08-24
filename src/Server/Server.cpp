@@ -156,6 +156,8 @@ void Server::removeSocket(size_t i) {
 
 void Server::handleRequest(int clientSocket) {
 	ClientSocket client(clientSocket);
+	Response response(clientSocket);
+	ARequest *request = NULL;
 
 	client.setAllowedHTTPVersion(HTTP_VERSION);
 	client.addToAllowedMethods(METHOD_GET);
@@ -164,15 +166,30 @@ void Server::handleRequest(int clientSocket) {
 	client.setIndexFile(_indexPath);
 	client.setIndexFolder(_root);
 	client.setErrorFolder(_errorPath);
+	client.setUploadFolder("upload");
 
 	client.readRequest();
-	ARequest *request = ARequest::newRequest(client);
-	Response response = request->handle();
+	try {
+		request = ARequest::newRequest(client);
+		response = request->handle();
+	}
+	catch (ARequest::ARequestException &e) {
+		handleARequestException(e, response);
+	}
+	catch (std::exception &e) {
+		std::cerr << e.what() << std::endl;
+		response.buildErrorPage(INTERNAL_SERVER_ERROR);
+	}
+	delete request;
 	response.send();
 	client.closeSocket();
-	delete request;
 }
 
 void Server::handleLoopException(std::exception &exception) {
 	std::cerr << exception.what() << std::endl;
+}
+
+void Server::handleARequestException(ARequest::ARequestException &exception, Response &response) {
+	std::cerr << exception.message() << std::endl;
+	response.buildErrorPage(exception.code());
 }
