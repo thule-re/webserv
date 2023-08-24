@@ -60,7 +60,7 @@ public:
 	void closeSocket() const;
 
 private:
-	const int	_socketFd;
+	const int _socketFd;
 	std::string	_allowedHTTPVersion;
 	std::string	_allowedMethods;
 	std::string	_rawRequest;

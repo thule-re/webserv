@@ -31,6 +31,7 @@ Response &Response::operator=(const Response &other) {
 	_body = other._body;
 	_statusCode = other._statusCode;
 	_statusMessage = other._statusMessage;
+	_contentType = other._contentType;
 	return (*this);
 }
 
@@ -74,6 +75,10 @@ void Response::setContentType(const std::string &contentType) {
 	_contentType = contentType;
 	_header += "Content-Type: " + _contentType + CRLF;
 
+}
+
+std::string Response::getRawResponse() const {
+	return (_header + CRLF + _body);
 }
 
 std::string getHTTPErrorMessages(int statusCode) {

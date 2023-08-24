@@ -93,6 +93,7 @@
 class Response {
 public:
 	// constructors
+	Response();
 	Response(const ClientSocket& clientSocket);
 	Response(const Response &);
 
@@ -109,9 +110,9 @@ public:
 	void buildErrorPage(int statusCode);
 	void setContentType(const std::string &contentType);
 
+	std::string getRawResponse() const;
+
 private:
-	// constructors
-	Response();
 
 	// member variables
 	ClientSocket _clientSocket;

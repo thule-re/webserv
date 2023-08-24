@@ -125,7 +125,7 @@ std::string ClientSocket::readRequest() {
 
 	while (true)
 	{
-		bytesRead =  recv(_socketFd, buffer, BUFFER_SIZE, 0);
+		bytesRead = recv(_socketFd, buffer, BUFFER_SIZE, 0);
 		if (bytesRead < 0) {
 			std::cerr << "Error reading from client socket" << std::endl;
 			exit(1);
