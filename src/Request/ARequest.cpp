@@ -17,8 +17,8 @@
 
 // constructor
 ARequest::ARequest() : _clientSocket() {}
-ARequest::ARequest(const ClientSocket& clientSocket): _clientSocket(clientSocket), _request(clientSocket.getRawRequest()) {}
-ARequest::ARequest(const ARequest &other): _clientSocket(other._clientSocket), _request(other._request) {}
+ARequest::ARequest(const ClientSocket& clientSocket): _clientSocket(clientSocket), _rawRequest(clientSocket.getRawRequest()) {}
+ARequest::ARequest(const ARequest &other): _clientSocket(other._clientSocket), _rawRequest(other._rawRequest) {}
 
 // destructor
 ARequest::~ARequest() {}
@@ -31,7 +31,13 @@ ARequest &ARequest::operator=(const ARequest &other) {
 }
 
 std::string ARequest::_extractPath(int start) {
-	std::string path = _request.substr(start, _request.find(HTTP_VERSION) - (start + 1));
+	std::string path = _rawRequest.substr(start, _rawRequest.find(HTTP_VERSION) - (start + 1));
+	if (path.find("..") != std::string::npos) {
+		throw ARequest::ARequestException(FORBIDDEN);
+	}
+	if (path == "/")
+		path += _clientSocket.getIndexFile();
+	path = _clientSocket.getIndexFolder() + path;
 	return path;
 }
 

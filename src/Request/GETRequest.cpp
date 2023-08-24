@@ -32,19 +32,11 @@ GETRequest &GETRequest::operator=(const GETRequest &other) {
 Response GETRequest::handle() {
 	Response response(_clientSocket);
 	std::cout << "GETRequest::handle()" << std::endl;
-
 	std::string path = _extractPath(4); // 4 = length of "GET "
-	if (path.find("..") != std::string::npos) {
-		response.buildErrorPage(FORBIDDEN);
-		return (response);
-	}
-	if (path == "/")
-		path += _clientSocket.getIndexFile();
-	path = _clientSocket.getIndexFolder() + path;
+
 	std::ifstream file(path.c_str());
 	if (!file.is_open()) {
-		response.buildErrorPage(NOT_FOUND);
-		return (response);
+		throw ARequest::ARequestException(NOT_FOUND);
 	}
 	response.setStatusCode(OK);
 	response.setContentType(getContentType(path));
