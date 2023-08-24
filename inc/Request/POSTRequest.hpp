@@ -36,14 +36,14 @@ private:
 	// constructors
 	POSTRequest();
 	std::string _boundary;
-	std::string _requestData;
 	std::string _fileData;
+	std::string _filename;
 
-	std::string stripHeaderFromRequest(const std::string &request);
-	std::string extractMultipartFormData();
-	std::string getBoundary();
-	static std::string extractFileName(const std::string &request);
-	static void writeDataToOutfile(const std::string& fileData, const std::string& fileName);
+	void _getFileData();
+	void _getFilename();
+	void _getBoundary();
+	void _writeDataToOutfile();
+	void _checkFilename();
 };
 
 #endif

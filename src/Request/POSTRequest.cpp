@@ -34,90 +34,62 @@ Response POSTRequest::handle() {
 	std::cout << "POSTRequest::handle()" << std::endl;
 
 	std::string path = _extractPath(5); // 5 = length of "POST "
-	if (path.find("..") != std::string::npos) {
-		response.buildErrorPage(FORBIDDEN);
-		return (response);
-	}
-	getBoundary();
-	_requestData = extractMultipartFormData();
-	_fileData = stripHeaderFromRequest(_requestData);
-	std::string filename = extractFileName(_requestData);
-	if (filename.empty()) {
-		response.buildErrorPage(BAD_REQUEST);
-		return (response);
-	} else if (filename.find("..") != std::string::npos) {
-		response.buildErrorPage(FORBIDDEN);
-		return (response);
-	}
-	filename = _clientSocket.getIndexFolder() + "/" + _clientSocket.getUploadFolder() + filename;
-	writeDataToOutfile(_fileData, filename);
+	_getBoundary();
+	_getFileData();
+	_getFilename();
+	_checkFilename();
+	_writeDataToOutfile();
 	response.setStatusCode(CREATED);
 	return (response);
 }
 
-std::string POSTRequest::getBoundary()
+void POSTRequest::_checkFilename()
 {
-	std::string boundary = "--" + _request.substr(_request.find("boundary=") + 9);
-	size_t newlinePos = boundary.find('\n');
-
-	return (boundary.substr(0, newlinePos));
-}
-
-std::string POSTRequest::extractMultipartFormData()
-{
-	int clientSocket = _clientSocket.getSocketFd();
-	std::string body;
-	char buffer[1024];
-	unsigned long bytesRead;
-
-	while (true) {
-		bytesRead = recv(clientSocket, buffer, sizeof(buffer), 0);
-		if (bytesRead <= 0) {
-			break;
-		}
-		body.append(buffer, bytesRead);
-		size_t pos = body.find(_boundary);
-		if (pos != std::string::npos) {
-			std::string part = body.substr(0, pos);
-			body.erase(0, pos + _boundary.length());
-		}
-		if (bytesRead < sizeof(buffer))
-			break ;
+	if (_filename.empty()) {
+		throw ARequest::ARequestException(BAD_REQUEST);
+	} else if (_filename.find("..") != std::string::npos) {
+		throw ARequest::ARequestException(FORBIDDEN);
 	}
-	return body;
+	_filename = _clientSocket.getIndexFolder() + "/" + _clientSocket.getUploadFolder() + "/" + _filename;
 }
 
-std::string POSTRequest::stripHeaderFromRequest(const std::string& request)
+void POSTRequest::_getBoundary()
 {
-	size_t contentStart = request.find("\r\n\r\n") + 4;
-	size_t contentEnd = request.find_last_of(_boundary) - _boundary.length() - 4;
+	_boundary = "--" + _rawRequest.substr(_rawRequest.find("boundary=") + 9);
+	size_t newlinePos = _boundary.find('\n');
 
-	return(request.substr(contentStart, contentEnd - contentStart));
+	_boundary = _boundary.substr(0, newlinePos);
 }
 
-void POSTRequest::writeDataToOutfile(const std::string& fileData, const std::string& filename)
+void POSTRequest::_getFileData()
 {
-	std::ofstream outfile(filename);
+	size_t contentStart = _rawRequest.find("\r\n\r\n") + 4;
+	size_t contentEnd = _rawRequest.find_last_of(_boundary) - _boundary.length() - 4;
+
+	_fileData = _rawRequest.substr(contentStart, contentEnd - contentStart);
+}
+
+void POSTRequest::_writeDataToOutfile()
+{
+	std::ofstream outfile(_filename);
 
 	if (!outfile.is_open()) {
-		std::cerr << "Error opening file: " << filename << std::endl;
+		std::cerr << "Error opening file: " << _filename << std::endl;
 	}
-	outfile << fileData << std::endl;
+	outfile << _fileData << std::endl;
 	outfile.close();
 }
 
-std::string POSTRequest::extractFileName(const std::string &request)
+void POSTRequest::_getFilename()
 {
-	std::string filename;
 	size_t filenamePos;
 
-	filenamePos = request.find("filename=\"", 0);
+	filenamePos = _rawRequest.find("filename=\"", 0);
 	if (filenamePos != std::string::npos) {
 		filenamePos += 10;
-		size_t filenameEndPos = request.find('\"', filenamePos);
+		size_t filenameEndPos = _rawRequest.find('\"', filenamePos);
 		if (filenameEndPos != std::string::npos) {
-			filename = request.substr(filenamePos, filenameEndPos - filenamePos);
+			_filename = _rawRequest.substr(filenamePos, filenameEndPos - filenamePos);
 		}
 	}
-	return (filename);
 }
