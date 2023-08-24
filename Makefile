@@ -23,7 +23,6 @@ FILES 		=	main/main \
 				Request/ARequest \
 				Request/DELETERequest \
 				Request/GETRequest \
-				Request/InvalidRequest \
 				Request/POSTRequest \
 				Response/Response \
 				Server/Server \
@@ -33,7 +32,6 @@ FILES 		=	main/main \
 HEADER		=	Request/ARequest \
 				Request/DELETERequest \
 				Request/GETRequest \
-				Request/InvalidRequest \
 				Request/POSTRequest \
 				Response/Response \
 				Response/responseCodes \
