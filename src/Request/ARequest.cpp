@@ -14,7 +14,6 @@
 #include "Request/GETRequest.hpp"
 #include "Request/POSTRequest.hpp"
 #include "Request/DELETERequest.hpp"
-#include "Request/InvalidRequest.hpp"
 
 // constructor
 ARequest::ARequest() : _clientSocket() {}
@@ -40,7 +39,7 @@ ARequest *ARequest::newRequest(const ClientSocket &clientSocket) {
 	std::string request = clientSocket.getRawRequest();
 	std::string version = request.substr(request.find("HTTP/"), request.find("\r\n") - request.find("HTTP/"));
 	if (clientSocket.getAllowedHTTPVersion() != version)
-		return (new InvalidRequest(clientSocket, HTTP_VERSION_NOT_SUPPORTED));
+		throw ARequest::ARequestException(HTTP_VERSION_NOT_SUPPORTED);
 	else if (request.find("GET ") == 0)
 		return (new GETRequest(clientSocket));
 	else if (request.find("POST ")  == 0)
@@ -48,5 +47,18 @@ ARequest *ARequest::newRequest(const ClientSocket &clientSocket) {
 	else if (request.find("DELETE ") == 0)
 		return (new DELETERequest(clientSocket));
 	else
-		return (new InvalidRequest(clientSocket, METHOD_NOT_ALLOWED));
+		throw ARequest::ARequestException(METHOD_NOT_ALLOWED);
+}
+// exceptions
+
+ARequest::ARequestException::ARequestException(int code): _code(code) {}
+
+const char *ARequest::ARequestException::what() const throw() {
+	return ("ARequestException");
+}
+std::string ARequest::ARequestException::message() const {
+	return (toString(_code) + ": " + getHTTPErrorMessages(_code));
+}
+int ARequest::ARequestException::code() {
+	return (_code);
 }

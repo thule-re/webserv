@@ -15,6 +15,7 @@
 
 # include <string>
 # include <fstream>
+# include <exception>
 # include "Response/Response.hpp"
 # include "Socket/ClientSocket.hpp"
 # include "utils/utils.hpp"
@@ -38,13 +39,26 @@ public:
 protected:
 	// constructors
 	ARequest();
+
 	// member variables
 	const ClientSocket _clientSocket;
-	const std::string _request;
+	const std::string _rawRequest;
 	std::string _method;
 
 	// protected member functions
 	std::string _extractPath(int start);
+
+public:
+	// exceptions
+	class ARequestException: public std::exception {
+	public:
+		ARequestException(int);
+		virtual const char *what() const throw();
+		std::string message() const;
+		int code();
+	private:
+		int _code;
+	};
 };
 
 #endif
