@@ -24,6 +24,12 @@ POSTRequest::~POSTRequest() {}
 POSTRequest &POSTRequest::operator=(const POSTRequest &other) {
 	if (this == &other)
 		return (*this);
+	_clientSocket = other._clientSocket;
+	_rawRequest = other._rawRequest;
+	_header = other._header;
+	_boundary = other._boundary;
+	_fileData = other._fileData;
+	_filename = other._filename;
 	return (*this);
 }
 
@@ -41,8 +47,9 @@ Response POSTRequest::handle() {
 	if (!file.is_open()) {
 		throw ARequest::ARequestException(NOT_FOUND);
 	}
-	response.setStatusCode(CREATED);
-	response.setContentType(getContentType(_header["Path"]));
+	response.setHeader("HTTP-Status-Code", toString(CREATED));
+	response.setHeader("HTTP-Status-Message", getHTTPErrorMessages(CREATED));
+	response.setHeader("Content-Type" ,getContentType(_header["Path"]));
 	response.setBody(readFile(file));
 	return (response);
 }

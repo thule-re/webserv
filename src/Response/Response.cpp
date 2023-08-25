@@ -37,14 +37,8 @@ Response &Response::operator=(const Response &other) {
 
 // member functions
 void Response::send() {
-	std::string response = _header + CRLF + _body;
+	std::string response = _header.exportHeader() + CRLF + _body;
 	::send(_clientSocket.getSocketFd(), response.c_str(), response.length(), 0);
-}
-
-void Response::setStatusCode(int statusCode) {
-	_statusCode = toString(statusCode);
-	_statusMessage = getHTTPErrorMessages(statusCode);
-	_header = std::string(HTTP_VERSION) + " " + _statusCode + " " + _statusMessage + CRLF;
 }
 
 void Response::setBody(const std::string &body) {
@@ -53,8 +47,9 @@ void Response::setBody(const std::string &body) {
 
 void Response::buildErrorPage(int statusCode) {
 	std::string path = _clientSocket.getErrorFolder() + "/error" + toString(statusCode) + ".html";
-	setStatusCode(statusCode);
-	setContentType("text/html");
+	_header["HTTP-Status-Code"] = toString(statusCode);
+	_header["HTTP-Status-Message"] = getHTTPErrorMessages(statusCode);
+	_header["Content-Type"] = "text/html";
 	std::ifstream file(path.c_str());
 	if (!file.is_open())
 		defaultErrorPage(statusCode);
@@ -71,13 +66,11 @@ void Response::defaultErrorPage(int statusCode) {
 	replaceAll(_body, "STATUS_MESSAGE", getHTTPErrorMessages(statusCode));
 }
 
-void Response::setContentType(const std::string &contentType) {
-	_contentType = contentType;
-	_header += "Content-Type: " + _contentType + CRLF;
-
+std::string Response::getRawResponse() {
+	return (_header.exportHeader() + CRLF + _body);
 }
 
-std::string Response::getRawResponse() const {
-	return (_header + CRLF + _body);
+void Response::setHeader(const std::string& key, const std::string& value) {
+	_header[key] = value;
 }
 

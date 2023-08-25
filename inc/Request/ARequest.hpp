@@ -16,7 +16,7 @@
 # include <string>
 # include <fstream>
 # include <exception>
-# include "Request/Header.hpp"
+# include "Header/RequestHeader.hpp"
 # include "Response/Response.hpp"
 # include "Socket/ClientSocket.hpp"
 # include "utils/utils.hpp"
@@ -44,7 +44,7 @@ protected:
 	// member variables
 	ClientSocket _clientSocket;
 	std::string _rawRequest;
-	Header _header;
+	RequestHeader _header;
 
 public:
 	// exceptions

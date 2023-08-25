@@ -24,6 +24,9 @@ GETRequest::~GETRequest() {}
 GETRequest &GETRequest::operator=(const GETRequest &other) {
 	if (this == &other)
 		return (*this);
+	_header = other._header;
+	_clientSocket = other._clientSocket;
+	_rawRequest = other._rawRequest;
 	return (*this);
 }
 
@@ -35,8 +38,7 @@ Response GETRequest::handle() {
 	if (!file.is_open()) {
 		throw ARequest::ARequestException(NOT_FOUND);
 	}
-	response.setStatusCode(OK);
-	response.setContentType(getContentType(_header["Path"]));
+	response.setHeader("Content-Type" ,getContentType(_header["Path"]));
 	response.setBody(readFile(file));
 	return (response);
 }

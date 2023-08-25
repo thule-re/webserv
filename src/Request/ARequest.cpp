@@ -19,7 +19,7 @@
 ARequest::ARequest() : _clientSocket() {}
 
 ARequest::ARequest(const ClientSocket& clientSocket): _clientSocket(clientSocket), _rawRequest(clientSocket.getRawRequest()) {
-	_header = Header(_rawRequest.substr(0, _rawRequest.find("\r\n\r\n")));
+	_header = RequestHeader(_rawRequest.substr(0, _rawRequest.find("\r\n\r\n")));
 	if (_header["Path"].find("..") != std::string::npos)
 		throw ARequest::ARequestException(FORBIDDEN);
 	else if (_header["Path"] == "/")
@@ -46,7 +46,7 @@ ARequest &ARequest::operator=(const ARequest &other) {
 
 ARequest *ARequest::newRequest(const ClientSocket &clientSocket) {
 	std::string request = clientSocket.getRawRequest();
-	Header header(request.substr(0, request.find(CRLF CRLF)));
+	RequestHeader header(request.substr(0, request.find(CRLF CRLF)));
 	if (header["Method"].empty() || header["Path"].empty() || header["HTTP-Version"].empty())
 		throw ARequest::ARequestException(BAD_REQUEST);
 	else if (clientSocket.getAllowedHTTPVersion() != header["HTTP-Version"])

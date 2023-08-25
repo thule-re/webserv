@@ -24,6 +24,9 @@ DELETERequest::~DELETERequest() {}
 DELETERequest &DELETERequest::operator=(const DELETERequest &other) {
 	if (this == &other)
 		return (*this);
+	_clientSocket = other._clientSocket;
+	_rawRequest = other._rawRequest;
+	_header = other._header;
 	return (*this);
 }
 
@@ -34,6 +37,7 @@ Response DELETERequest::handle() {
 	if (std::remove(_header["Path"].c_str()) != 0) {
 		throw ARequest::ARequestException(NOT_FOUND);
 	}
-	response.setStatusCode(NO_CONTENT);
+	response.setHeader("HTTP-Status-Code", toString(NO_CONTENT));
+	response.setHeader("HTTP-Status-Message", getHTTPErrorMessages(NO_CONTENT));
 	return (response);
 }

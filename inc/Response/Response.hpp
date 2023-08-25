@@ -17,6 +17,7 @@
 # include <sys/socket.h>
 # include <fstream>
 # include <exception>
+# include "Header/ResponseHeader.hpp"
 # include "Response/responseCodes.hpp"
 # include "Socket/ClientSocket.hpp"
 # include "utils/utils.hpp"
@@ -105,18 +106,18 @@ public:
 
 	// member functions
 	void send();
-	void setStatusCode(int statusCode);
+	void setHeader(const std::string& key, const std::string& value);
 	void setBody(const std::string &body);
 	void buildErrorPage(int statusCode);
-	void setContentType(const std::string &contentType);
 
-	std::string getRawResponse() const;
+	std::string getRawResponse();
+
 
 private:
 
 	// member variables
 	ClientSocket _clientSocket;
-	std::string _header;
+	ResponseHeader _header;
 	std::string	_contentType;
 	std::string _body;
 	std::string _statusCode;
