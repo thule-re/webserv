@@ -126,5 +126,4 @@ private:
 	void defaultErrorPage(int statusCode);
 };
 
-std::string getHTTPErrorMessages(int statusCode);
 #endif
