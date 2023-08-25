@@ -11,14 +11,25 @@
 /* ************************************************************************** */
 
 #include "Request/ARequest.hpp"
+#include "Request/DELETERequest.hpp"
 #include "Request/GETRequest.hpp"
 #include "Request/POSTRequest.hpp"
-#include "Request/DELETERequest.hpp"
 
 // constructor
 ARequest::ARequest() : _clientSocket() {}
-ARequest::ARequest(const ClientSocket& clientSocket): _clientSocket(clientSocket), _rawRequest(clientSocket.getRawRequest()) {}
-ARequest::ARequest(const ARequest &other): _clientSocket(other._clientSocket), _rawRequest(other._rawRequest) {}
+
+ARequest::ARequest(const ClientSocket& clientSocket): _clientSocket(clientSocket), _rawRequest(clientSocket.getRawRequest()) {
+	_header = Header(_rawRequest.substr(0, _rawRequest.find("\r\n\r\n")));
+	if (_header["Path"].find("..") != std::string::npos)
+		throw ARequest::ARequestException(FORBIDDEN);
+	else if (_header["Path"] == "/")
+		_header["Path"] += _clientSocket.getIndexFile();
+	_header["Path"] = _clientSocket.getRootFolder() + _header["Path"];
+}
+
+ARequest::ARequest(const ARequest &other) {
+	*this = other;
+}
 
 // destructor
 ARequest::~ARequest() {}
@@ -27,33 +38,29 @@ ARequest::~ARequest() {}
 ARequest &ARequest::operator=(const ARequest &other) {
 	if (this == &other)
 		return (*this);
+	_clientSocket = other._clientSocket;
+	_rawRequest = other._rawRequest;
+	_header = other._header;
 	return (*this);
-}
-
-std::string ARequest::_extractPath(int start) {
-	std::string path = _rawRequest.substr(start, _rawRequest.find(HTTP_VERSION) - (start + 1));
-	if (path.find("..") != std::string::npos) {
-		throw ARequest::ARequestException(FORBIDDEN);
-	}
-	if (path == "/")
-		path += _clientSocket.getIndexFile();
-	path = _clientSocket.getIndexFolder() + path;
-	return path;
 }
 
 ARequest *ARequest::newRequest(const ClientSocket &clientSocket) {
 	std::string request = clientSocket.getRawRequest();
-	std::string version = request.substr(request.find("HTTP/"), request.find("\r\n") - request.find("HTTP/"));
-	if (clientSocket.getAllowedHTTPVersion() != version)
+	Header header(request.substr(0, request.find(CRLF CRLF)));
+	if (header["Method"].empty() || header["Path"].empty() || header["HTTP-Version"].empty())
+		throw ARequest::ARequestException(BAD_REQUEST);
+	else if (clientSocket.getAllowedHTTPVersion() != header["HTTP-Version"])
 		throw ARequest::ARequestException(HTTP_VERSION_NOT_SUPPORTED);
-	else if (request.find("GET ") == 0)
+	else if (clientSocket.getAllowedMethods().find(header["Method"]) == std::string::npos)
+		throw ARequest::ARequestException(METHOD_NOT_ALLOWED);
+	else if (header["Method"] == "GET")
 		return (new GETRequest(clientSocket));
-	else if (request.find("POST ")  == 0)
+	else if (header["Method"] == "POST")
 		return (new POSTRequest(clientSocket));
-	else if (request.find("DELETE ") == 0)
+	else if (header["Method"] == "DELETE")
 		return (new DELETERequest(clientSocket));
 	else
-		throw ARequest::ARequestException(METHOD_NOT_ALLOWED);
+		throw ARequest::ARequestException(NOT_IMPLEMENTED);
 }
 // exceptions
 

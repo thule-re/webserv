@@ -14,9 +14,7 @@
 
 // constructors
 DELETERequest::DELETERequest() {}
-DELETERequest::DELETERequest(const ClientSocket& clientSocket) : ARequest(clientSocket) {
-	_method = "DELETE";
-}
+DELETERequest::DELETERequest(const ClientSocket& clientSocket) : ARequest(clientSocket) {}
 DELETERequest::DELETERequest(const DELETERequest &other): ARequest(other) {}
 
 // destructor
@@ -32,9 +30,8 @@ DELETERequest &DELETERequest::operator=(const DELETERequest &other) {
 Response DELETERequest::handle() {
 	Response response(_clientSocket);
 	std::cout << "DELETERequest::handle()" << std::endl;
-	std::string path = _extractPath(7); // 7 = length of "DELETE "
 
-	if (std::remove(path.c_str()) != 0) {
+	if (std::remove(_header["Path"].c_str()) != 0) {
 		throw ARequest::ARequestException(NOT_FOUND);
 	}
 	response.setStatusCode(NO_CONTENT);

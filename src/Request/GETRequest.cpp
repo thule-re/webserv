@@ -14,9 +14,7 @@
 
 // constructors
 GETRequest::GETRequest() {}
-GETRequest::GETRequest(const ClientSocket& clientSocket) : ARequest(clientSocket) {
-	_method = "GET";
-}
+GETRequest::GETRequest(const ClientSocket& clientSocket) : ARequest(clientSocket) {}
 GETRequest::GETRequest(const GETRequest &other): ARequest(other) {}
 
 // destructor
@@ -32,14 +30,13 @@ GETRequest &GETRequest::operator=(const GETRequest &other) {
 Response GETRequest::handle() {
 	Response response(_clientSocket);
 	std::cout << "GETRequest::handle()" << std::endl;
-	std::string path = _extractPath(4); // 4 = length of "GET "
 
-	std::ifstream file(path.c_str());
+	std::ifstream file(_header["Path"].c_str());
 	if (!file.is_open()) {
 		throw ARequest::ARequestException(NOT_FOUND);
 	}
 	response.setStatusCode(OK);
-	response.setContentType(getContentType(path));
+	response.setContentType(getContentType(_header["Path"]));
 	response.setBody(readFile(file));
 	return (response);
 }

@@ -14,9 +14,7 @@
 
 // constructors
 POSTRequest::POSTRequest() {}
-POSTRequest::POSTRequest(const ClientSocket& clientSocket) : ARequest(clientSocket) {
-	_method = "POST";
-}
+POSTRequest::POSTRequest(const ClientSocket& clientSocket) : ARequest(clientSocket) {}
 POSTRequest::POSTRequest(const POSTRequest &other): ARequest(other) {}
 
 // destructor
@@ -33,13 +31,19 @@ Response POSTRequest::handle() {
 	Response response(_clientSocket);
 	std::cout << "POSTRequest::handle()" << std::endl;
 
-	std::string path = _extractPath(5); // 5 = length of "POST "
+	std::cout << "_rawRequest: " << _rawRequest << std::endl;
 	_getBoundary();
 	_getFileData();
 	_getFilename();
 	_checkFilename();
 	_writeDataToOutfile();
+	std::ifstream file(_header["Path"].c_str());
+	if (!file.is_open()) {
+		throw ARequest::ARequestException(NOT_FOUND);
+	}
 	response.setStatusCode(CREATED);
+	response.setContentType(getContentType(_header["Path"]));
+	response.setBody(readFile(file));
 	return (response);
 }
 
@@ -50,7 +54,7 @@ void POSTRequest::_checkFilename()
 	} else if (_filename.find("..") != std::string::npos) {
 		throw ARequest::ARequestException(FORBIDDEN);
 	}
-	_filename = _clientSocket.getIndexFolder() + "/" + _clientSocket.getUploadFolder() + "/" + _filename;
+	_filename = _clientSocket.getRootFolder() + "/" + _clientSocket.getUploadFolder() + "/" + _filename;
 }
 
 void POSTRequest::_getBoundary()
