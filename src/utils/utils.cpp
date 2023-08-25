@@ -23,8 +23,10 @@ void replaceAll(std::string &str, const std::string &oldStr, const std::string &
 std::string readFile(std::ifstream &file) {
 	std::string content;
 	std::string line;
+	getline(file, line);
+	content += line;
 	while (getline(file, line))
-		content += line;
+		content += "\n" + line;
 	return (content);
 }
 
