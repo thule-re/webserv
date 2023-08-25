@@ -42,7 +42,7 @@ protected:
 
 	// member variables
 	const ClientSocket _clientSocket;
-	const std::string _rawRequest;
+	std::string _rawRequest;
 	std::string _method;
 
 	// protected member functions

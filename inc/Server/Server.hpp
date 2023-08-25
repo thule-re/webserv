@@ -3,10 +3,10 @@
 /*                                                        :::      ::::::::   */
 /*   Server.hpp                                         :+:      :+:    :+:   */
 /*                                                    +:+ +:+         +:+     */
-/*   By: treeps <treeps@student.42wolfsburg.de>     +#+  +:+       +#+        */
+/*   By: tony <tony@student.42.fr>                  +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2023/08/17 11:29:03 by treeps            #+#    #+#             */
-/*   Updated: 2023/08/17 11:29:03 by treeps           ###   ########.fr       */
+/*   Updated: 2023/08/25 14:19:36 by tony             ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -23,6 +23,7 @@
 # include <cstdio>
 # include <poll.h>
 # include <vector>
+# include <fcntl.h> 
 
 # include "Request/ARequest.hpp"
 # include "Response/Response.hpp"

@@ -3,10 +3,10 @@
 /*                                                        :::      ::::::::   */
 /*   Server.cpp                                         :+:      :+:    :+:   */
 /*                                                    +:+ +:+         +:+     */
-/*   By: treeps <treeps@student.42wolfsburg.de>     +#+  +:+       +#+        */
+/*   By: tony <tony@student.42.fr>                  +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2023/08/17 11:29:03 by treeps            #+#    #+#             */
-/*   Updated: 2023/08/17 11:29:03 by treeps           ###   ########.fr       */
+/*   Updated: 2023/08/25 14:18:50 by tony             ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -88,6 +88,7 @@ void Server::addServerSocketToPoll()
 {
 	pollfd serverSocket = {};
 
+	fcntl(serverSocket.fd, F_SETFL, O_NONBLOCK, FD_CLOEXEC);
 	serverSocket.fd = _serverSocket;
 	serverSocket.events = POLLIN;
 	_clientSockets.push_back(serverSocket);
@@ -129,6 +130,7 @@ void Server::addNewConnection()
 		}
 		clientSocket.events = POLLIN;
 		if (_clientSockets.size() < MAX_CLIENT_CONNECTIONS) {
+			fcntl(clientSocket.fd, F_SETFL, O_NONBLOCK, FD_CLOEXEC);
 			_clientSockets.push_back(clientSocket);
 		} else {
 			close(clientSocket.fd);

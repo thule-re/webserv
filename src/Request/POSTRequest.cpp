@@ -3,10 +3,10 @@
 /*                                                        :::      ::::::::   */
 /*   POSTRequest.cpp                                    :+:      :+:    :+:   */
 /*                                                    +:+ +:+         +:+     */
-/*   By: treeps <treeps@student.42wolfsburg.de>     +#+  +:+       +#+        */
+/*   By: tony <tony@student.42.fr>                  +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2023/08/21 16:11:41 by treeps            #+#    #+#             */
-/*   Updated: 2023/08/21 16:11:41 by treeps           ###   ########.fr       */
+/*   Updated: 2023/08/25 14:16:37 by tony             ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -29,17 +29,31 @@ POSTRequest &POSTRequest::operator=(const POSTRequest &other) {
 	return (*this);
 }
 
+bool POSTRequest::_secondBoundaryInRequest()
+{
+	ssize_t firstBoundary = _rawRequest.find(_boundary);
+	ssize_t lastBoundary = _rawRequest.find_last_of(_boundary);
+
+	if (firstBoundary == -1 || firstBoundary == lastBoundary)
+		return false;
+	else
+		return true;
+}
+
 Response POSTRequest::handle() {
 	Response response(_clientSocket);
 	std::cout << "POSTRequest::handle()" << std::endl;
 
 	std::string path = _extractPath(5); // 5 = length of "POST "
+
 	_getBoundary();
+	if (!_secondBoundaryInRequest())
+		_readMore();
 	_getFileData();
 	_getFilename();
 	_checkFilename();
 	_writeDataToOutfile();
-	response.setStatusCode(CREATED);
+	response.setStatusCode(OK);
 	return (response);
 }
 
@@ -79,6 +93,32 @@ void POSTRequest::_writeDataToOutfile()
 	outfile << _fileData << std::endl;
 	outfile.close();
 }
+
+void POSTRequest::_readMore()
+{
+	int clientSocket = _clientSocket.getSocketFd();
+	std::string body = "";
+	char buffer[1024];
+	int bytesRead;
+
+	while (true) {
+		bytesRead = recv(clientSocket, buffer, sizeof(buffer), 0);
+		if (bytesRead <= 0) {
+			break;
+		}
+		body.append(buffer, bytesRead);
+		size_t pos = body.find(_boundary);
+		if (pos != std::string::npos) {
+			std::string part = body.substr(0, pos);
+			body.erase(0, pos + _boundary.length());
+		}
+		if ((unsigned long)bytesRead < sizeof(buffer))
+			break;
+	}
+	std::cout << body << std::endl;
+	_rawRequest += body;
+}
+
 
 void POSTRequest::_getFilename()
 {
