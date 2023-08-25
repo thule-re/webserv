@@ -38,7 +38,7 @@ public:
 	std::string getAllowedMethods() const;
 	std::string getRawRequest() const;
 	std::string getIndexFile() const;
-	std::string getIndexFolder() const;
+	std::string getRootFolder() const;
 	std::string getErrorFolder() const;
 	std::string getCgiFolder() const;
 	std::string getUploadFolder() const;
@@ -65,7 +65,7 @@ private:
 	std::string	_allowedMethods;
 	std::string	_rawRequest;
 	std::string	_indexFile;
-	std::string	_indexFolder;
+	std::string	_rootFolder;
 	std::string	_errorFolder;
 	std::string	_cgiFolder;
 	std::string	_uploadFolder;

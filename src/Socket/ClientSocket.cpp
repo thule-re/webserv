@@ -27,7 +27,7 @@ ClientSocket &ClientSocket::operator=(const ClientSocket &other) {
 	if (this == &other)
 		return (*this);
 	_indexFile = other._indexFile;
-	_indexFolder = other._indexFolder;
+	_rootFolder = other._rootFolder;
 	_errorFolder = other._errorFolder;
 	_cgiFolder = other._cgiFolder;
 	_uploadFolder = other._uploadFolder;
@@ -56,8 +56,8 @@ std::string ClientSocket::getIndexFile() const {
 	return (_indexFile);
 }
 
-std::string ClientSocket::getIndexFolder() const {
-	return (_indexFolder);
+std::string ClientSocket::getRootFolder() const {
+	return (_rootFolder);
 }
 
 std::string ClientSocket::getErrorFolder() const {
@@ -94,7 +94,7 @@ void ClientSocket::setIndexFile(const std::string &indexFile) {
 }
 
 void ClientSocket::setIndexFolder(const std::string &indexFolder) {
-	_indexFolder = indexFolder;
+	_rootFolder = indexFolder;
 }
 
 void ClientSocket::setErrorFolder(const std::string &errorFolder) {
