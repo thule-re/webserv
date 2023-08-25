@@ -44,6 +44,7 @@ private:
 	void _getBoundary();
 	void _writeDataToOutfile();
 	void _checkFilename();
+	void _extractMultipartFormData();
 };
 
 #endif

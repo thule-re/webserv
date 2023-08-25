@@ -37,20 +37,14 @@ Response POSTRequest::handle() {
 	Response response(_clientSocket);
 	std::cout << "POSTRequest::handle()" << std::endl;
 
-	std::cout << "_rawRequest: " << _rawRequest << std::endl;
 	_getBoundary();
-	_getFileData();
+	_extractMultipartFormData();
 	_getFilename();
 	_checkFilename();
+	_getFileData();
 	_writeDataToOutfile();
-	std::ifstream file(_header["Path"].c_str());
-	if (!file.is_open()) {
-		throw ARequest::ARequestException(NOT_FOUND);
-	}
 	response.setHeader("HTTP-Status-Code", toString(CREATED));
 	response.setHeader("HTTP-Status-Message", getHTTPErrorMessages(CREATED));
-	response.setHeader("Content-Type" ,getContentType(_header["Path"]));
-	response.setBody(readFile(file));
 	return (response);
 }
 
@@ -72,6 +66,31 @@ void POSTRequest::_getBoundary()
 	_boundary = _boundary.substr(0, newlinePos);
 }
 
+void POSTRequest::_extractMultipartFormData()
+{
+	int clientSocket = _clientSocket.getSocketFd();
+	std::string body;
+	char buffer[BUFFER_SIZE];
+	int bytesRead;
+
+	while (true) {
+		bytesRead = recv(clientSocket, buffer, BUFFER_SIZE, 0);
+		if (bytesRead <= 0) {
+			break;
+		}
+		body.append(buffer, bytesRead);
+		size_t pos = body.find(_boundary);
+		if (pos != std::string::npos) {
+			std::string part = body.substr(0, pos);
+			body.erase(0, pos + _boundary.length());
+		}
+		if ((unsigned long)bytesRead < sizeof(buffer))
+			break;
+	}
+	if (!body.empty())
+		_rawRequest = body;
+}
+
 void POSTRequest::_getFileData()
 {
 	size_t contentStart = _rawRequest.find("\r\n\r\n") + 4;
@@ -86,6 +105,7 @@ void POSTRequest::_writeDataToOutfile()
 
 	if (!outfile.is_open()) {
 		std::cerr << "Error opening file: " << _filename << std::endl;
+		throw ARequest::ARequestException(INTERNAL_SERVER_ERROR);
 	}
 	outfile << _fileData << std::endl;
 	outfile.close();
@@ -103,4 +123,6 @@ void POSTRequest::_getFilename()
 			_filename = _rawRequest.substr(filenamePos, filenameEndPos - filenamePos);
 		}
 	}
+	if (_filename.empty())
+		throw ARequest::ARequestException(BAD_REQUEST);
 }
