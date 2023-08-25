@@ -1,7 +1,7 @@
 /* ************************************************************************** */
 /*                                                                            */
 /*                                                        :::      ::::::::   */
-/*   Header.cpp                                         :+:      :+:    :+:   */
+/*   RequestHeader.cpp                                  :+:      :+:    :+:   */
 /*                                                    +:+ +:+         +:+     */
 /*   By: treeps <treeps@student.42wolfsburg.de>     +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
@@ -10,24 +10,24 @@
 /*                                                                            */
 /* ************************************************************************** */
 
-#include "Request/Header.hpp"
+#include "Header/RequestHeader.hpp"
 
 // constructors
-Header::Header(): _rawHeader(""), _headerMap() {}
+RequestHeader::RequestHeader(): AHeader() {}
 
-Header::Header(const std::string &rawHeader): _rawHeader(rawHeader), _headerMap() {
+RequestHeader::RequestHeader(const std::string &rawHeader): AHeader(rawHeader) {
 	_parseHeader();
 }
 
-Header::Header(const Header &other) {
+RequestHeader::RequestHeader(const RequestHeader &other): AHeader(other) {
 	*this = other;
 }
 
 // destructor
-Header::~Header() {}
+RequestHeader::~RequestHeader() {}
 
 // operator overload
-Header &Header::operator=(const Header &other) {
+RequestHeader &RequestHeader::operator=(const RequestHeader &other) {
 	if (this == &other)
 		return (*this);
 	_rawHeader = other._rawHeader;
@@ -35,16 +35,27 @@ Header &Header::operator=(const Header &other) {
 	return (*this);
 }
 
-std::string &Header::operator[](const std::string &key) {
-	return (_headerMap[key]);
-}
-
 // member functions
-std::string Header::getHeader(const std::string &key) {
-	return (_headerMap[key]);
+
+std::string RequestHeader::exportHeader() {
+	std::string header;
+	std::map<std::string, std::string>::iterator it;
+	header = _headerMap["Method"] + " " + _headerMap["Path"] + " " + _headerMap["HTTP-Version"] + "\r\n";
+	it = _headerMap.begin();
+	if (it->first != "Method" && it->first != "Path" && it->first != "HTTP-Version") {
+		header += it->first + ": " + it->second + "\r\n";
+	}
+	while (++it != _headerMap.end()) {
+		if (it->first == "Method" || it->first == "Path" || it->first == "HTTP-Version") {
+			continue;
+		}
+		header += it->first + ": " + it->second + "\r\n";
+	}
+	header += "\r\n";
+	return (header);
 }
 
-void Header::_parseHeader() {
+void RequestHeader::_parseHeader() {
 	std::string line;
 	std::istringstream iss(_rawHeader);
 
@@ -55,7 +66,7 @@ void Header::_parseHeader() {
 	}
 }
 
-void Header::_parseLine(const std::string &line) {
+void RequestHeader::_parseLine(const std::string &line) {
 	std::string key;
 	std::string value;
 	size_t pos = line.find(':');
@@ -66,7 +77,7 @@ void Header::_parseLine(const std::string &line) {
 	}
 }
 
-void Header::_parseFirstLine(std::string &line) {
+void RequestHeader::_parseFirstLine(std::string &line) {
 	size_t pos = line.find(' ');
 	if (pos != std::string::npos) {
 		_headerMap["Method"] = line.substr(0, pos);
@@ -75,7 +86,7 @@ void Header::_parseFirstLine(std::string &line) {
 		if (pos != std::string::npos) {
 			_headerMap["Path"] = line.substr(0, pos);
 			line = line.substr(pos + 1);
-			_headerMap["HTTP-Version"] = line.substr(0,  line.find('\r'));
+			_headerMap["HTTP-Version"] = line.substr(0,line.find('\r'));
 		}
 	}
 }

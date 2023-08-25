@@ -1,17 +1,17 @@
 /* ************************************************************************** */
 /*                                                                            */
 /*                                                        :::      ::::::::   */
-/*   Header.hpp                                         :+:      :+:    :+:   */
+/*   AHeader.hpp                                        :+:      :+:    :+:   */
 /*                                                    +:+ +:+         +:+     */
 /*   By: treeps <treeps@student.42wolfsburg.de>     +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
-/*   Created: 2023/08/25 10:32:43 by treeps            #+#    #+#             */
-/*   Updated: 2023/08/25 10:32:43 by treeps           ###   ########.fr       */
+/*   Created: 2023/08/25 14:01:01 by treeps            #+#    #+#             */
+/*   Updated: 2023/08/25 14:01:01 by treeps           ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
-#ifndef WEBSERV_HEADER_HPP
-# define WEBSERV_HEADER_HPP
+#ifndef WEBSERV_AHEADER_HPP
+# define WEBSERV_AHEADER_HPP
 
 # include <string>
 # include <sstream>
@@ -19,32 +19,27 @@
 # include <map>
 # include "utils/utils.hpp"
 
-class Header {
+class AHeader {
 public:
 	// constructors
-	Header();
-	Header(const std::string &rawHeader);
-	Header(const Header &);
+	AHeader();
+	AHeader(const std::string &rawHeader);
+	AHeader(const AHeader &);
 
 	// destructor
-	~Header();
+	~AHeader();
 
 	// operator overload
-	Header &operator=(const Header &);
+	AHeader &operator=(const AHeader &);
 	std::string &operator[](const std::string &key);
 
 	// member functions
-	std::string getHeader(const std::string &key);
+	virtual std::string exportHeader() = 0;
 
-private:
+protected:
 	// member variables
 	std::string _rawHeader;
 	std::map<std::string, std::string> _headerMap;
-
-	// member functions
-	void _parseHeader();
-	void _parseLine(const std::string &line);
-	void _parseFirstLine(std::string &line);
 };
 
 #endif

@@ -13,6 +13,7 @@ INC_DIR		=	./inc
 OBJ_DIR		=	./obj
 OBJ_DIRS	=	./obj \
 				./obj/main \
+				./obj/Header \
 				./obj/Request \
 				./obj/Response \
 				./obj/Server \
@@ -20,20 +21,23 @@ OBJ_DIRS	=	./obj \
 				./obj/utils \
 
 FILES 		=	main/main \
+				Header/AHeader \
+				Header/RequestHeader \
+				Header/ResponseHeader \
 				Request/ARequest \
 				Request/DELETERequest \
 				Request/GETRequest \
-				Request/Header \
 				Request/POSTRequest \
 				Response/Response \
 				Server/Server \
 				Socket/ClientSocket \
 				utils/utils \
 
-HEADER		=	Request/ARequest \
+HEADER		=	Header/AHeader \
+				Header/RequestHeader \
+				Header/ResponseHeader \
 				Request/DELETERequest \
 				Request/GETRequest \
-				Request/Header \
 				Request/POSTRequest \
 				Response/Response \
 				Response/responseCodes \
