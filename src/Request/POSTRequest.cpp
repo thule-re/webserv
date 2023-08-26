@@ -6,7 +6,7 @@
 /*   By: tony <tony@student.42.fr>                  +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2023/08/21 16:11:41 by treeps            #+#    #+#             */
-/*   Updated: 2023/08/25 14:16:37 by tony             ###   ########.fr       */
+/*   Updated: 2023/08/26 13:53:48 by tony             ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -42,13 +42,17 @@ bool POSTRequest::_secondBoundaryInRequest()
 
 Response POSTRequest::handle() {
 	Response response(_clientSocket);
-	std::cout << "POSTRequest::handle()" << std::endl;
+	std::cerr << "POSTRequest::handle()" << std::endl;
 
 	std::string path = _extractPath(5); // 5 = length of "POST "
 
 	_getBoundary();
+	if (_getContentLength() > MAX_FILE_SIZE)
+		throw ARequest::ARequestException(REQUEST_ENTITY_TOO_LARGE);
 	if (!_secondBoundaryInRequest())
+	{
 		_readMore();
+	}
 	_getFileData();
 	_getFilename();
 	_checkFilename();
@@ -56,6 +60,18 @@ Response POSTRequest::handle() {
 	response.setStatusCode(OK);
 	return (response);
 }
+
+size_t POSTRequest::_getContentLength()
+{
+	std::string contentLength;
+	
+	contentLength = _rawRequest.substr(_rawRequest.find("Content-Length:") + 16);
+	size_t newlinePos = contentLength.find('\n');
+	contentLength = contentLength.substr(0, newlinePos);
+
+	return atoi(contentLength.c_str());
+}
+
 
 void POSTRequest::_checkFilename()
 {
@@ -77,7 +93,8 @@ void POSTRequest::_getBoundary()
 
 void POSTRequest::_getFileData()
 {
-	size_t contentStart = _rawRequest.find("\r\n\r\n") + 4;
+	size_t contentStart = _rawRequest.find("\r\n\r\n");
+	contentStart = _rawRequest.find("\r\n\r\n",contentStart + 5) + 4;
 	size_t contentEnd = _rawRequest.find_last_of(_boundary) - _boundary.length() - 4;
 
 	_fileData = _rawRequest.substr(contentStart, contentEnd - contentStart);
@@ -115,7 +132,6 @@ void POSTRequest::_readMore()
 		if ((unsigned long)bytesRead < sizeof(buffer))
 			break;
 	}
-	std::cout << body << std::endl;
 	_rawRequest += body;
 }
 

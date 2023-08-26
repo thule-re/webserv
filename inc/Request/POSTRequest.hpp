@@ -6,7 +6,7 @@
 /*   By: tony <tony@student.42.fr>                  +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2023/08/21 16:11:41 by treeps            #+#    #+#             */
-/*   Updated: 2023/08/25 14:07:02 by tony             ###   ########.fr       */
+/*   Updated: 2023/08/26 13:54:37 by tony             ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -19,6 +19,7 @@
 
 # include "ARequest.hpp"
 # define BUFFER_SIZE 1024
+# define MAX_FILE_SIZE 2000000
 
 class POSTRequest: public ARequest {
 public:
@@ -48,6 +49,7 @@ private:
 	void _writeDataToOutfile();
 	void _checkFilename();
 	void _readMore();
+	size_t _getContentLength();
 
 	bool _secondBoundaryInRequest();
 };
