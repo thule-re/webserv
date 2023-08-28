@@ -50,7 +50,6 @@ void	Server::init() {
 	setServerSocketOptions(&serverAddress);
 	bindServerSocket(serverAddress);
 	listenOnServerSocket();
-	addServerSocketToSelect();
 
 	std::cout << "Server listening on port " << _port << std::endl;
 }
@@ -87,11 +86,6 @@ void Server::listenOnServerSocket() {
 		std::cerr << "Error listening on socket" << std::endl;
 		exit(1);
 	}
-}
-
-void Server::addServerSocketToSelect()
-{
-	_clientSockets.push_back(_serverSocket);
 }
 
 void	Server::loop() {
@@ -156,7 +150,7 @@ void Server::addNewConnection()
 
 void Server::handleAnyNewRequests()
 {
-	for (size_t i = 0; i < _clientSockets.size(); i++) {
+	for (size_t i = 1; i < _clientSockets.size(); i++) {
 		if (FD_ISSET(_clientSockets[i], &_readSet)) {
 			int clientSocket = _clientSockets[i];
 			if (clientSocket != -1) {
