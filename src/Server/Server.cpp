@@ -116,11 +116,11 @@ void Server::pollThroughClientSockets()
 	}
 
 	struct timeval timeout;  // Optional: Set a timeout value for select
-	timeout.tv_sec = 0;
-	timeout.tv_usec = 500000;  // 500 milliseconds
+	timeout.tv_sec = 1;
+	timeout.tv_usec = 0;  // 500 milliseconds
 
 	int selectResult = select(maxFd + 1, &_readSet, NULL, NULL, &timeout);
-	std::cout << "Select result : " << selectResult << std::endl;
+//	std::cout << "Select result : " << selectResult << std::endl;
 
 	if (selectResult == -1) {
 		std::cerr << "Error in select" << std::endl;
@@ -131,7 +131,7 @@ void Server::pollThroughClientSockets()
 void Server::addNewConnection()
 {
 	if (FD_ISSET(_serverSocket, &_readSet)) {
-		std::cout << "Listen for new connections" << std::endl;
+//		std::cout << "Listen for new connections" << std::endl;
 		int clientSocket = accept(_serverSocket, NULL, NULL);
 		if (clientSocket < 0) {
 			std::cerr << "Error accepting connection" << std::endl;
@@ -139,7 +139,7 @@ void Server::addNewConnection()
 			if (_clientSockets.size() < MAX_CLIENT_CONNECTIONS) {
 				fcntl(clientSocket, F_SETFL, O_NONBLOCK, FD_CLOEXEC);
 				_clientSockets.push_back(clientSocket);
-				std::cout << "New client connected: " << clientSocket << std::endl;
+//				std::cout << "New client connected: " << clientSocket << std::endl;
 			} else {
 				close(clientSocket);
 				std::cerr << "Connection limit reached. Closing the connection." << std::endl;
@@ -154,7 +154,7 @@ void Server::handleAnyNewRequests()
 		if (FD_ISSET(_clientSockets[i], &_readSet)) {
 			int clientSocket = _clientSockets[i];
 			if (clientSocket != -1) {
-				std::cout << "Handling request..." << std::endl;
+//				std::cout << "Handling request..." << std::endl;
 				handleRequest(clientSocket);
 				removeSocket(i);
 			}
@@ -195,6 +195,7 @@ void Server::handleRequest(int clientSocket) {
 	}
 	delete request;
 	response.send();
+	FD_CLR(clientSocket, &_readSet);
 	client.closeSocket();
 }
 
