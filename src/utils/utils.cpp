@@ -26,7 +26,7 @@ std::string readFile(std::ifstream &file) {
 	getline(file, line);
 	content += line;
 	while (getline(file, line))
-		content += "\n" + line;
+		content += "\r\n" + line;
 	return (content);
 }
 
@@ -61,42 +61,42 @@ std::string getContentType(const std::string& path) {
 
 std::string getHTTPErrorMessages(int statusCode) {
 	switch (statusCode) {
-		case 200: return MSG_200;
-		case 201: return MSG_201;
-		case 202: return MSG_202;
-		case 204: return MSG_204;
-		case 206: return MSG_206;
-		case 300: return MSG_300;
-		case 301: return MSG_301;
-		case 302: return MSG_302;
-		case 303: return MSG_303;
-		case 304: return MSG_304;
-		case 305: return MSG_305;
-		case 307: return MSG_307;
-		case 400: return MSG_400;
-		case 401: return MSG_401;
-		case 402: return MSG_402;
-		case 403: return MSG_403;
-		case 404: return MSG_404;
-		case 405: return MSG_405;
-		case 406: return MSG_406;
-		case 407: return MSG_407;
-		case 408: return MSG_408;
-		case 409: return MSG_409;
-		case 410: return MSG_410;
-		case 411: return MSG_411;
-		case 412: return MSG_412;
-		case 413: return MSG_413;
-		case 414: return MSG_414;
-		case 415: return MSG_415;
-		case 416: return MSG_416;
-		case 417: return MSG_417;
-		case 500: return MSG_500;
-		case 501: return MSG_501;
-		case 502: return MSG_502;
-		case 503: return MSG_503;
-		case 504: return MSG_504;
-		case 505: return MSG_505;
+		case OK:								return MSG_200;
+		case CREATED:							return MSG_201;
+		case ACCEPTED:							return MSG_202;
+		case NO_CONTENT:						return MSG_204;
+		case PARTIAL_CONTENT:					return MSG_206;
+		case MULTIPLE_CHOICES:					return MSG_300;
+		case MOVED_PERMANENTLY:					return MSG_301;
+		case FOUND:								return MSG_302;
+		case SEE_OTHER:							return MSG_303;
+		case NOT_MODIFIED:						return MSG_304;
+		case USE_PROXY:							return MSG_305;
+		case TEMPORARY_REDIRECT:				return MSG_307;
+		case BAD_REQUEST:						return MSG_400;
+		case UNAUTHORIZED:						return MSG_401;
+		case PAYMENT_REQUIRED:					return MSG_402;
+		case FORBIDDEN:							return MSG_403;
+		case NOT_FOUND:							return MSG_404;
+		case METHOD_NOT_ALLOWED:				return MSG_405;
+		case NOT_ACCEPTABLE:					return MSG_406;
+		case PROXY_AUTHENTICATION_REQUIRED:		return MSG_407;
+		case REQUEST_TIMEOUT:					return MSG_408;
+		case CONFLICT:							return MSG_409;
+		case GONE:								return MSG_410;
+		case LENGTH_REQUIRED:					return MSG_411;
+		case PRECONDITION_FAILED:				return MSG_412;
+		case REQUEST_ENTITY_TOO_LARGE:			return MSG_413;
+		case REQUEST_URI_TOO_LONG:				return MSG_414;
+		case UNSUPPORTED_MEDIA_TYPE:			return MSG_415;
+		case REQUESTED_RANGE_NOT_SATISFIABLE:	return MSG_416;
+		case EXPECTATION_FAILED:				return MSG_417;
+		case INTERNAL_SERVER_ERROR:				return MSG_500;
+		case NOT_IMPLEMENTED:					return MSG_501;
+		case BAD_GATEWAY:						return MSG_502;
+		case SERVICE_UNAVAILABLE:				return MSG_503;
+		case GATEWAY_TIMEOUT:					return MSG_504;
+		case HTTP_VERSION_NOT_SUPPORTED:		return MSG_505;
 		default: return "Unknown HTTP Error";
 	}
 }
