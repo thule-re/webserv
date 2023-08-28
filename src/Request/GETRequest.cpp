@@ -31,7 +31,7 @@ GETRequest &GETRequest::operator=(const GETRequest &other) {
 
 Response GETRequest::handle() {
 	Response response(_clientSocket);
-	std::cout << "GETRequest::handle()" << std::endl;
+//	std::cout << "GETRequest::handle()" << std::endl;
 	std::string path = _extractPath(4); // 4 = length of "GET "
 
 	std::ifstream file(path.c_str());
