@@ -49,6 +49,7 @@
 # define UNSUPPORTED_MEDIA_TYPE 415
 # define REQUESTED_RANGE_NOT_SATISFIABLE 416
 # define EXPECTATION_FAILED 417
+# define IM_A_TEAPOT 418
 
 // 5xx Server Error
 # define INTERNAL_SERVER_ERROR 500
@@ -94,6 +95,7 @@
 # define MSG_415 "Unsupported Media Type"
 # define MSG_416 "Requested Range Not Satisfiable"
 # define MSG_417 "Expectation Failed"
+# define MSG_418 "I'm a teapot"
 
 // 5xx Server Error
 # define MSG_500 "Internal Server Error"

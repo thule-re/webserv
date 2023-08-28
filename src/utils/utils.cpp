@@ -91,6 +91,7 @@ std::string getHTTPErrorMessages(int statusCode) {
 		case UNSUPPORTED_MEDIA_TYPE:			return MSG_415;
 		case REQUESTED_RANGE_NOT_SATISFIABLE:	return MSG_416;
 		case EXPECTATION_FAILED:				return MSG_417;
+		case IM_A_TEAPOT:						return MSG_418;
 		case INTERNAL_SERVER_ERROR:				return MSG_500;
 		case NOT_IMPLEMENTED:					return MSG_501;
 		case BAD_GATEWAY:						return MSG_502;
