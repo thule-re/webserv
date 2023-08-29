@@ -26,6 +26,7 @@ ClientSocket::~ClientSocket() {}
 ClientSocket &ClientSocket::operator=(const ClientSocket &other) {
 	if (this == &other)
 		return (*this);
+    _socketFd = other.getSocketFd();
 	_indexFile = other._indexFile;
 	_indexFolder = other._indexFolder;
 	_errorFolder = other._errorFolder;
