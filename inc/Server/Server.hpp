@@ -53,7 +53,7 @@ public:
 
 private:
 	// member functions
-	void handleRequest(int clientSocket);
+	void setupClient(int clientSocket);
 	void removeSocket(size_t i);
 	void addServerSocketToSelect();
 	void pollThroughClientSockets();

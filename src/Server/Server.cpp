@@ -86,7 +86,7 @@ void Server::bindServerSocket(sockaddr_in serverAddress) {
 }
 
 void Server::listenOnServerSocket() {
-	if (listen(_serverSocket, 10) < 0) {
+	if (listen(_serverSocket, MAX_CLIENT_CONNECTIONS) < 0) {
 		std::cerr << "Error listening on socket" << std::endl;
 		exit(1);
 	}
@@ -102,7 +102,7 @@ void	Server::loop() {
                     if (i == _serverSocket)
                         addNewConnection();
                     else
-                        handleRequest(i);
+                        setupClient(i);
                 }
                 if (FD_ISSET(i, &_writeSetCopy))
                     buildResponse(i);
@@ -120,11 +120,12 @@ void Server::pollThroughClientSockets()
     _readSetCopy = _readSet;
     _writeSetCopy = _writeSet;
 
-	struct timeval timeout;  // Optional: Set a timeout value for select
+	struct timeval timeout;
 	timeout.tv_sec = 1;
-	timeout.tv_usec = 0;  // 500 milliseconds
+	timeout.tv_usec = 0;
 
 	int selectResult = select(_maxFd + 1, &_readSetCopy, &_writeSetCopy, NULL, &timeout);
+
 //	std::cout << "Select result : " << selectResult << std::endl;
 
 	if (selectResult == -1) {
@@ -135,28 +136,27 @@ void Server::pollThroughClientSockets()
 
 void Server::addNewConnection()
 {
-		int clientSocket = accept(_serverSocket, NULL, NULL);
-        if (clientSocket > _maxFd)
-            _maxFd = clientSocket;
-		if (clientSocket < 0) {
-			std::cerr << "Error accepting connection" << std::endl;
-		}
-        else
-        {
-            fcntl(clientSocket, F_SETFL, O_NONBLOCK, FD_CLOEXEC);
-//            std::cerr << "Adding new connection: " << clientSocket << std::endl;
-            FD_SET(clientSocket, &_readSet);
-        }
+    int clientSocket = accept(_serverSocket, NULL, NULL);
+    if (clientSocket > _maxFd)
+        _maxFd = clientSocket;
+    if (clientSocket < 0) {
+        std::cerr << "Error accepting connection" << std::endl;
+    }
+    else
+    {
+        fcntl(clientSocket, F_SETFL, O_NONBLOCK, FD_CLOEXEC);
+        FD_SET(clientSocket, &_readSet);
+    }
 
-		ClientSocket newClient(clientSocket);
+    ClientSocket newClient(clientSocket);
 
+    if (_clientsMap.count(clientSocket) != 0)
+        _clientsMap.erase(clientSocket);
 
-        if (_clientsMap.count(clientSocket) != 0)
-            _clientsMap.erase(clientSocket);
-        _clientsMap[clientSocket] = newClient;
+    _clientsMap[clientSocket] = newClient;
 }
 
-void Server::handleRequest(int clientSocket) {
+void Server::setupClient(int clientSocket) {
     _clientsMap[clientSocket].setAllowedHTTPVersion(HTTP_VERSION);
     _clientsMap[clientSocket].addToAllowedMethods(METHOD_GET);
     _clientsMap[clientSocket].addToAllowedMethods(METHOD_POST);
