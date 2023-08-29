@@ -106,6 +106,12 @@ void	Server::loop() {
                 }
                 if (FD_ISSET(i, &_writeSetCopy))
                     buildResponse(i);
+                if (_clientsMap.count(i)
+                        && difftime(std::time(nullptr), _clientsMap[i].getConnectionTime()) > 5)
+                {
+                    std::cerr << "Time out" << std::endl;
+                    closeConnection(i);
+                }
             }
 		}
 		catch (std::exception &e) {
@@ -154,6 +160,7 @@ void Server::addNewConnection()
         _clientsMap.erase(clientSocket);
 
     _clientsMap[clientSocket] = newClient;
+    _clientsMap[clientSocket].setConnectionTime(std::time(nullptr));
 }
 
 void Server::setupClient(int clientSocket) {
@@ -190,6 +197,16 @@ void Server::buildResponse(int clientSocket)
 	delete request;
     response.send();
     FD_CLR(clientSocket, &_writeSet);
+    _clientsMap[clientSocket].closeSocket();
+    _clientsMap.erase(clientSocket);
+}
+
+void Server::closeConnection(int clientSocket)
+{
+    if (FD_ISSET(clientSocket, &_readSet))
+        FD_CLR(clientSocket, &_readSet);
+    if (FD_ISSET(clientSocket, &_writeSet))
+        FD_CLR(clientSocket, &_writeSet);
     _clientsMap[clientSocket].closeSocket();
     _clientsMap.erase(clientSocket);
 }

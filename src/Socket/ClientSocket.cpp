@@ -33,6 +33,7 @@ ClientSocket &ClientSocket::operator=(const ClientSocket &other) {
 	_cgiFolder = other._cgiFolder;
 	_uploadFolder = other._uploadFolder;
 	_serverName = other._serverName;
+    _connectionTime = other._connectionTime;
 	return (*this);
 }
 
@@ -77,6 +78,11 @@ std::string ClientSocket::getServerName() const {
 	return (_serverName);
 }
 
+time_t ClientSocket::getConnectionTime() const {
+    return _connectionTime;
+}
+
+
 // setters
 void ClientSocket::setAllowedHTTPVersion(const std::string &allowedHTTPVersion) {
 	_allowedHTTPVersion = allowedHTTPVersion;
@@ -114,6 +120,10 @@ void ClientSocket::setServerName(const std::string &serverName) {
 	_serverName = serverName;
 }
 
+void ClientSocket::setConnectionTime(const time_t &connectionTime) {
+    _connectionTime = connectionTime;
+}
+
 // member functions
 void ClientSocket::closeSocket() const {
 	close(_socketFd);
@@ -139,3 +149,4 @@ std::string ClientSocket::readRequest() {
 	_rawRequest = stringBuffer;
 	return (stringBuffer);
 }
+

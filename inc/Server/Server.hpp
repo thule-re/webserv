@@ -26,6 +26,8 @@
 # include <sys/select.h>
 # include <sys/time.h>
 # include <map>
+# include <ctime>
+
 
 # include "Request/ARequest.hpp"
 # include "Response/Response.hpp"
@@ -82,6 +84,8 @@ private:
     std::map<int, ClientSocket> _clientsMap;
 
     void buildResponse(int clientSocket);
+
+    void closeConnection(int clientSocket);
 };
 
 #endif
