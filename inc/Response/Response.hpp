@@ -107,6 +107,7 @@ public:
 	// member functions
 	void send();
 	void setHeader(const std::string& key, const std::string& value);
+	void setHeader(const ResponseHeader &header);
 	void setBody(const std::string &body);
 	void buildErrorPage(int statusCode);
 

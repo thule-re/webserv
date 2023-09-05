@@ -74,3 +74,6 @@ void Response::setHeader(const std::string& key, const std::string& value) {
 	_header[key] = value;
 }
 
+void Response::setHeader(const ResponseHeader &header) {
+	_header = header;
+}
