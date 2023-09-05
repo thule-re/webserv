@@ -25,6 +25,7 @@ FILES 		=	main/main \
 				Header/RequestHeader \
 				Header/ResponseHeader \
 				Request/ARequest \
+				Request/CgiRequest \
 				Request/DELETERequest \
 				Request/GETRequest \
 				Request/POSTRequest \
@@ -36,6 +37,8 @@ FILES 		=	main/main \
 HEADER		=	Header/AHeader \
 				Header/RequestHeader \
 				Header/ResponseHeader \
+				Request/ARequest \
+				Request/CgiRequest \
 				Request/DELETERequest \
 				Request/GETRequest \
 				Request/POSTRequest \

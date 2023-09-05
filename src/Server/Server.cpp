@@ -166,6 +166,7 @@ void Server::handleRequest(int clientSocket) {
 	client.setIndexFile(_indexPath);
 	client.setIndexFolder(_root);
 	client.setErrorFolder(_errorPath);
+	client.setCgiFolder("cgi-bin");
 	client.setUploadFolder("upload");
 
 	client.readRequest();

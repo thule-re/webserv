@@ -46,6 +46,11 @@ protected:
 	std::string _rawRequest;
 	RequestHeader _header;
 
+private:
+	// member functions
+	static bool _isCgiPath(const ClientSocket& clientSocket, const std::string& path);
+	void _expandPath();
+
 public:
 	// exceptions
 	class ARequestException: public std::exception {

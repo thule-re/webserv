@@ -1,7 +1,7 @@
 /* ************************************************************************** */
 /*                                                                            */
 /*                                                        :::      ::::::::   */
-/*   ARequest.cpp                                        :+:      :+:    :+:   */
+/*   ARequest.cpp                                       :+:      :+:    :+:   */
 /*                                                    +:+ +:+         +:+     */
 /*   By: treeps <treeps@student.42wolfsburg.de>     +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
@@ -11,6 +11,7 @@
 /* ************************************************************************** */
 
 #include "Request/ARequest.hpp"
+#include "Request/CgiRequest.hpp"
 #include "Request/DELETERequest.hpp"
 #include "Request/GETRequest.hpp"
 #include "Request/POSTRequest.hpp"
@@ -22,9 +23,7 @@ ARequest::ARequest(const ClientSocket& clientSocket): _clientSocket(clientSocket
 	_header = RequestHeader(_rawRequest.substr(0, _rawRequest.find("\r\n\r\n")));
 	if (_header["Path"].find("..") != std::string::npos)
 		throw ARequest::ARequestException(FORBIDDEN);
-	else if (_header["Path"] == "/")
-		_header["Path"] += _clientSocket.getIndexFile();
-	_header["Path"] = _clientSocket.getRootFolder() + _header["Path"];
+	_expandPath();
 }
 
 ARequest::ARequest(const ARequest &other) {
@@ -44,6 +43,7 @@ ARequest &ARequest::operator=(const ARequest &other) {
 	return (*this);
 }
 
+// member functions
 ARequest *ARequest::newRequest(const ClientSocket &clientSocket) {
 	std::string request = clientSocket.getRawRequest();
 	RequestHeader header(request.substr(0, request.find(CRLF CRLF)));
@@ -53,6 +53,8 @@ ARequest *ARequest::newRequest(const ClientSocket &clientSocket) {
 		throw ARequest::ARequestException(HTTP_VERSION_NOT_SUPPORTED);
 	else if (clientSocket.getAllowedMethods().find(header["Method"]) == std::string::npos)
 		throw ARequest::ARequestException(METHOD_NOT_ALLOWED);
+	else if (_isCgiPath(clientSocket, header["Path"]))
+		return (new CgiRequest(clientSocket));
 	else if (header["Method"] == "GET")
 		return (new GETRequest(clientSocket));
 	else if (header["Method"] == "POST")
@@ -62,6 +64,23 @@ ARequest *ARequest::newRequest(const ClientSocket &clientSocket) {
 	else
 		throw ARequest::ARequestException(NOT_IMPLEMENTED);
 }
+
+// private member functions
+bool ARequest::_isCgiPath(const ClientSocket &clientSocket, const std::string &path) {
+	if (path.find("/" + clientSocket.getCgiFolder()) == 0)
+		return (true);
+	return (false);
+}
+
+void ARequest::_expandPath() {
+	std::string path = _header["Path"];
+	if (path.find(_clientSocket.getRootFolder()) == std::string::npos)
+		path = _clientSocket.getRootFolder() + path;
+	if (path[path.length() - 1] == '/')
+		path += _clientSocket.getIndexFile();
+	_header["Path"] = path;
+}
+
 // exceptions
 
 ARequest::ARequestException::ARequestException(int code): _code(code) {}
