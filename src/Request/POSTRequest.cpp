@@ -44,8 +44,6 @@ Response POSTRequest::handle() {
 	Response response(_clientSocket);
 	std::cerr << "POSTRequest::handle()" << std::endl;
 
-	std::string path = _extractPath(5); // 5 = length of "POST "
-
 	_getBoundary();
 	if (_getContentLength() > MAX_FILE_SIZE)
 		throw ARequest::ARequestException(REQUEST_ENTITY_TOO_LARGE);
@@ -57,7 +55,6 @@ Response POSTRequest::handle() {
 	_getFilename();
 	_checkFilename();
 	_writeDataToOutfile();
-	response.setStatusCode(OK);
 	return (response);
 }
 
@@ -80,7 +77,7 @@ void POSTRequest::_checkFilename()
 	} else if (_filename.find("..") != std::string::npos) {
 		throw ARequest::ARequestException(FORBIDDEN);
 	}
-	_filename = _clientSocket.getIndexFolder() + "/" + _clientSocket.getUploadFolder() + "/" + _filename;
+	_filename = _clientSocket.getRootFolder() + "/" + _clientSocket.getUploadFolder() + "/" + _filename;
 }
 
 void POSTRequest::_getBoundary()
