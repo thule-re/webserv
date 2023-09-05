@@ -49,9 +49,9 @@ Response CgiRequest::handle() {
 	_getQueryString();
 	_getPathInfo();
 	_setEnv();
-
+	std::cout << "_rawRequest: \n" << _rawRequest << std::endl;
 	_execCgi(response);
-	std::cout << "_cgiOutputString: \n" << _cgiOutputString << std::endl;
+//	std::cout << "_cgiOutputString: \n" << _cgiOutputString << std::endl;
 	return (response);
 }
 
@@ -87,11 +87,23 @@ void CgiRequest::_getPathInfo() {
 }
 
 void CgiRequest::_setEnv() {
-	_env.push_back(std::string("PATH_INFO=" + _pathInfo));
-	_env.push_back(std::string("QUERY_STRING=" + _queryString));
-	_env.push_back(std::string("REQUEST_METHOD=" + _header["Method"]));
-	_env.push_back(std::string("CONTENT_LENGTH=" + _header["Content-Length"]));
-	_env.push_back(std::string("CONTENT_TYPE=" + _header["Content-Type"]));
+	_env.push_back("AUTH_TYPE=" + _header["Authorization"]);
+	_env.push_back("CONTENT_LENGTH=" + _header["Content-Length"]);
+	_env.push_back("CONTENT_TYPE=" + _header["Content-Type"]);
+	_env.push_back("GATEWAY_INTERFACE=CGI/1.1");
+	_env.push_back("PATH_INFO=" + _pathInfo);
+	_env.push_back("PATH_TRANSLATED=" + _scriptPath);
+	_env.push_back("QUERY_STRING=" + _queryString);
+	// _env.push_back("REMOTE_ADDR=" + _clientSocket.getIP());
+	_env.push_back("REMOTE_IDENT=");
+	_env.push_back("REMOTE_USER=");
+	_env.push_back("REQUEST_METHOD=" + _header["Method"]);
+	_env.push_back("REQUEST_URI=" + _header["Path"]);
+	_env.push_back("SCRIPT_NAME=" + _scriptPath);
+	_env.push_back("SERVER_NAME=" + _clientSocket.getServerName());
+	// _env.push_back("SERVER_PORT=" + _clientSocket.getServerPort());
+	_env.push_back("SERVER_PROTOCOL=" + _header["HTTP-Version"]);
+	_env.push_back("SERVER_SOFTWARE=webserv/1.0");
 }
 
 void CgiRequest::_exportEnv() {
@@ -156,8 +168,14 @@ void CgiRequest::_execCgi(Response &response) {
 		}
 		_readCgiOutput();
 		close(_cgiOutput[0]);
-		response.setBody(_cgiOutputString);
-		response.setHeader(ResponseHeader("HTTP/1.1 200 OK" + toString(CRLF) + _cgiOutputString));
+		size_t pos = _cgiOutputString.find("\r\n\r\n");
+		if (pos != std::string::npos) {
+			std::string header = _cgiOutputString.substr(0, pos);
+			response.setHeader(ResponseHeader(header));
+			response.setBody(_cgiOutputString.substr(pos + 4));
+		} else {
+			response.setBody(_cgiOutputString);
+		}
 	}
 }
 
