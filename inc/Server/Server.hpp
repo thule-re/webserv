@@ -3,10 +3,10 @@
 /*                                                        :::      ::::::::   */
 /*   Server.hpp                                         :+:      :+:    :+:   */
 /*                                                    +:+ +:+         +:+     */
-/*   By: treeps <treeps@student.42wolfsburg.de>     +#+  +:+       +#+        */
+/*   By: tony <tony@student.42.fr>                  +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2023/08/17 11:29:03 by treeps            #+#    #+#             */
-/*   Updated: 2023/08/17 11:29:03 by treeps           ###   ########.fr       */
+/*   Updated: 2023/08/25 14:19:36 by tony             ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -21,14 +21,16 @@
 # include <unistd.h>
 # include <fstream>
 # include <cstdio>
-# include <poll.h>
 # include <vector>
+# include <fcntl.h>
+#include <sys/select.h>
+#include <sys/time.h>
 
 # include "Request/ARequest.hpp"
 # include "Response/Response.hpp"
 # include "Socket/ClientSocket.hpp"
 
-# define MAX_CLIENT_CONNECTIONS 10
+# define MAX_CLIENT_CONNECTIONS 100
 # define BUFFER_SIZE 1024
 
 class Server {
@@ -52,7 +54,7 @@ private:
 	// member functions
 	void handleRequest(int clientSocket);
 	void removeSocket(size_t i);
-	void addServerSocketToPoll();
+	void addServerSocketToSelect();
 	void pollThroughClientSockets();
 	void addNewConnection();
 	void handleAnyNewRequests();
@@ -66,11 +68,11 @@ private:
 	// member variables
 	int			_port;
 	int			_serverSocket;
+	fd_set		_readSet;
 	std::string	_indexPath;
 	std::string	_errorPath;
 	std::string	_root;
-	std::vector<pollfd> _clientSockets;
-
+	std::vector<int> _clientSockets;
 
 };
 

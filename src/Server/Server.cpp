@@ -3,19 +3,23 @@
 /*                                                        :::      ::::::::   */
 /*   Server.cpp                                         :+:      :+:    :+:   */
 /*                                                    +:+ +:+         +:+     */
-/*   By: treeps <treeps@student.42wolfsburg.de>     +#+  +:+       +#+        */
+/*   By: tony <tony@student.42.fr>                  +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2023/08/17 11:29:03 by treeps            #+#    #+#             */
-/*   Updated: 2023/08/17 11:29:03 by treeps           ###   ########.fr       */
+/*   Updated: 2023/08/25 14:18:50 by tony             ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
 #include "Server/Server.hpp"
 
 // constructors
-Server::Server(): _port(80), _serverSocket(), _indexPath("garbage.html"), _errorPath("www"), _root("www") {}
+Server::Server(): _port(80), _serverSocket(), _indexPath("garbage.html"), _errorPath("www"), _root("www") {
+	FD_ZERO(&_readSet);
+}
 
-Server::Server(int port, const std::string& index, const std::string& error, const std::string& folder): _port(port), _serverSocket(), _indexPath(index), _errorPath(error), _root(folder) {}
+Server::Server(int port, const std::string& index, const std::string& error, const std::string& folder): _port(port), _serverSocket(), _indexPath(index), _errorPath(error), _root(folder) {
+	FD_ZERO(&_readSet);
+}
 
 Server::Server(const Server &other) : _port(), _serverSocket() {
 	*this = other;
@@ -33,6 +37,7 @@ Server &Server::operator=(const Server &other) {
 	_indexPath = other._indexPath;
 	_errorPath = other._errorPath;
 	_root = other._root;
+	_readSet = other._readSet;
 
 	return (*this);
 }
@@ -45,7 +50,6 @@ void	Server::init() {
 	setServerSocketOptions(&serverAddress);
 	bindServerSocket(serverAddress);
 	listenOnServerSocket();
-	addServerSocketToPoll();
 
 	std::cout << "Server listening on port " << _port << std::endl;
 }
@@ -84,15 +88,6 @@ void Server::listenOnServerSocket() {
 	}
 }
 
-void Server::addServerSocketToPoll()
-{
-	pollfd serverSocket = {};
-
-	serverSocket.fd = _serverSocket;
-	serverSocket.events = POLLIN;
-	_clientSockets.push_back(serverSocket);
-}
-
 void	Server::loop() {
 	while (true) {
 		try {
@@ -109,30 +104,46 @@ void	Server::loop() {
 
 void Server::pollThroughClientSockets()
 {
-	int pollResult = poll(_clientSockets.data(), _clientSockets.size(), -1);
-	if (pollResult == -1) {
-		std::cerr << "Error in poll" << std::endl;
-		// break;
-		// THROW EXCEPTION instead!
+	int maxFd = _serverSocket;  // Initialize with the server socket
+
+	FD_SET(_serverSocket, &_readSet);
+	for (size_t i = 1; i < _clientSockets.size(); i++) {
+		int clientFd = _clientSockets[i];
+		if (clientFd != -1) {
+			FD_SET(clientFd, &_readSet);
+			maxFd = std::max(maxFd, clientFd);
+		}
+	}
+
+	struct timeval timeout;  // Optional: Set a timeout value for select
+	timeout.tv_sec = 1;
+	timeout.tv_usec = 0;  // 500 milliseconds
+
+	int selectResult = select(maxFd + 1, &_readSet, NULL, NULL, &timeout);
+//	std::cout << "Select result : " << selectResult << std::endl;
+
+	if (selectResult == -1) {
+		std::cerr << "Error in select" << std::endl;
+		// Handle the error
 	}
 }
 
 void Server::addNewConnection()
 {
-	pollfd serverSocket = _clientSockets[0];
-
-	if (serverSocket.revents & POLLIN) {
-		pollfd clientSocket = {};
-		clientSocket.fd = accept(_serverSocket, NULL, NULL);
-		if (clientSocket.fd < 0) {
-			throw std::runtime_error("Error accepting connection");
-		}
-		clientSocket.events = POLLIN;
-		if (_clientSockets.size() < MAX_CLIENT_CONNECTIONS) {
-			_clientSockets.push_back(clientSocket);
+	if (FD_ISSET(_serverSocket, &_readSet)) {
+//		std::cout << "Listen for new connections" << std::endl;
+		int clientSocket = accept(_serverSocket, NULL, NULL);
+		if (clientSocket < 0) {
+			std::cerr << "Error accepting connection" << std::endl;
 		} else {
-			close(clientSocket.fd);
-			throw std::runtime_error("Connection limit reached. Closing the connection.");
+			if (_clientSockets.size() < MAX_CLIENT_CONNECTIONS) {
+				fcntl(clientSocket, F_SETFL, O_NONBLOCK, FD_CLOEXEC);
+				_clientSockets.push_back(clientSocket);
+//				std::cout << "New client connected: " << clientSocket << std::endl;
+			} else {
+				close(clientSocket);
+				std::cerr << "Connection limit reached. Closing the connection." << std::endl;
+			}
 		}
 	}
 }
@@ -140,11 +151,13 @@ void Server::addNewConnection()
 void Server::handleAnyNewRequests()
 {
 	for (size_t i = 1; i < _clientSockets.size(); i++) {
-		if (_clientSockets[i].revents & POLLIN && _clientSockets[i].fd != -1)
-		{
-			handleRequest(_clientSockets[i].fd);
-			_clientSockets[i].revents = 0; // Reset events
-			removeSocket(i);
+		if (FD_ISSET(_clientSockets[i], &_readSet)) {
+			int clientSocket = _clientSockets[i];
+			if (clientSocket != -1) {
+//				std::cout << "Handling request..." << std::endl;
+				handleRequest(clientSocket);
+				removeSocket(i);
+			}
 		}
 	}
 }
@@ -183,6 +196,7 @@ void Server::handleRequest(int clientSocket) {
 	}
 	delete request;
 	response.send();
+	FD_CLR(clientSocket, &_readSet);
 	client.closeSocket();
 }
 

@@ -45,6 +45,7 @@ protected:
 	ClientSocket _clientSocket;
 	std::string _rawRequest;
 	RequestHeader _header;
+	std::string _method;
 
 private:
 	// member functions
