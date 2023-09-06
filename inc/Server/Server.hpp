@@ -23,8 +23,11 @@
 # include <cstdio>
 # include <vector>
 # include <fcntl.h>
-#include <sys/select.h>
-#include <sys/time.h>
+# include <sys/select.h>
+# include <sys/time.h>
+# include <map>
+# include <ctime>
+
 
 # include "Request/ARequest.hpp"
 # include "Response/Response.hpp"
@@ -52,28 +55,32 @@ public:
 
 private:
 	// member functions
-	void handleRequest(int clientSocket);
-	void removeSocket(size_t i);
-	void addServerSocketToSelect();
-	void pollThroughClientSockets();
+	void setupClient(int clientSocket);
+	void selectClientSockets();
 	void addNewConnection();
-	void handleAnyNewRequests();
 	void handleLoopException(std::exception &exception);
 	void handleARequestException(ARequest::ARequestException &, Response &);
 	void initializeServerSocket();
 	void setServerSocketOptions(sockaddr_in *serverAddress);
 	void listenOnServerSocket();
 	void bindServerSocket(sockaddr_in serverAddress);
+    void buildResponse(int clientSocket);
+    void closeConnection(int clientSocket);
 
 	// member variables
 	int			_port;
 	int			_serverSocket;
+    int         _maxFd;
+
 	fd_set		_readSet;
+    fd_set      _writeSet;
+    fd_set      _readSetCopy;
+    fd_set      _writeSetCopy;
 	std::string	_indexPath;
 	std::string	_errorPath;
 	std::string	_root;
-	std::vector<int> _clientSockets;
 
+    std::map<int, ClientSocket> _clientsMap;
 };
 
 #endif

@@ -14,11 +14,13 @@
 
 // constructors
 Server::Server(): _port(80), _serverSocket(), _indexPath("garbage.html"), _errorPath("www"), _root("www") {
-	FD_ZERO(&_readSet);
+    FD_ZERO(&_readSet);
+    FD_ZERO(&_writeSet);
 }
 
 Server::Server(int port, const std::string& index, const std::string& error, const std::string& folder): _port(port), _serverSocket(), _indexPath(index), _errorPath(error), _root(folder) {
 	FD_ZERO(&_readSet);
+    FD_ZERO(&_writeSet);
 }
 
 Server::Server(const Server &other) : _port(), _serverSocket() {
@@ -52,6 +54,8 @@ void	Server::init() {
 	listenOnServerSocket();
 
 	std::cout << "Server listening on port " << _port << std::endl;
+    _maxFd = _serverSocket;
+    FD_SET(_serverSocket, &_readSet);
 }
 
 void Server::initializeServerSocket() {
@@ -82,7 +86,7 @@ void Server::bindServerSocket(sockaddr_in serverAddress) {
 }
 
 void Server::listenOnServerSocket() {
-	if (listen(_serverSocket, 10) < 0) {
+	if (listen(_serverSocket, MAX_CLIENT_CONNECTIONS) < 0) {
 		std::cerr << "Error listening on socket" << std::endl;
 		exit(1);
 	}
@@ -91,9 +95,18 @@ void Server::listenOnServerSocket() {
 void	Server::loop() {
 	while (true) {
 		try {
-			pollThroughClientSockets();
-			addNewConnection();
-			handleAnyNewRequests();
+            selectClientSockets();
+            for (int i = 0; i <= _maxFd + 1; i++)
+            {
+                if (FD_ISSET(i, &_readSetCopy)) {
+                    if (i == _serverSocket)
+                        addNewConnection();
+                    else
+                        setupClient(i);
+                }
+                if (FD_ISSET(i, &_writeSetCopy))
+                    buildResponse(i);
+            }
 		}
 		catch (std::exception &e) {
 			handleLoopException(e);
@@ -102,89 +115,67 @@ void	Server::loop() {
 }
 
 
-void Server::pollThroughClientSockets()
+void Server::selectClientSockets()
 {
-	int maxFd = _serverSocket;  // Initialize with the server socket
-
-	FD_SET(_serverSocket, &_readSet);
-	for (size_t i = 1; i < _clientSockets.size(); i++) {
-		int clientFd = _clientSockets[i];
-		if (clientFd != -1) {
-			FD_SET(clientFd, &_readSet);
-			maxFd = std::max(maxFd, clientFd);
-		}
-	}
-
-	struct timeval timeout;  // Optional: Set a timeout value for select
+	struct timeval timeout;
 	timeout.tv_sec = 1;
-	timeout.tv_usec = 0;  // 500 milliseconds
+	timeout.tv_usec = 0;
 
-	int selectResult = select(maxFd + 1, &_readSet, NULL, NULL, &timeout);
-//	std::cout << "Select result : " << selectResult << std::endl;
+    _readSetCopy = _readSet;
+    _writeSetCopy = _writeSet;
+
+	int selectResult = select(_maxFd + 1, &_readSetCopy, &_writeSetCopy, NULL, &timeout);
 
 	if (selectResult == -1) {
 		std::cerr << "Error in select" << std::endl;
-		// Handle the error
 	}
 }
 
 void Server::addNewConnection()
 {
-	if (FD_ISSET(_serverSocket, &_readSet)) {
-//		std::cout << "Listen for new connections" << std::endl;
-		int clientSocket = accept(_serverSocket, NULL, NULL);
-		if (clientSocket < 0) {
-			std::cerr << "Error accepting connection" << std::endl;
-		} else {
-			if (_clientSockets.size() < MAX_CLIENT_CONNECTIONS) {
-				fcntl(clientSocket, F_SETFL, O_NONBLOCK, FD_CLOEXEC);
-				_clientSockets.push_back(clientSocket);
-//				std::cout << "New client connected: " << clientSocket << std::endl;
-			} else {
-				close(clientSocket);
-				std::cerr << "Connection limit reached. Closing the connection." << std::endl;
-			}
-		}
-	}
+    int clientSocket = accept(_serverSocket, NULL, NULL);
+    if (clientSocket > _maxFd)
+        _maxFd = clientSocket;
+    if (clientSocket < 0) {
+        std::cerr << "Error accepting connection" << std::endl;
+    }
+    else
+    {
+        fcntl(clientSocket, F_SETFL, O_NONBLOCK, FD_CLOEXEC);
+        FD_SET(clientSocket, &_readSet);
+    }
+
+    ClientSocket newClient(clientSocket);
+
+    if (_clientsMap.count(clientSocket) != 0)
+        _clientsMap.erase(clientSocket);
+
+    _clientsMap[clientSocket] = newClient;
+    _clientsMap[clientSocket].setConnectionTime(std::time(nullptr));
 }
 
-void Server::handleAnyNewRequests()
+void Server::setupClient(int clientSocket) {
+    _clientsMap[clientSocket].setAllowedHTTPVersion(HTTP_VERSION);
+    _clientsMap[clientSocket].addToAllowedMethods(METHOD_GET);
+    _clientsMap[clientSocket].addToAllowedMethods(METHOD_POST);
+    _clientsMap[clientSocket].addToAllowedMethods(METHOD_DELETE);
+    _clientsMap[clientSocket].setIndexFile(_indexPath);
+    _clientsMap[clientSocket].setIndexFolder(_root);
+    _clientsMap[clientSocket].setErrorFolder(_errorPath);
+    _clientsMap[clientSocket].setUploadFolder("upload");
+
+    _clientsMap[clientSocket].readRequest();
+    FD_CLR(clientSocket, &_readSet);
+    FD_SET(clientSocket, &_writeSet);
+}
+
+void Server::buildResponse(int clientSocket)
 {
-	for (size_t i = 1; i < _clientSockets.size(); i++) {
-		if (FD_ISSET(_clientSockets[i], &_readSet)) {
-			int clientSocket = _clientSockets[i];
-			if (clientSocket != -1) {
-//				std::cout << "Handling request..." << std::endl;
-				handleRequest(clientSocket);
-				removeSocket(i);
-			}
-		}
-	}
-}
+    Response response(clientSocket);
+    ARequest *request = NULL;
 
-void Server::removeSocket(size_t i) {
-	_clientSockets.erase(_clientSockets.begin() + i); // Remove an element
-	_clientSockets.shrink_to_fit();
-}
-
-void Server::handleRequest(int clientSocket) {
-	ClientSocket client(clientSocket);
-	Response response(clientSocket);
-	ARequest *request = NULL;
-
-	client.setAllowedHTTPVersion(HTTP_VERSION);
-	client.addToAllowedMethods(METHOD_GET);
-	client.addToAllowedMethods(METHOD_POST);
-	client.addToAllowedMethods(METHOD_DELETE);
-	client.setIndexFile(_indexPath);
-	client.setIndexFolder(_root);
-	client.setErrorFolder(_errorPath);
-	client.setCgiFolder("cgi-bin");
-	client.setUploadFolder("upload");
-
-	client.readRequest();
 	try {
-		request = ARequest::newRequest(client);
+		request = ARequest::newRequest(_clientsMap[clientSocket]);
 		response = request->handle();
 	}
 	catch (ARequest::ARequestException &e) {
@@ -195,9 +186,18 @@ void Server::handleRequest(int clientSocket) {
 		response.buildErrorPage(INTERNAL_SERVER_ERROR);
 	}
 	delete request;
-	response.send();
-	FD_CLR(clientSocket, &_readSet);
-	client.closeSocket();
+    response.send();
+    closeConnection(clientSocket);
+}
+
+void Server::closeConnection(int clientSocket)
+{
+    if (FD_ISSET(clientSocket, &_readSet))
+        FD_CLR(clientSocket, &_readSet);
+    if (FD_ISSET(clientSocket, &_writeSet))
+        FD_CLR(clientSocket, &_writeSet);
+    _clientsMap[clientSocket].closeSocket();
+    _clientsMap.erase(clientSocket);
 }
 
 void Server::handleLoopException(std::exception &exception) {

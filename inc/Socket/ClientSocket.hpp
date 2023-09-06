@@ -43,6 +43,8 @@ public:
 	std::string getCgiFolder() const;
 	std::string getUploadFolder() const;
 	std::string getServerName() const;
+    time_t getConnectionTime() const;
+
 
 	// setter functions
 	void setAllowedHTTPVersion(const std::string &allowedHTTPVersion);
@@ -53,14 +55,15 @@ public:
 	void setErrorFolder(const std::string &errorFolder);
 	void setCgiFolder(const std::string &cgiFolder);
 	void setUploadFolder(const std::string &uploadFolder);
-	void setServerName(const std::string &serverName);
+    void setServerName(const std::string &serverName);
+    void setConnectionTime(const time_t &connectionTime);
 
 	// member functions
 	std::string readRequest();
 	void closeSocket() const;
 
 private:
-	const int _socketFd;
+	int _socketFd;
 	std::string	_allowedHTTPVersion;
 	std::string	_allowedMethods;
 	std::string	_rawRequest;
@@ -70,6 +73,8 @@ private:
 	std::string	_cgiFolder;
 	std::string	_uploadFolder;
 	std::string	_serverName;
+
+    time_t      _connectionTime;
 };
 
 #endif
