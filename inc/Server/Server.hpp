@@ -56,17 +56,16 @@ public:
 private:
 	// member functions
 	void setupClient(int clientSocket);
-	void removeSocket(size_t i);
-	void addServerSocketToSelect();
-	void pollThroughClientSockets();
+	void selectClientSockets();
 	void addNewConnection();
-	void handleAnyNewRequests();
 	void handleLoopException(std::exception &exception);
 	void handleARequestException(ARequest::ARequestException &, Response &);
 	void initializeServerSocket();
 	void setServerSocketOptions(sockaddr_in *serverAddress);
 	void listenOnServerSocket();
 	void bindServerSocket(sockaddr_in serverAddress);
+    void buildResponse(int clientSocket);
+    void closeConnection(int clientSocket);
 
 	// member variables
 	int			_port;
@@ -82,10 +81,6 @@ private:
 	std::string	_root;
 
     std::map<int, ClientSocket> _clientsMap;
-
-    void buildResponse(int clientSocket);
-
-    void closeConnection(int clientSocket);
 };
 
 #endif

@@ -95,7 +95,7 @@ void Server::listenOnServerSocket() {
 void	Server::loop() {
 	while (true) {
 		try {
-			pollThroughClientSockets();
+            selectClientSockets();
             for (int i = 0; i <= _maxFd + 1; i++)
             {
                 if (FD_ISSET(i, &_readSetCopy)) {
@@ -106,12 +106,6 @@ void	Server::loop() {
                 }
                 if (FD_ISSET(i, &_writeSetCopy))
                     buildResponse(i);
-                if (_clientsMap.count(i)
-                        && difftime(std::time(nullptr), _clientsMap[i].getConnectionTime()) > 5)
-                {
-                    std::cerr << "Time out" << std::endl;
-                    closeConnection(i);
-                }
             }
 		}
 		catch (std::exception &e) {
@@ -121,22 +115,19 @@ void	Server::loop() {
 }
 
 
-void Server::pollThroughClientSockets()
+void Server::selectClientSockets()
 {
-    _readSetCopy = _readSet;
-    _writeSetCopy = _writeSet;
-
 	struct timeval timeout;
 	timeout.tv_sec = 1;
 	timeout.tv_usec = 0;
 
-	int selectResult = select(_maxFd + 1, &_readSetCopy, &_writeSetCopy, NULL, &timeout);
+    _readSetCopy = _readSet;
+    _writeSetCopy = _writeSet;
 
-//	std::cout << "Select result : " << selectResult << std::endl;
+	int selectResult = select(_maxFd + 1, &_readSetCopy, &_writeSetCopy, NULL, &timeout);
 
 	if (selectResult == -1) {
 		std::cerr << "Error in select" << std::endl;
-		// Handle the error
 	}
 }
 
@@ -196,9 +187,7 @@ void Server::buildResponse(int clientSocket)
 	}
 	delete request;
     response.send();
-    FD_CLR(clientSocket, &_writeSet);
-    _clientsMap[clientSocket].closeSocket();
-    _clientsMap.erase(clientSocket);
+    closeConnection(clientSocket);
 }
 
 void Server::closeConnection(int clientSocket)
