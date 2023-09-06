@@ -14,13 +14,13 @@
 
 // constructors
 Server::Server(): _port(80), _serverSocket(), _indexPath("garbage.html"), _errorPath("www"), _root("www") {
-    FD_ZERO(&_readSet);
-    FD_ZERO(&_writeSet);
+	FD_ZERO(&_readSet);
+	FD_ZERO(&_writeSet);
 }
 
 Server::Server(int port, const std::string& index, const std::string& error, const std::string& folder): _port(port), _serverSocket(), _indexPath(index), _errorPath(error), _root(folder) {
 	FD_ZERO(&_readSet);
-    FD_ZERO(&_writeSet);
+	FD_ZERO(&_writeSet);
 }
 
 Server::Server(const Server &other) : _port(), _serverSocket() {
@@ -54,8 +54,8 @@ void	Server::init() {
 	listenOnServerSocket();
 
 	std::cout << "Server listening on port " << _port << std::endl;
-    _maxFd = _serverSocket;
-    FD_SET(_serverSocket, &_readSet);
+	_maxFd = _serverSocket;
+	FD_SET(_serverSocket, &_readSet);
 }
 
 void Server::initializeServerSocket() {
@@ -95,18 +95,18 @@ void Server::listenOnServerSocket() {
 void	Server::loop() {
 	while (true) {
 		try {
-            selectClientSockets();
-            for (int i = 0; i <= _maxFd + 1; i++)
-            {
-                if (FD_ISSET(i, &_readSetCopy)) {
-                    if (i == _serverSocket)
-                        addNewConnection();
-                    else
-                        setupClient(i);
-                }
-                if (FD_ISSET(i, &_writeSetCopy))
-                    buildResponse(i);
-            }
+			selectClientSockets();
+			for (int i = 0; i <= _maxFd + 1; i++)
+			{
+				if (FD_ISSET(i, &_readSetCopy)) {
+					if (i == _serverSocket)
+						addNewConnection();
+					else
+						setupClient(i);
+				}
+				if (FD_ISSET(i, &_writeSetCopy))
+					buildResponse(i);
+			}
 		}
 		catch (std::exception &e) {
 			handleLoopException(e);
@@ -121,8 +121,8 @@ void Server::selectClientSockets()
 	timeout.tv_sec = 1;
 	timeout.tv_usec = 0;
 
-    _readSetCopy = _readSet;
-    _writeSetCopy = _writeSet;
+	_readSetCopy = _readSet;
+	_writeSetCopy = _writeSet;
 
 	int selectResult = select(_maxFd + 1, &_readSetCopy, &_writeSetCopy, NULL, &timeout);
 
@@ -133,46 +133,47 @@ void Server::selectClientSockets()
 
 void Server::addNewConnection()
 {
-    int clientSocket = accept(_serverSocket, NULL, NULL);
-    if (clientSocket > _maxFd)
-        _maxFd = clientSocket;
-    if (clientSocket < 0) {
-        std::cerr << "Error accepting connection" << std::endl;
-    }
-    else
-    {
-        fcntl(clientSocket, F_SETFL, O_NONBLOCK, FD_CLOEXEC);
-        FD_SET(clientSocket, &_readSet);
-    }
+	int clientSocket = accept(_serverSocket, NULL, NULL);
+	if (clientSocket > _maxFd)
+		_maxFd = clientSocket;
+	if (clientSocket < 0) {
+		std::cerr << "Error accepting connection" << std::endl;
+	}
+	else
+	{
+		fcntl(clientSocket, F_SETFL, O_NONBLOCK, FD_CLOEXEC);
+		FD_SET(clientSocket, &_readSet);
+	}
 
-    ClientSocket newClient(clientSocket);
+	ClientSocket newClient(clientSocket);
 
-    if (_clientsMap.count(clientSocket) != 0)
-        _clientsMap.erase(clientSocket);
+	if (_clientsMap.count(clientSocket) != 0)
+		_clientsMap.erase(clientSocket);
 
-    _clientsMap[clientSocket] = newClient;
-    _clientsMap[clientSocket].setConnectionTime(std::time(nullptr));
+	_clientsMap[clientSocket] = newClient;
+	_clientsMap[clientSocket].setConnectionTime(std::time(nullptr));
 }
 
 void Server::setupClient(int clientSocket) {
-    _clientsMap[clientSocket].setAllowedHTTPVersion(HTTP_VERSION);
-    _clientsMap[clientSocket].addToAllowedMethods(METHOD_GET);
-    _clientsMap[clientSocket].addToAllowedMethods(METHOD_POST);
-    _clientsMap[clientSocket].addToAllowedMethods(METHOD_DELETE);
-    _clientsMap[clientSocket].setIndexFile(_indexPath);
-    _clientsMap[clientSocket].setIndexFolder(_root);
-    _clientsMap[clientSocket].setErrorFolder(_errorPath);
-    _clientsMap[clientSocket].setUploadFolder("upload");
+	_clientsMap[clientSocket].setAllowedHTTPVersion(HTTP_VERSION);
+	_clientsMap[clientSocket].addToAllowedMethods(METHOD_GET);
+	_clientsMap[clientSocket].addToAllowedMethods(METHOD_POST);
+	_clientsMap[clientSocket].addToAllowedMethods(METHOD_DELETE);
+	_clientsMap[clientSocket].setIndexFile(_indexPath);
+	_clientsMap[clientSocket].setIndexFolder(_root);
+	_clientsMap[clientSocket].setErrorFolder(_errorPath);
+	_clientsMap[clientSocket].setUploadFolder("upload");
+	_clientsMap[clientSocket].setCgiFolder("cgi-bin");
 
-    _clientsMap[clientSocket].readRequest();
-    FD_CLR(clientSocket, &_readSet);
-    FD_SET(clientSocket, &_writeSet);
+	_clientsMap[clientSocket].readRequest();
+	FD_CLR(clientSocket, &_readSet);
+	FD_SET(clientSocket, &_writeSet);
 }
 
 void Server::buildResponse(int clientSocket)
 {
-    Response response(clientSocket);
-    ARequest *request = NULL;
+	Response response(clientSocket);
+	ARequest *request = NULL;
 
 	try {
 		request = ARequest::newRequest(_clientsMap[clientSocket]);
@@ -192,12 +193,12 @@ void Server::buildResponse(int clientSocket)
 
 void Server::closeConnection(int clientSocket)
 {
-    if (FD_ISSET(clientSocket, &_readSet))
-        FD_CLR(clientSocket, &_readSet);
-    if (FD_ISSET(clientSocket, &_writeSet))
-        FD_CLR(clientSocket, &_writeSet);
-    _clientsMap[clientSocket].closeSocket();
-    _clientsMap.erase(clientSocket);
+	if (FD_ISSET(clientSocket, &_readSet))
+		FD_CLR(clientSocket, &_readSet);
+	if (FD_ISSET(clientSocket, &_writeSet))
+		FD_CLR(clientSocket, &_writeSet);
+	_clientsMap[clientSocket].closeSocket();
+	_clientsMap.erase(clientSocket);
 }
 
 void Server::handleLoopException(std::exception &exception) {
