@@ -16,6 +16,7 @@
 # include <string>
 # include <fstream>
 # include <exception>
+# include <sys/stat.h>
 # include "Header/RequestHeader.hpp"
 # include "Response/Response.hpp"
 # include "Socket/ClientSocket.hpp"
@@ -40,6 +41,9 @@ public:
 protected:
 	// constructors
 	ARequest();
+
+	// member functions
+	static bool _isDirectory(const std::string& path);
 
 	// member variables
 	ClientSocket _clientSocket;

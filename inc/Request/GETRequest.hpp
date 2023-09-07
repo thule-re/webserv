@@ -14,6 +14,7 @@
 # define WEBSERV_GETREQUEST_HPP
 
 # include <iostream>
+# include <dirent.h>
 # include "ARequest.hpp"
 
 class GETRequest: public ARequest {
@@ -34,6 +35,9 @@ public:
 private:
 	// constructors
 	GETRequest();
+
+	// member functions
+	std::string _getDirectoryListing(const std::string& path);
 };
 
 #endif

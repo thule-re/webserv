@@ -72,6 +72,14 @@ bool ARequest::_isCgiPath(const ClientSocket &clientSocket, const std::string &p
 	return (false);
 }
 
+bool ARequest::_isDirectory(const std::string &path) {
+	struct stat s = {};
+	if (stat(path.c_str(), &s) == 0)
+		if (s.st_mode & S_IFDIR)
+			return (true);
+	return (false);
+}
+
 void ARequest::_expandPath() {
 	std::string path = _header["Path"];
 	if (path.find(_clientSocket.getRootFolder()) == std::string::npos)
