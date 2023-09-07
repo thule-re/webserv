@@ -31,10 +31,10 @@ POSTRequest &POSTRequest::operator=(const POSTRequest &other) {
 
 bool POSTRequest::_secondBoundaryInRequest()
 {
-	ssize_t firstBoundary = _rawRequest.find(_boundary);
-	ssize_t lastBoundary = _rawRequest.find_last_of(_boundary);
+	size_t firstBoundary = _rawRequest.find(_boundary);
+	size_t lastBoundary = _rawRequest.find_last_of(_boundary);
 
-	if (firstBoundary == -1 || firstBoundary == lastBoundary)
+	if (firstBoundary == std::string::npos || firstBoundary == lastBoundary)
 		return false;
 	else
 		return true;
@@ -111,7 +111,7 @@ void POSTRequest::_writeDataToOutfile()
 void POSTRequest::_readMore()
 {
 	int clientSocket = _clientSocket.getSocketFd();
-	std::string body = "";
+	std::string body;
 	char buffer[1024];
 	int bytesRead;
 

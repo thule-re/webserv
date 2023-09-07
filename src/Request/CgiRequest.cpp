@@ -49,7 +49,7 @@ Response CgiRequest::handle() {
 	_getQueryString();
 	_getPathInfo();
 	_setEnv();
-	std::cout << "_rawRequest: \n" << _rawRequest << std::endl;
+//	std::cout << "_rawRequest: \n" << _rawRequest << std::endl;
 	_execCgi(response);
 //	std::cout << "_cgiOutputString: \n" << _cgiOutputString << std::endl;
 	return (response);

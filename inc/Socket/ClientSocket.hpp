@@ -74,7 +74,7 @@ private:
 	std::string	_uploadFolder;
 	std::string	_serverName;
 
-    time_t      _connectionTime;
+	time_t		_connectionTime;
 };
 
 #endif

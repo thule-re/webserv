@@ -33,7 +33,7 @@ ClientSocket &ClientSocket::operator=(const ClientSocket &other) {
 	_cgiFolder = other._cgiFolder;
 	_uploadFolder = other._uploadFolder;
 	_serverName = other._serverName;
-    _connectionTime = other._connectionTime;
+	_connectionTime = other._connectionTime;
 	return (*this);
 }
 
