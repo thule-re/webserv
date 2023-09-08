@@ -20,10 +20,12 @@
 ARequest::ARequest() : _clientSocket() {}
 
 ARequest::ARequest(const ClientSocket& clientSocket): _clientSocket(clientSocket), _rawRequest(clientSocket.getRawRequest()) {
-	_header = RequestHeader(_rawRequest.substr(0, _rawRequest.find("\r\n\r\n")));
+	_header = RequestHeader(_rawRequest.substr(0, _rawRequest.find(CRLF CRLF)));
 	if (_header["Path"].find("..") != std::string::npos)
 		throw ARequest::ARequestException(FORBIDDEN);
 	_expandPath();
+	if (_header["Transfer-Encoding"] == "chunked")
+		_unchunkBody();
 }
 
 ARequest::ARequest(const ARequest &other) {
@@ -88,6 +90,23 @@ void ARequest::_expandPath() {
 		path += _clientSocket.getIndexFile();
 
 	_header["Path"] = path;
+}
+
+void ARequest::_unchunkBody() {
+	std::string body = _rawRequest.substr(_rawRequest.find(CRLF CRLF) + 4);
+	std::string unchunkedBody;
+	size_t chunkSize;
+	size_t newlinePos;
+	while (body.length() > 0) {
+		chunkSize = strtol(body.c_str(), NULL, 16);
+		if (chunkSize == 0)
+			break;
+		newlinePos = body.find(CRLF);
+		body = body.substr(newlinePos + 2);
+		unchunkedBody += body.substr(0, chunkSize);
+		body = body.substr(chunkSize + 2);
+	}
+	_rawRequest = _rawRequest.substr(0, _rawRequest.find(CRLF CRLF) + 4) + unchunkedBody;
 }
 
 // exceptions

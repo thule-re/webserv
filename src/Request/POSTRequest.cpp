@@ -27,46 +27,23 @@ POSTRequest &POSTRequest::operator=(const POSTRequest &other) {
 	return (*this);
 }
 
-bool POSTRequest::_secondBoundaryInRequest()
-{
-	size_t firstBoundary = _rawRequest.find(_boundary);
-	size_t lastBoundary = _rawRequest.find_last_of(_boundary);
-
-	if (firstBoundary == std::string::npos || firstBoundary == lastBoundary)
-		return false;
-	else
-		return true;
-}
-
 Response POSTRequest::handle() {
 	Response response(_clientSocket);
 	std::cerr << "POSTRequest::handle()" << std::endl;
 
+	std::ofstream out("rawRequest.txt");
+	out << _rawRequest;
+	out.close();
+
 	_getBoundary();
-	if (_getContentLength() > MAX_FILE_SIZE)
+	if (atoi(_header["Content-Length"].c_str()) > MAX_FILE_SIZE)
 		throw ARequest::ARequestException(REQUEST_ENTITY_TOO_LARGE);
-	if (!_secondBoundaryInRequest())
-	{
-		_readMore();
-	}
 	_getFileData();
 	_getFilename();
 	_checkFilename();
 	_writeDataToOutfile();
 	return (response);
 }
-
-size_t POSTRequest::_getContentLength()
-{
-	std::string contentLength;
-
-	contentLength = _rawRequest.substr(_rawRequest.find("Content-Length:") + 16);
-	size_t newlinePos = contentLength.find('\n');
-	contentLength = contentLength.substr(0, newlinePos);
-
-	return atoi(contentLength.c_str());
-}
-
 
 void POSTRequest::_checkFilename()
 {
@@ -105,31 +82,6 @@ void POSTRequest::_writeDataToOutfile()
 	outfile << _fileData << std::endl;
 	outfile.close();
 }
-
-void POSTRequest::_readMore()
-{
-	int clientSocket = _clientSocket.getSocketFd();
-	std::string body;
-	char buffer[1024];
-	int bytesRead;
-
-	while (true) {
-		bytesRead = recv(clientSocket, buffer, sizeof(buffer), 0);
-		if (bytesRead <= 0) {
-			break;
-		}
-		body.append(buffer, bytesRead);
-		size_t pos = body.find(_boundary);
-		if (pos != std::string::npos) {
-			std::string part = body.substr(0, pos);
-			body.erase(0, pos + _boundary.length());
-		}
-		if ((unsigned long)bytesRead < sizeof(buffer))
-			break;
-	}
-	_rawRequest += body;
-}
-
 
 void POSTRequest::_getFilename()
 {

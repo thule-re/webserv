@@ -67,7 +67,7 @@ private:
 	void setServerSocketOptions(sockaddr_in *serverAddress);
 	void listenOnServerSocket();
 	void bindServerSocket(sockaddr_in serverAddress);
-    void buildResponse(int clientSocket);
+    void process(int clientSocket);
     void closeConnection(int clientSocket);
 
 	// member variables
@@ -84,7 +84,7 @@ private:
 	std::string	_errorPath;
 	std::string	_root;
 
-    std::map<int, ClientSocket> _clientsMap;
+	std::map<int, ClientSocket> _clientsMap;
 };
 
 #endif

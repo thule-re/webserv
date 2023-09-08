@@ -53,6 +53,7 @@ private:
 	// member functions
 	static bool _isCgiPath(const ClientSocket& clientSocket, const std::string& path);
 	void _expandPath();
+	void _unchunkBody();
 
 public:
 	// exceptions

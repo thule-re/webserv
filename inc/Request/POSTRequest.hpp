@@ -48,10 +48,6 @@ private:
 	void _getBoundary();
 	void _writeDataToOutfile();
 	void _checkFilename();
-	void _readMore();
-	size_t _getContentLength();
-
-	bool _secondBoundaryInRequest();
 };
 
 #endif

@@ -11,6 +11,7 @@
 /* ************************************************************************** */
 
 #include "Socket/ClientSocket.hpp"
+#include "Request/ARequest.hpp"
 
 // constructors
 ClientSocket::ClientSocket() : _socketFd(0) {}
@@ -82,8 +83,16 @@ time_t ClientSocket::getConnectionTime() const {
     return _connectionTime;
 }
 
+Response ClientSocket::getResponse() const {
+	return *_response;
+}
+
 
 // setters
+void ClientSocket::setRawRequest(const std::string &rawRequest) {
+	_rawRequest = rawRequest;
+}
+
 void ClientSocket::setAllowedHTTPVersion(const std::string &allowedHTTPVersion) {
 	_allowedHTTPVersion = allowedHTTPVersion;
 }
@@ -120,6 +129,10 @@ void ClientSocket::setServerName(const std::string &serverName) {
 	_serverName = serverName;
 }
 
+void ClientSocket::setResponse(const Response& response) {
+	_response = new Response(response);
+}
+
 void ClientSocket::setConnectionTime(const time_t &connectionTime) {
     _connectionTime = connectionTime;
 }
@@ -146,7 +159,25 @@ std::string ClientSocket::readRequest() {
 			break;
 		}
 	}
-	_rawRequest = stringBuffer;
+	_rawRequest += stringBuffer;
 	return (stringBuffer);
 }
 
+bool ClientSocket::isCompleteRequest() const {
+	RequestHeader header(_rawRequest.substr(0, _rawRequest.find(CRLF CRLF)));
+	if (header["Method"] == "POST") {
+		size_t contentLength = atoi(header["Content-Length"].c_str());
+		if (_rawRequest.substr(_rawRequest.find(CRLF CRLF)).length() < contentLength)
+			return (false);
+	}
+	if (header["Transfer-Encoding"] == "chunked") {
+		if (_rawRequest.find("0\r\n\r\n") == std::string::npos)
+			return (false);
+	}
+	return (true);
+}
+
+void ClientSocket::sendResponse() {
+	_response->send();
+	delete _response;
+}

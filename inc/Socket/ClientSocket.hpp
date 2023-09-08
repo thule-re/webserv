@@ -19,6 +19,8 @@
 # include <sys/socket.h>
 # define BUFFER_SIZE 1024
 
+class Response;
+
 class ClientSocket {
 public:
 	// constructors
@@ -43,10 +45,11 @@ public:
 	std::string getCgiFolder() const;
 	std::string getUploadFolder() const;
 	std::string getServerName() const;
-    time_t getConnectionTime() const;
-
+	time_t getConnectionTime() const;
+	Response getResponse() const;
 
 	// setter functions
+	void setRawRequest(const std::string &rawRequest);
 	void setAllowedHTTPVersion(const std::string &allowedHTTPVersion);
 	void setAllowedMethods(const std::string &allowedMethods);
 	void addToAllowedMethods(const std::string &allowedMethods);
@@ -56,25 +59,30 @@ public:
 	void setCgiFolder(const std::string &cgiFolder);
 	void setUploadFolder(const std::string &uploadFolder);
     void setServerName(const std::string &serverName);
+	void setResponse(const Response& response);
     void setConnectionTime(const time_t &connectionTime);
 
 	// member functions
+	void sendResponse();
 	std::string readRequest();
 	void closeSocket() const;
+	bool isCompleteRequest() const;
 
 private:
-	int _socketFd;
-	std::string	_allowedHTTPVersion;
-	std::string	_allowedMethods;
-	std::string	_rawRequest;
-	std::string	_indexFile;
-	std::string	_rootFolder;
-	std::string	_errorFolder;
-	std::string	_cgiFolder;
-	std::string	_uploadFolder;
-	std::string	_serverName;
+	int						_socketFd;
 
-	time_t		_connectionTime;
+	std::string				_allowedHTTPVersion;
+	std::string				_allowedMethods;
+	std::string				_rawRequest;
+	std::string				_indexFile;
+	std::string				_rootFolder;
+	std::string				_errorFolder;
+	std::string				_cgiFolder;
+	std::string				_uploadFolder;
+	std::string				_serverName;
+
+	Response				*_response;
+	time_t					_connectionTime;
 };
 
 #endif

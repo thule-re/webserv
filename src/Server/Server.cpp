@@ -105,7 +105,10 @@ void	Server::loop() {
 						setupClient(i);
 				}
 				if (FD_ISSET(i, &_writeSetCopy))
-					buildResponse(i);
+				{
+					_clientsMap[i].sendResponse();
+					closeConnection(i);
+				}
 			}
 		}
 		catch (std::exception &e) {
@@ -117,7 +120,7 @@ void	Server::loop() {
 
 void Server::selectClientSockets()
 {
-	struct timeval timeout;
+	struct timeval timeout = {};
 	timeout.tv_sec = 1;
 	timeout.tv_usec = 0;
 
@@ -151,7 +154,7 @@ void Server::addNewConnection()
 		_clientsMap.erase(clientSocket);
 
 	_clientsMap[clientSocket] = newClient;
-	_clientsMap[clientSocket].setConnectionTime(std::time(nullptr));
+	_clientsMap[clientSocket].setConnectionTime(std::time(NULL));
 }
 
 void Server::setupClient(int clientSocket) {
@@ -166,14 +169,20 @@ void Server::setupClient(int clientSocket) {
 	_clientsMap[clientSocket].setCgiFolder("cgi-bin");
 
 	_clientsMap[clientSocket].readRequest();
-	FD_CLR(clientSocket, &_readSet);
-	FD_SET(clientSocket, &_writeSet);
+	if (!_clientsMap[clientSocket].isCompleteRequest())
+		return;
+	else
+	{
+		process(clientSocket);
+		FD_CLR(clientSocket, &_readSet);
+		FD_SET(clientSocket, &_writeSet);
+	}
 }
 
-void Server::buildResponse(int clientSocket)
+void Server::process(int clientSocket)
 {
 	Response response(clientSocket);
-	ARequest *request = NULL;
+	ARequest *request;
 
 	try {
 		request = ARequest::newRequest(_clientsMap[clientSocket]);
@@ -187,8 +196,7 @@ void Server::buildResponse(int clientSocket)
 		response.buildErrorPage(INTERNAL_SERVER_ERROR);
 	}
 	delete request;
-    response.send();
-    closeConnection(clientSocket);
+	_clientsMap[clientSocket].setResponse(response);
 }
 
 void Server::closeConnection(int clientSocket)
