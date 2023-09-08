@@ -118,7 +118,7 @@ void CgiRequest::_exportEnv() {
 }
 
 void CgiRequest::_writeCgiInput() {
-	write(_cgiInput[1], _rawRequest.c_str(), _rawRequest.length());
+	write(_cgiInput[1], _rawRequest.c_str(), strtol(_header["Content-Length"].c_str(), NULL, 10));
 }
 
 void CgiRequest::_readCgiOutput() {
@@ -168,7 +168,7 @@ void CgiRequest::_execCgi(Response &response) {
 		}
 		_readCgiOutput();
 		close(_cgiOutput[0]);
-		size_t pos = _cgiOutputString.find("\r\n\r\n");
+		size_t pos = _cgiOutputString.find(CRLF CRLF);
 		if (pos != std::string::npos) {
 			std::string header = _cgiOutputString.substr(0, pos);
 			response.setHeader(ResponseHeader(header));

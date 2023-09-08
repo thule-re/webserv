@@ -82,10 +82,11 @@ bool ARequest::_isDirectory(const std::string &path) {
 
 void ARequest::_expandPath() {
 	std::string path = _header["Path"];
-	if (path.find(_clientSocket.getRootFolder()) == std::string::npos)
+	if (path.find(_clientSocket.getRootFolder()) != 0)
 		path = _clientSocket.getRootFolder() + path;
 	if (path[path.length() - 1] == '/')
 		path += _clientSocket.getIndexFile();
+
 	_header["Path"] = path;
 }
 
@@ -96,9 +97,11 @@ ARequest::ARequestException::ARequestException(int code): _code(code) {}
 const char *ARequest::ARequestException::what() const throw() {
 	return ("ARequestException");
 }
+
 std::string ARequest::ARequestException::message() const {
 	return (toString(_code) + ": " + getHTTPErrorMessages(_code));
 }
+
 int ARequest::ARequestException::code() {
 	return (_code);
 }

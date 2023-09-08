@@ -19,7 +19,6 @@
 # include <sys/stat.h>
 # include "Header/RequestHeader.hpp"
 # include "Response/Response.hpp"
-# include "Socket/ClientSocket.hpp"
 # include "utils/utils.hpp"
 
 class ARequest {
@@ -49,7 +48,6 @@ protected:
 	ClientSocket _clientSocket;
 	std::string _rawRequest;
 	RequestHeader _header;
-	std::string _method;
 
 private:
 	// member functions

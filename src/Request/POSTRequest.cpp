@@ -14,9 +14,7 @@
 
 // constructors
 POSTRequest::POSTRequest() {}
-POSTRequest::POSTRequest(const ClientSocket& clientSocket) : ARequest(clientSocket) {
-	_method = "POST";
-}
+POSTRequest::POSTRequest(const ClientSocket& clientSocket) : ARequest(clientSocket) {}
 POSTRequest::POSTRequest(const POSTRequest &other): ARequest(other) {}
 
 // destructor
@@ -90,8 +88,8 @@ void POSTRequest::_getBoundary()
 
 void POSTRequest::_getFileData()
 {
-	size_t contentStart = _rawRequest.find("\r\n\r\n");
-	contentStart = _rawRequest.find("\r\n\r\n",contentStart + 5) + 4;
+	size_t contentStart = _rawRequest.find(CRLF CRLF);
+	contentStart = _rawRequest.find(CRLF CRLF,contentStart + 5) + 4;
 	size_t contentEnd = _rawRequest.find_last_of(_boundary) - _boundary.length() - 4;
 
 	_fileData = _rawRequest.substr(contentStart, contentEnd - contentStart);

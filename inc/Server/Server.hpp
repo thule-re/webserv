@@ -13,21 +13,24 @@
 #ifndef WEBSERV_SERVER_HPP
 # define WEBSERV_SERVER_HPP
 
-# include <iostream>
-# include <string>
-# include <cstring>
-# include <sys/socket.h>
-# include <netinet/in.h>
-# include <unistd.h>
-# include <fstream>
 # include <cstdio>
-# include <vector>
-# include <fcntl.h>
-# include <sys/select.h>
-# include <sys/time.h>
-# include <map>
+# include <cstring>
 # include <ctime>
+# include <fstream>
+# include <iostream>
+# include <map>
+# include <string>
+# include <vector>
 
+# include <arpa/inet.h>
+# include <fcntl.h>
+# include <netdb.h>
+# include <netinet/in.h>
+# include <sys/time.h>
+# include <sys/socket.h>
+# include <sys/select.h>
+# include <sys/types.h>
+# include <unistd.h>
 
 # include "Request/ARequest.hpp"
 # include "Response/Response.hpp"
@@ -70,12 +73,13 @@ private:
 	// member variables
 	int			_port;
 	int			_serverSocket;
-    int         _maxFd;
+	int			_maxFd;
 
 	fd_set		_readSet;
-    fd_set      _writeSet;
-    fd_set      _readSetCopy;
-    fd_set      _writeSetCopy;
+	fd_set		_writeSet;
+	fd_set		_readSetCopy;
+	fd_set		_writeSetCopy;
+
 	std::string	_indexPath;
 	std::string	_errorPath;
 	std::string	_root;
