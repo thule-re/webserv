@@ -10,18 +10,24 @@
 /*                                                                            */
 /* ************************************************************************** */
 
-#include "Server/Server.hpp"
+#include "Server/Cluster.hpp"
 
 int main(int argc, char **argv) {
-	Server server;
+//	Server server;
+//
+//	if (argc == 5) {
+//		std::cout << "debug" << std::endl;
+//		server = Server(atoi(argv[1]), argv[2], argv[3], argv[4]);
+//	} else {
+//		server = Server();
+//	}
 
-	if (argc == 5) {
-		std::cout << "debug" << std::endl;
-		server = Server(atoi(argv[1]), argv[2], argv[3], argv[4]);
-	} else {
-		server = Server();
-	}
-	server.init();
-	server.loop();
+	(void) argc;
+	(void) argv;
+
+	Cluster cluster = Cluster();
+
+	cluster.initializeServers();
+	cluster.loop();
 	return (0);
 }

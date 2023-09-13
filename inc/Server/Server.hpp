@@ -56,35 +56,34 @@ public:
 	void	init();
 	void	loop();
 
+	int addNewConnection();
+	ClientSocket setupClient(int clientSocket);
+
+	void closeConnection(int clientSocket);
+
+	void closeConnection(ClientSocket socket);
+
 private:
 	// member functions
-	void setupClient(int clientSocket);
 	void selectClientSockets();
-	void addNewConnection();
 	void handleLoopException(std::exception &exception);
 	void handleARequestException(ARequest::ARequestException &, Response &);
 	void initializeServerSocket();
 	void setServerSocketOptions(sockaddr_in *serverAddress);
 	void listenOnServerSocket();
 	void bindServerSocket(sockaddr_in serverAddress);
-    void process(int clientSocket);
-    void closeConnection(int clientSocket);
+	ClientSocket process(int socketId, ClientSocket socket);
+
 
 	// member variables
 	int			_port;
 	int			_serverSocket;
 	int			_maxFd;
 
-	fd_set		_readSet;
-	fd_set		_writeSet;
-	fd_set		_readSetCopy;
-	fd_set		_writeSetCopy;
-
 	std::string	_indexPath;
 	std::string	_errorPath;
 	std::string	_root;
 
-	std::map<int, ClientSocket> _clientsMap;
 };
 
 #endif

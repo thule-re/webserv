@@ -31,6 +31,7 @@ FILES 		=	main/main \
 				Request/POSTRequest \
 				Response/Response \
 				Server/Server \
+				Server/Cluster \
 				Socket/ClientSocket \
 				utils/utils \
 
@@ -45,6 +46,7 @@ HEADER		=	Header/AHeader \
 				Response/Response \
 				Response/responseCodes \
 				Server/Server \
+				Server/Cluster \
 				Socket/ClientSocket \
 				utils/utils \
 

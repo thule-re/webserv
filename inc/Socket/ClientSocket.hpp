@@ -68,8 +68,13 @@ public:
 	void closeSocket() const;
 	bool isCompleteRequest() const;
 
+	void setServerFd(int i);
+
+	int getServerFd();
+
 private:
 	int						_socketFd;
+	int 					_serverFd;
 
 	std::string				_allowedHTTPVersion;
 	std::string				_allowedMethods;
@@ -83,6 +88,7 @@ private:
 
 	Response				*_response;
 	time_t					_connectionTime;
+
 };
 
 #endif

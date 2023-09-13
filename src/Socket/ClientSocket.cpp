@@ -137,6 +137,16 @@ void ClientSocket::setConnectionTime(const time_t &connectionTime) {
     _connectionTime = connectionTime;
 }
 
+void ClientSocket::setServerFd(int serverFd) {
+	_serverFd = serverFd;
+}
+
+int ClientSocket::getServerFd()
+{
+	return _serverFd;
+}
+
+
 // member functions
 void ClientSocket::closeSocket() const {
 	close(_socketFd);
