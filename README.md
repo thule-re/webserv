@@ -1,4 +1,4 @@
-# Webserv
+# Webserv (Work in progress)
 
 Welcome to the repository for our **Webserv** project, a part of the curriculum at 42.
 This project focuses on creating a basic web server from scratch in C++. 
