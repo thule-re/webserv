@@ -56,12 +56,16 @@ public:
 	void	init();
 	void	loop();
 
-	int addNewConnection();
+	ClientSocket addNewConnection();
 	ClientSocket setupClient(int clientSocket);
 
 	void closeConnection(int clientSocket);
 
 	void closeConnection(ClientSocket socket);
+
+	int getServerSocket();
+
+	ClientSocket process(int socketId, ClientSocket socket);
 
 private:
 	// member functions
@@ -72,7 +76,6 @@ private:
 	void setServerSocketOptions(sockaddr_in *serverAddress);
 	void listenOnServerSocket();
 	void bindServerSocket(sockaddr_in serverAddress);
-	ClientSocket process(int socketId, ClientSocket socket);
 
 
 	// member variables

@@ -86,30 +86,7 @@ void Server::listenOnServerSocket() {
 	}
 }
 
-//void	Server::loop() {
-//		try {
-//			selectClientSockets();
-//			for (int i = 0; i <= _maxFd + 1; i++)
-//			{
-//				if (FD_ISSET(i, &_readSetCopy)) {
-//					if (i == _serverSocket)
-//						addNewConnection();
-//					else
-//						setupClient(i);
-//				}
-//				if (FD_ISSET(i, &_writeSetCopy))
-//				{
-//					_clientsMap[i].sendResponse();
-//					closeConnection(i);
-//				}
-//			}
-//		}
-//		catch (std::exception &e) {
-//			handleLoopException(e);
-//		}
-//}
-
-int Server::addNewConnection()
+ClientSocket Server::addNewConnection()
 {
 	int clientSocket = accept(_serverSocket, NULL, NULL);
 	if (clientSocket > _maxFd)
@@ -117,16 +94,18 @@ int Server::addNewConnection()
 	if (clientSocket < 0) {
 		std::cerr << "Error accepting connection" << std::endl;
 	}
-	else
-	{
+	else {
 		fcntl(clientSocket, F_SETFL, O_NONBLOCK, FD_CLOEXEC);
 	}
 
-	return clientSocket;
+	ClientSocket c(clientSocket);
+	c.setServerFd(_serverSocket);
+
+	return c;
 }
 
 ClientSocket Server::setupClient(int clientSocket) {
-	ClientSocket socket;
+	ClientSocket socket(clientSocket);
 
 	socket.setServerFd(_serverSocket);
 	socket.setAllowedHTTPVersion(HTTP_VERSION);
@@ -139,13 +118,6 @@ ClientSocket Server::setupClient(int clientSocket) {
 	socket.setUploadFolder("upload");
 	socket.setCgiFolder("cgi-bin");
 
-	socket.readRequest();
-	if (!socket.isCompleteRequest())
-		return socket;
-	else
-	{
-		socket = process(clientSocket, socket);
-	}
 	return socket;
 }
 
@@ -159,6 +131,7 @@ ClientSocket Server::process(int socketId, ClientSocket socket)
 		response = request->handle();
 	}
 	catch (ARequest::ARequestException &e) {
+		std::cout << "Handling exception... " << std::endl;
 		handleARequestException(e, response);
 	}
 	catch (std::exception &e) {
@@ -168,6 +141,10 @@ ClientSocket Server::process(int socketId, ClientSocket socket)
 	delete request;
 	socket.setResponse(response);
 	return socket;
+}
+
+int Server::getServerSocket() {
+	return _serverSocket;
 }
 
 

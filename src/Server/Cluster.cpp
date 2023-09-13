@@ -25,27 +25,32 @@ Cluster::~Cluster() {
 //}
 
 void Cluster::initializeServers() {
-	_serverMap[80] = Server(80, "garbage.html", "www", "www");
-//	_serverMap[85] = Server(85, "upload.html", "www", "www");
+	Server s1(80, "garbage.html", "www", "www");
+	Server s2(85, "upload.html", "www", "www");
 
-	_maxFd = 80;
-	std::map<int, Server>::iterator it = _serverMap.begin();
+	s1.init();
+	s2.init();
 
-	while (it != _serverMap.end()) {
-		it->second.init();
-		FD_SET(it->first, &_readSet);
-		it++;
-	}
+	_serverMap[s1.getServerSocket()] = s1;
+	_serverMap[s2.getServerSocket()] = s2;
+
+	if (s1.getServerSocket() > s2.getServerSocket())
+		_maxFd = s1.getServerSocket();
+	else
+		_maxFd = s2.getServerSocket();
+
+	FD_SET(s1.getServerSocket(), &_readSet);
+	FD_SET(s2.getServerSocket(), &_readSet);
 }
 
-void Cluster::addClientToMap(int clientSocket) {
-	ClientSocket newClient(clientSocket);
+void Cluster::addClientToMap(ClientSocket clientSocket) {
+	int socketFd = clientSocket.getSocketFd();
 
-	if (_clientsMap.count(clientSocket) != 0)
-		_clientsMap.erase(clientSocket);
+	if (_clientsMap.count(socketFd) != 0)
+		_clientsMap.erase(socketFd);
 
-	_clientsMap[clientSocket] = newClient;
-	_clientsMap[clientSocket].setConnectionTime(std::time(NULL));
+	_clientsMap[socketFd] = clientSocket;
+	_clientsMap[socketFd].setConnectionTime(std::time(NULL));
 }
 
 void Cluster::loop() {
@@ -53,24 +58,30 @@ void Cluster::loop() {
 	{
 		try {
 			selectClientSockets();
-			std::cout << "Max fd: " << _maxFd << std::endl;
 			for (int i = 0; i <= _maxFd + 1; i++)
 			{
 				if (FD_ISSET(i, &_readSetCopy)) {
 					if(_serverMap.count(i))
 					{
-						int clientSocket = _serverMap[i].addNewConnection();
-						FD_SET(clientSocket, &_readSet);
-						if (clientSocket > _maxFd)
-							_maxFd = clientSocket;
+						ClientSocket clientSocket = _serverMap[i].addNewConnection();
+						int socketFd = clientSocket.getSocketFd();
+						FD_SET(socketFd, &_readSet);
+						if (socketFd > _maxFd)
+							_maxFd = socketFd;
 						addClientToMap(clientSocket);
 					}
 					else
 					{
 						int clientServer = _clientsMap[i].getServerFd();
-						_serverMap[clientServer].setupClient(i);
-						FD_CLR(i, &_readSet);
-						FD_SET(i, &_writeSet);
+						ClientSocket socket = _serverMap[clientServer].setupClient(i);
+						socket.readRequest();
+						if (socket.isCompleteRequest())
+						{
+							std::cout << "complete request!" << std::endl;
+							FD_CLR(i, &_readSet);
+							FD_SET(i, &_writeSet);
+							_serverMap[clientServer].process(socket.getSocketFd(), socket);
+						}
 					}
 				}
 				if (FD_ISSET(i, &_writeSetCopy))
@@ -100,7 +111,6 @@ void Cluster::selectClientSockets()
 
 	int selectResult = select(_maxFd + 1, &_readSetCopy, &_writeSetCopy, NULL, &timeout);
 
-	std::cout << "Select result: " << selectResult << std::endl;
 	if (selectResult == -1) {
 		std::cerr << "Error in select" << std::endl;
 	}

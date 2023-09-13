@@ -28,7 +28,7 @@ class Cluster {
 
 		void loop();
 
-		void addClientToMap(int clientSocket);
+		void addClientToMap(ClientSocket clientSocket);
 
 
 		private:
