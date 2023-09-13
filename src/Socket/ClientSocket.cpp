@@ -144,23 +144,14 @@ void ClientSocket::closeSocket() const {
 
 std::string ClientSocket::readRequest() {
 	char buffer[BUFFER_SIZE];
-	ssize_t bytesRead;
-	std::string stringBuffer;
 
-	while (true)
-	{
-		bytesRead = recv(_socketFd, buffer, BUFFER_SIZE, 0);
-		if (bytesRead < 0) {
-			std::cerr << "Error reading from client socket" << std::endl;
-			exit(1);
-		}
-		stringBuffer += std::string(buffer, bytesRead);
-		if (bytesRead < BUFFER_SIZE) {
-			break;
-		}
+	if (recv(_socketFd, buffer, BUFFER_SIZE, 0) < 0) {
+		std::cerr << "Error reading from client socket" << std::endl;
+		exit(1);
 	}
-	_rawRequest += stringBuffer;
-	return (stringBuffer);
+
+	_rawRequest += buffer;
+	return (buffer);
 }
 
 bool ClientSocket::isCompleteRequest() const {
