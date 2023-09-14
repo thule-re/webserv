@@ -28,6 +28,7 @@ ClientSocket &ClientSocket::operator=(const ClientSocket &other) {
 	if (this == &other)
 		return (*this);
     _socketFd = other.getSocketFd();
+	_rawRequest = other._rawRequest;
 	_indexFile = other._indexFile;
 	_rootFolder = other._rootFolder;
 	_errorFolder = other._errorFolder;
@@ -35,6 +36,7 @@ ClientSocket &ClientSocket::operator=(const ClientSocket &other) {
 	_uploadFolder = other._uploadFolder;
 	_serverName = other._serverName;
 	_connectionTime = other._connectionTime;
+	_serverFd = other._serverFd;
 	return (*this);
 }
 
@@ -137,6 +139,16 @@ void ClientSocket::setConnectionTime(const time_t &connectionTime) {
     _connectionTime = connectionTime;
 }
 
+void ClientSocket::setServerFd(int serverFd) {
+	_serverFd = serverFd;
+}
+
+int ClientSocket::getServerFd()
+{
+	return _serverFd;
+}
+
+
 // member functions
 void ClientSocket::closeSocket() const {
 	close(_socketFd);
@@ -151,6 +163,8 @@ std::string ClientSocket::readRequest() {
 	}
 
 	_rawRequest += buffer;
+
+	std::cout << _rawRequest << std::endl << std::endl;
 	return (buffer);
 }
 

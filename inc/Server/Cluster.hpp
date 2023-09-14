@@ -9,42 +9,42 @@
 
 
 class Cluster {
-public:
-	// constructors
-	Cluster();
+	public:
+		// constructors
+		Cluster();
 
-	Cluster(const Cluster &);
+		Cluster(const Cluster &);
 
-	// destructor
-	~Cluster();
+		// destructor
+		~Cluster();
 
-	// operator overload
-	Cluster &operator=(const Cluster &other);
+		// operator overload
+		Cluster &operator=(const Cluster &other);
 
-	//member functions
-	void initializeServers();
+		//member functions
+		void initializeServers();
 
-	void selectClientSockets();
+		void selectClientSockets();
 
-	void loop();
+		void loop();
 
-	void addClientToMap(ClientSocket clientSocket);
+		void addClientToMap(ClientSocket clientSocket);
 
 
-private:
-	std::map<int, Server> _serverMap;
-	std::map<int, ClientSocket> _clientsMap;
+		private:
+		std::map<int, Server> _serverMap;
+		std::map<int, ClientSocket> _clientsMap;
 
-	fd_set		_readSet;
-	fd_set		_writeSet;
-	fd_set		_readSetCopy;
-	fd_set		_writeSetCopy;
+		fd_set		_readSet;
+		fd_set		_writeSet;
+		fd_set		_readSetCopy;
+		fd_set		_writeSetCopy;
 
-	int _maxFd;
+		int _maxFd;
 
-	void handleLoopException(std::exception &exception);
+		void handleLoopException(std::exception &exception);
 
-	void closeConnection(ClientSocket socket);
+		void closeConnection(ClientSocket socket);
 };
 
 
