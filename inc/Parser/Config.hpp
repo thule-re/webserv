@@ -59,6 +59,16 @@ public:
 		virtual const char* what() const _NOEXCEPT;
 	};
 
+	class InvalidPortException : public std::exception {
+	public:
+		virtual const char* what() const _NOEXCEPT;
+	};
+
+	class EmptyValueException : public std::exception {
+	public:
+		virtual const char* what() const _NOEXCEPT;
+	};
+
 	// member functions
 	std::map<std::string, std::string>	getMap() const;
 
@@ -68,11 +78,13 @@ private:
 	void	parseConfig(const std::string &configBlock);
 	void	populateConfig(const std::string &configBlock);
 	void	setValue(int key, const std::string &configBlock);
+	void 	validateNoEmptyEntry();
 	void	validateConfigDirs();
 	void	validateDir(std::string const &directory);
 	void 	validateMethods();
 	void	validateHtml();
+	void	validatePort();
 
-	};
+};
 
 #endif

@@ -76,7 +76,15 @@ const char *Config::NoValidMethodException::what() const _NOEXCEPT {
 }
 
 const char *Config::InvalidHtmlException::what() const _NOEXCEPT {
-	return ("Invalid Html standard.");
+	return ("Invalid Html standard in config.");
+}
+
+const char *Config::InvalidPortException::what() const _NOEXCEPT {
+	return ("Invalid Port in config file.");
+}
+
+const char *Config::EmptyValueException::what() const _NOEXCEPT {
+	return ("Empty Value in config file.");
 }
 
 // member functions
@@ -115,6 +123,16 @@ void	Config::setValue(const int key, const std::string &configBlock) {
 	_configMap[keyStr] = configBlock.substr(valStart, valEnd - valStart + 1);
 }
 
+void 	Config::validateNoEmptyEntry() {
+	if (_configMap["serverName"] == ";" || _configMap["allowedHtml"] == ";"
+		|| _configMap["allowedMethods"] == ";" || _configMap["port"] == ";"
+		|| _configMap["root"] == ";" || _configMap["indexFile"] == ";"
+		|| _configMap["errorDirectory"] == ";" || _configMap["cgiDirectory"] == ";"
+		|| _configMap["uploadDirectory"] == ";")
+		throw EmptyValueException();
+	std::cout << _configMap["serverName"] << std::endl;
+}
+
 void	Config::validateDir(std::string const &directory) {
 	std::string	full_path;
 
@@ -130,16 +148,11 @@ void	Config::validateDir(std::string const &directory) {
 }
 
 void	Config::validateConfigDirs() {
-	try {
-		validateDir("root");
-		validateDir("indexFile");
-		validateDir("errorDirectory");
-		validateDir("cgiDirectory");
-		validateDir("uploadDirectory");
-	}
-	catch (NotADirectoryException &e) {
-	std::cout << e.what() << std::endl;
-	}
+	validateDir("root");
+//	validateDir("indexFile");
+//	validateDir("errorDirectory");
+//	validateDir("cgiDirectory");
+//	validateDir("uploadDirectory");
 }
 
 void	Config::validateMethods() {
@@ -154,25 +167,29 @@ void	Config::validateHtml() {
 		throw InvalidHtmlException();
 }
 
+void	Config::validatePort() {
+	for (size_t i = 0; i < _configMap["port"].length(); i++) {
+		if (!std::isdigit(_configMap["port"][i]))
+			throw InvalidPortException();
+	}
+	int	portInt = stoi(_configMap["port"]);
+	if (portInt < 0 || portInt > 65535)
+		throw InvalidPortException();
+}
+
+// catch exceptions in main to correctly close program with bad config
 void	Config::parseConfig(const std::string& configBlock) {
 	std::vector<std::string> configAttributes;
 
 	try {
 		populateConfig(configBlock);
+		validateNoEmptyEntry();
 		validateConfigDirs();
 		validateMethods();
 		validateHtml();
+		validatePort();
 	}
-	catch (InvalidSyntaxException &e) {
-		std::cout << e.what() << std::endl;
-	}
-	catch (NotADirectoryException &e) {
-		std::cout << e.what() << std::endl;
-	}
-	catch (NoValidMethodException &e) {
-		std::cout << e.what() << std::endl;
-	}
-	catch (InvalidHtmlException &e) {
+	catch (std::exception &e) {
 		std::cout << e.what() << std::endl;
 	}
 }
