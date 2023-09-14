@@ -28,6 +28,11 @@ ClientSocket &ClientSocket::operator=(const ClientSocket &other) {
 	if (this == &other)
 		return (*this);
     _socketFd = other.getSocketFd();
+	_serverFd = other._serverFd;
+
+	_allowedHTTPVersion = other._allowedHTTPVersion;
+	_allowedMethods = other._allowedMethods;
+
 	_rawRequest = other._rawRequest;
 	_indexFile = other._indexFile;
 	_rootFolder = other._rootFolder;
@@ -35,8 +40,9 @@ ClientSocket &ClientSocket::operator=(const ClientSocket &other) {
 	_cgiFolder = other._cgiFolder;
 	_uploadFolder = other._uploadFolder;
 	_serverName = other._serverName;
+
+	_response = other._response;
 	_connectionTime = other._connectionTime;
-	_serverFd = other._serverFd;
 	return (*this);
 }
 
