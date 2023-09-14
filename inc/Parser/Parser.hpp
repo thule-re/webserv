@@ -51,7 +51,7 @@ class Parser {
 
 	private:
 		Parser();
-		static void	parseConfig(std::string &rawConfig);
+		void	parseConfig(std::string &rawConfig);
 		std::vector<Config>	_configArr;
 };
 

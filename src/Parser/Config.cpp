@@ -18,7 +18,7 @@ Config::Config(std::string &rawConfig) {
 	parseConfig(rawConfig);
 }
 
-Config::Config(Config &other) {
+Config::Config(const Config &other) {
 	this->_configMap = other.getMap();
 }
 
@@ -78,7 +78,7 @@ const char *Config::InvalidHtmlException::what() const _NOEXCEPT {
 }
 
 // member functions
-std::map<std::string, std::string>	Config::getMap() {
+std::map<std::string, std::string>	Config::getMap() const {
 	return (this->_configMap);
 }
 

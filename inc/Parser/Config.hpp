@@ -27,7 +27,7 @@ public:
 	Config(std::string &rawConfig);
 	Config();
 
-	Config(Config& other);
+	Config(const Config& other);
 
 	// destructor
 	~Config();
@@ -60,7 +60,7 @@ public:
 	};
 
 	// member functions
-	std::map<std::string, std::string>	getMap();
+	std::map<std::string, std::string>	getMap() const;
 
 private:
 	std::map<std::string, std::string>	_configMap;

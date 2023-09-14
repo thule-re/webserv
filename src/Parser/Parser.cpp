@@ -67,9 +67,10 @@ void	Parser::parseConfig(std::string &rawConfig) {
 		while ((start < rawConfig.length()) && (rawConfig[start] == ' '
 				|| rawConfig[start] == '\n'))
 			start++;
-		}
+	}
+//	std::cout << rawConfig << std::endl;
 	for (size_t i = 0; i < serverBlocks.size(); i++) {
 		Config	conf(serverBlocks[i]);
-		std::cout << i << conf.getMap()["root"] << std::endl;
+		_configArr.push_back(conf);
 	}
 }
