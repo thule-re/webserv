@@ -43,7 +43,7 @@ class Server {
 public:
 	// constructors
 	Server();
-	Server(int port, const std::string& index, const std::string& error, const std::string& folder);
+	Server(int port, const std::string& error);
 	Server(const Server &);
 
 	// destructor

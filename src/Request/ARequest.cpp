@@ -123,6 +123,6 @@ std::string ARequest::ARequestException::message() const {
 	return (toString(_code) + ": " + getHTTPErrorMessages(_code));
 }
 
-int ARequest::ARequestException::code() {
+int ARequest::ARequestException::code() const {
 	return (_code);
 }

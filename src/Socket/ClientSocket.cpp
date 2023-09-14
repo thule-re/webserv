@@ -27,14 +27,16 @@ ClientSocket::~ClientSocket() {}
 ClientSocket &ClientSocket::operator=(const ClientSocket &other) {
 	if (this == &other)
 		return (*this);
-    _socketFd = other.getSocketFd();
-	_indexFile = other._indexFile;
-	_rootFolder = other._rootFolder;
+    _socketFd = other._socketFd;
+	_allowedHTTPVersion = other._allowedHTTPVersion;
+	_allowedMethods = other._allowedMethods;
+	_rawRequest = other._rawRequest;
 	_errorFolder = other._errorFolder;
-	_cgiFolder = other._cgiFolder;
-	_uploadFolder = other._uploadFolder;
 	_serverName = other._serverName;
+	_locationMap = other._locationMap;
+	_response = other._response;
 	_connectionTime = other._connectionTime;
+
 	return (*this);
 }
 
@@ -55,24 +57,8 @@ std::string ClientSocket::getRawRequest() const {
 	return (_rawRequest);
 }
 
-std::string ClientSocket::getIndexFile() const {
-	return (_indexFile);
-}
-
-std::string ClientSocket::getRootFolder() const {
-	return (_rootFolder);
-}
-
 std::string ClientSocket::getErrorFolder() const {
 	return (_errorFolder);
-}
-
-std::string ClientSocket::getCgiFolder() const {
-	return (_cgiFolder);
-}
-
-std::string ClientSocket::getUploadFolder() const {
-	return (_uploadFolder);
 }
 
 std::string ClientSocket::getServerName() const {
@@ -109,24 +95,8 @@ void ClientSocket::addToAllowedMethods(const std::string &allowedMethods) {
 	_allowedMethods += allowedMethods;
 }
 
-void ClientSocket::setIndexFile(const std::string &indexFile) {
-	_indexFile = indexFile;
-}
-
-void ClientSocket::setIndexFolder(const std::string &indexFolder) {
-	_rootFolder = indexFolder;
-}
-
 void ClientSocket::setErrorFolder(const std::string &errorFolder) {
 	_errorFolder = errorFolder;
-}
-
-void ClientSocket::setCgiFolder(const std::string &cgiFolder) {
-	_cgiFolder = cgiFolder;
-}
-
-void ClientSocket::setUploadFolder(const std::string &uploadFolder) {
-	_uploadFolder = uploadFolder;
 }
 
 void ClientSocket::setServerName(const std::string &serverName) {
@@ -139,6 +109,10 @@ void ClientSocket::setResponse(Response* response) {
 
 void ClientSocket::setConnectionTime(const time_t &connectionTime) {
     _connectionTime = connectionTime;
+}
+
+void ClientSocket::setLocationMap(std::map<std::string, Location> *locationMap) {
+	_locationMap = locationMap;
 }
 
 // member functions

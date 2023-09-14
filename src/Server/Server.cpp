@@ -13,12 +13,12 @@
 #include "Server/Server.hpp"
 
 // constructors
-Server::Server(): _port(80), _serverSocket(), _indexPath("garbage.html"), _errorPath("www"), _root("www") {
+Server::Server(): _port(80), _serverSocket() {
 	FD_ZERO(&_readSet);
 	FD_ZERO(&_writeSet);
 }
 
-Server::Server(int port, const std::string& index, const std::string& error, const std::string& folder): _port(port), _serverSocket(), _indexPath(index), _errorPath(error), _root(folder) {
+Server::Server(int port, const std::string& error): _port(port), _serverSocket(), _errorPath(error) {
 	FD_ZERO(&_readSet);
 	FD_ZERO(&_writeSet);
 }
@@ -163,11 +163,8 @@ void Server::setupClient(int clientSocket) {
 	_clientsMap[clientSocket].addToAllowedMethods(METHOD_GET);
 	_clientsMap[clientSocket].addToAllowedMethods(METHOD_POST);
 	_clientsMap[clientSocket].addToAllowedMethods(METHOD_DELETE);
-	_clientsMap[clientSocket].setIndexFile(_indexPath);
-	_clientsMap[clientSocket].setIndexFolder(_root);
 	_clientsMap[clientSocket].setErrorFolder(_errorPath);
-	_clientsMap[clientSocket].setUploadFolder("upload");
-	_clientsMap[clientSocket].setCgiFolder("cgi-bin");
+	_clientsMap[clientSocket].setLocationMap(&_locationMap);
 
 	_clientsMap[clientSocket].readRequest();
 	if (!_clientsMap[clientSocket].isCompleteRequest())
