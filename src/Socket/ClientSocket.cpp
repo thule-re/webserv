@@ -169,8 +169,6 @@ std::string ClientSocket::readRequest() {
 	}
 
 	_rawRequest += buffer;
-
-	std::cout << _rawRequest << std::endl << std::endl;
 	return (buffer);
 }
 

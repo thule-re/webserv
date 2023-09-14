@@ -51,6 +51,8 @@ std::string	getConfigValStr(const int& key) {
 			return "cgiDirectory";
 		case UPLOADDIR:
 			return "uploadDirectory";
+		case PORT:
+			return "port";
 		default:
 			return "unspecificConfigValue";
 	}
@@ -91,6 +93,7 @@ void	Config::populateConfig(const std::string &configBlock) {
 	setValue(ERRORDIR, configBlock);
 	setValue(CGIDIR, configBlock);
 	setValue(UPLOADDIR, configBlock);
+	setValue(PORT, configBlock);
 }
 
 void	Config::setValue(const int key, const std::string &configBlock) {

@@ -21,5 +21,6 @@
 #define ERRORDIR		6
 #define CGIDIR			7
 #define UPLOADDIR		8
+#define PORT			9
 
 #endif

@@ -20,6 +20,18 @@ Cluster::Cluster() {
 	FD_ZERO(&_writeSet);
 }
 
+Cluster::Cluster(std::vector<Config> &configs)
+{
+	_maxFd = 0;
+	FD_ZERO(&_readSet);
+	FD_ZERO(&_writeSet);
+
+	for (size_t i = 0; i < configs.size(); i++)
+	{
+		initializeServer(configs[i]);
+	}
+}
+
 Cluster::Cluster(const Cluster &) {
 
 }
@@ -42,23 +54,21 @@ Cluster &Cluster::operator=(const Cluster &other) {
 	return *this;
 }
 
-void Cluster::initializeServers() {
-	Server s1(80, "garbage.html", "www", "www");
-	Server s2(85, "upload.html", "www", "www");
+void Cluster::initializeServer(Config &config) {
+	std::map<std::string, std::string> map = config.getMap();
 
-	s1.init();
-	s2.init();
+	Server server(atoi(map["port"].c_str()), map["indexFile"],
+				  map["errorDirectory"], map["root"]);
 
-	_serverMap[s1.getServerSocket()] = s1;
-	_serverMap[s2.getServerSocket()] = s2;
+	server.init();
+	int socket = server.getServerSocket();
 
-	if (s1.getServerSocket() > s2.getServerSocket())
-		_maxFd = s1.getServerSocket();
-	else
-		_maxFd = s2.getServerSocket();
+	_serverMap[socket] = server;
 
-	FD_SET(s1.getServerSocket(), &_readSet);
-	FD_SET(s2.getServerSocket(), &_readSet);
+	if (socket > _maxFd)
+		_maxFd = socket;
+
+	FD_SET(socket, &_readSet);
 }
 
 void Cluster::loop() {

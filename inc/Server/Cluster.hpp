@@ -6,6 +6,7 @@
 #include <map>
 #include "Server.hpp"
 #include "../Socket/ClientSocket.hpp"
+#include "../Parser/Config.hpp"
 
 
 class Cluster {
@@ -13,7 +14,10 @@ class Cluster {
 		// constructors
 		Cluster();
 
-		Cluster(const Cluster &);
+		Cluster(std::vector<Config> &configs);
+
+
+	Cluster(const Cluster &);
 
 		// destructor
 		~Cluster();
@@ -51,6 +55,8 @@ class Cluster {
 	void readRequestFromClient(int i);
 
 	void sendResponseToServer(int i);
+
+	void initializeServer(Config &config);
 };
 
 

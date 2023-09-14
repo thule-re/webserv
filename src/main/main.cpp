@@ -11,23 +11,19 @@
 /* ************************************************************************** */
 
 #include "Server/Cluster.hpp"
+#include "Parser/Parser.hpp"
 
 int main(int argc, char **argv) {
-//	Server server;
-//
-//	if (argc == 5) {
-//		std::cout << "debug" << std::endl;
-//		server = Server(atoi(argv[1]), argv[2], argv[3], argv[4]);
-//	} else {
-//		server = Server();
-//	}
 
-	(void) argc;
-	(void) argv;
+	if (argc != 2) {
+		std::cerr << "You need a config file, bozo!" << std::endl;
+		return (1);
+	}
 
-	Cluster cluster = Cluster();
+	Parser parser(argv[1]);
 
-	cluster.initializeServers();
+	Cluster cluster(parser.getConfigArr());
+
 	cluster.loop();
 	return (0);
 }
