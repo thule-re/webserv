@@ -14,7 +14,7 @@
 
 // constructors
 CgiRequest::CgiRequest() {}
-CgiRequest::CgiRequest(const ClientSocket& clientSocket) : ARequest(clientSocket), _envp(), _env(), _scriptPath(), _queryString(), _pathInfo(), _cgiInput(), _cgiOutput() {
+CgiRequest::CgiRequest(ClientSocket* clientSocket) : ARequest(clientSocket), _envp(), _env(), _scriptPath(), _queryString(), _pathInfo(), _cgiInput(), _cgiOutput() {
 	int i = 0;
 	while (environ[i])
 		_env.push_back(environ[i++]);
@@ -38,20 +38,15 @@ CgiRequest &CgiRequest::operator=(const CgiRequest &other) {
 }
 
 // member functions
-Response CgiRequest::handle() {
-	Response response(_clientSocket);
+Response *CgiRequest::handle() {
+	Response *response = new Response(_clientSocket);
 	std::cout << "CgiRequest::handle()" << std::endl;
 
-	// _getBoundary();
-	// if (!_boundary.empty())
-	// 	_extractMultipartFormData();
 	_getScriptPath();
 	_getQueryString();
 	_getPathInfo();
 	_setEnv();
-//	std::cout << "_rawRequest: \n" << _rawRequest << std::endl;
 	_execCgi(response);
-//	std::cout << "_cgiOutputString: \n" << _cgiOutputString << std::endl;
 	return (response);
 }
 
@@ -64,6 +59,8 @@ void CgiRequest::_getScriptPath() {
 		_scriptPath = path.substr(0, queryString);
 	else
 		_scriptPath = path.substr(0, pathInfo);
+	if (access(_scriptPath.c_str(), X_OK) == -1)
+		throw ARequest::ARequestException(NOT_FOUND);
 }
 
 void CgiRequest::_getQueryString() {
@@ -100,7 +97,7 @@ void CgiRequest::_setEnv() {
 	_env.push_back("REQUEST_METHOD=" + _header["Method"]);
 	_env.push_back("REQUEST_URI=" + _header["Path"]);
 	_env.push_back("SCRIPT_NAME=" + _scriptPath);
-	_env.push_back("SERVER_NAME=" + _clientSocket.getServerName());
+	_env.push_back("SERVER_NAME=" + _clientSocket->getServerName());
 	// _env.push_back("SERVER_PORT=" + _clientSocket.getServerPort());
 	_env.push_back("SERVER_PROTOCOL=" + _header["HTTP-Version"]);
 	_env.push_back("SERVER_SOFTWARE=webserv/1.0");
@@ -136,7 +133,7 @@ void CgiRequest::_readCgiOutput() {
 	}
 }
 
-void CgiRequest::_execCgi(Response &response) {
+void CgiRequest::_execCgi(Response *response) {
 	pid_t pid;
 	int status;
 
@@ -171,10 +168,10 @@ void CgiRequest::_execCgi(Response &response) {
 		size_t pos = _cgiOutputString.find(CRLF CRLF);
 		if (pos != std::string::npos) {
 			std::string header = _cgiOutputString.substr(0, pos);
-			response.setHeader(ResponseHeader(header));
-			response.setBody(_cgiOutputString.substr(pos + 4));
+			response->setHeader(ResponseHeader(header));
+			response->setBody(_cgiOutputString.substr(pos + 4));
 		} else {
-			response.setBody(_cgiOutputString);
+			response->setBody(_cgiOutputString);
 		}
 	}
 }

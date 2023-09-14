@@ -14,7 +14,7 @@
 
 // constructors
 GETRequest::GETRequest() {}
-GETRequest::GETRequest(const ClientSocket& clientSocket) : ARequest(clientSocket) {}
+GETRequest::GETRequest(ClientSocket* clientSocket) : ARequest(clientSocket) {}
 GETRequest::GETRequest(const GETRequest &other): ARequest(other) {}
 
 // destructor
@@ -30,21 +30,22 @@ GETRequest &GETRequest::operator=(const GETRequest &other) {
 	return (*this);
 }
 
-Response GETRequest::handle() {
-	Response response(_clientSocket);
+Response *GETRequest::handle() {
+	Response *response = new Response(_clientSocket);
 	std::cout << "GETRequest::handle()" << std::endl;
 
 	std::string path = _header["Path"];
-	if (_isDirectory(path))
-		response.setBody(_getDirectoryListing(path));
+	if (_location->getAutoindex() && _isDirectory(path))
+		response->setBody(_getDirectoryListing(path));
 	else
 	{
 		std::ifstream file(path.c_str());
 		if (!file.is_open()) {
+			delete response;
 			throw ARequest::ARequestException(NOT_FOUND);
 		}
-		response.setHeader("Content-Type" ,getContentType(_header["Path"]));
-		response.setBody(readFile(file));
+		response->setHeader("Content-Type" ,getContentType(_header["Path"]));
+		response->setBody(readFile(file));
 	}
 	return (response);
 }

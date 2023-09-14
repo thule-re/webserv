@@ -36,10 +36,11 @@ Server &Server::operator=(const Server &other) {
 		return (*this);
 	_port = other._port;
 	_serverSocket = other._serverSocket;
-	_indexPath = other._indexPath;
 	_errorPath = other._errorPath;
-	_root = other._root;
 	_readSet = other._readSet;
+	_writeSet = other._writeSet;
+	_clientsMap = other._clientsMap;
+	_locationMap = other._locationMap;
 
 	return (*this);
 }
@@ -181,22 +182,24 @@ void Server::setupClient(int clientSocket) {
 
 void Server::process(int clientSocket)
 {
-	Response response(clientSocket);
+	Response *response;
 	ARequest *request;
 
 	try {
-		request = ARequest::newRequest(_clientsMap[clientSocket]);
+		request = ARequest::newRequest(&_clientsMap[clientSocket]);
 		response = request->handle();
 	}
 	catch (ARequest::ARequestException &e) {
+		response = new Response(&_clientsMap[clientSocket]);
 		handleARequestException(e, response);
 	}
 	catch (std::exception &e) {
 		std::cerr << e.what() << std::endl;
-		response.buildErrorPage(INTERNAL_SERVER_ERROR);
+		response = new Response(&_clientsMap[clientSocket]);
+		response->buildErrorPage(INTERNAL_SERVER_ERROR);
 	}
-	delete request;
 	_clientsMap[clientSocket].setResponse(response);
+	delete request;
 }
 
 void Server::closeConnection(int clientSocket)
@@ -213,7 +216,7 @@ void Server::handleLoopException(std::exception &exception) {
 	std::cerr << exception.what() << std::endl;
 }
 
-void Server::handleARequestException(ARequest::ARequestException &exception, Response &response) {
+void Server::handleARequestException(ARequest::ARequestException &exception, Response *response) {
 	std::cerr << exception.message() << std::endl;
-	response.buildErrorPage(exception.code());
+	response->buildErrorPage(exception.code());
 }

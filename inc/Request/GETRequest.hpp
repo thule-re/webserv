@@ -20,7 +20,7 @@
 class GETRequest: public ARequest {
 public:
 	// constructors
-	GETRequest(const ClientSocket& clientSocket);
+	GETRequest(ClientSocket* clientSocket);
 	GETRequest(const GETRequest &);
 
 	// destructor
@@ -30,7 +30,7 @@ public:
 	GETRequest &operator=(const GETRequest &);
 
 	// member functions
-	Response handle();
+	Response *handle();
 
 private:
 	// constructors

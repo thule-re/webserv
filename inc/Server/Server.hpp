@@ -62,7 +62,7 @@ private:
 	void selectClientSockets();
 	void addNewConnection();
 	void handleLoopException(std::exception &exception);
-	void handleARequestException(ARequest::ARequestException &, Response &);
+	void handleARequestException(ARequest::ARequestException &, Response *);
 	void initializeServerSocket();
 	void setServerSocketOptions(sockaddr_in *serverAddress);
 	void listenOnServerSocket();
@@ -80,9 +80,7 @@ private:
 	fd_set		_readSetCopy;
 	fd_set		_writeSetCopy;
 
-	std::string	_indexPath;
 	std::string	_errorPath;
-	std::string	_root;
 
 	std::map<int, ClientSocket> _clientsMap;
 };

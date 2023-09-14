@@ -14,7 +14,7 @@
 
 // constructors
 POSTRequest::POSTRequest() {}
-POSTRequest::POSTRequest(const ClientSocket& clientSocket) : ARequest(clientSocket) {}
+POSTRequest::POSTRequest(ClientSocket* clientSocket) : ARequest(clientSocket) {}
 POSTRequest::POSTRequest(const POSTRequest &other): ARequest(other) {}
 
 // destructor
@@ -27,8 +27,8 @@ POSTRequest &POSTRequest::operator=(const POSTRequest &other) {
 	return (*this);
 }
 
-Response POSTRequest::handle() {
-	Response response(_clientSocket);
+Response *POSTRequest::handle() {
+	Response *response = new Response(_clientSocket);
 	std::cerr << "POSTRequest::handle()" << std::endl;
 
 	std::ofstream out("rawRequest.txt");
@@ -52,7 +52,7 @@ void POSTRequest::_checkFilename()
 	} else if (_filename.find("..") != std::string::npos) {
 		throw ARequest::ARequestException(FORBIDDEN);
 	}
-	_filename = _clientSocket.getRootFolder() + "/" + _clientSocket.getUploadFolder() + "/" + _filename;
+	_filename = _location->getRoot() + "/" + _location->getUpload() + "/" + _filename;
 }
 
 void POSTRequest::_getBoundary()

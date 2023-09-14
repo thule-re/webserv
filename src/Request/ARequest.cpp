@@ -17,9 +17,9 @@
 #include "Request/POSTRequest.hpp"
 
 // constructor
-ARequest::ARequest() : _clientSocket() {}
+ARequest::ARequest() : _location() {}
 
-ARequest::ARequest(const ClientSocket& clientSocket): _clientSocket(clientSocket), _rawRequest(clientSocket.getRawRequest()) {
+ARequest::ARequest(ClientSocket *clientSocket): _clientSocket(clientSocket), _rawRequest(clientSocket->getRawRequest()), _location() {
 	_header = RequestHeader(_rawRequest.substr(0, _rawRequest.find(CRLF CRLF)));
 	if (_header["Path"].find("..") != std::string::npos)
 		throw ARequest::ARequestException(FORBIDDEN);
@@ -28,7 +28,7 @@ ARequest::ARequest(const ClientSocket& clientSocket): _clientSocket(clientSocket
 		_unchunkBody();
 }
 
-ARequest::ARequest(const ARequest &other) {
+ARequest::ARequest(const ARequest &other): _clientSocket(other._clientSocket), _location() {
 	*this = other;
 }
 
@@ -42,18 +42,19 @@ ARequest &ARequest::operator=(const ARequest &other) {
 	_clientSocket = other._clientSocket;
 	_rawRequest = other._rawRequest;
 	_header = other._header;
+	_location = other._location;
 	return (*this);
 }
 
 // member functions
-ARequest *ARequest::newRequest(const ClientSocket &clientSocket) {
-	std::string request = clientSocket.getRawRequest();
+ARequest *ARequest::newRequest(ClientSocket *clientSocket) {
+	std::string request = clientSocket->getRawRequest();
 	RequestHeader header(request.substr(0, request.find(CRLF CRLF)));
 	if (header["Method"].empty() || header["Path"].empty() || header["HTTP-Version"].empty())
 		throw ARequest::ARequestException(BAD_REQUEST);
-	else if (clientSocket.getAllowedHTTPVersion() != header["HTTP-Version"])
+	else if (clientSocket->getAllowedHTTPVersion() != header["HTTP-Version"])
 		throw ARequest::ARequestException(HTTP_VERSION_NOT_SUPPORTED);
-	else if (clientSocket.getAllowedMethods().find(header["Method"]) == std::string::npos)
+	else if (clientSocket->getAllowedMethods().find(header["Method"]) == std::string::npos)
 		throw ARequest::ARequestException(METHOD_NOT_ALLOWED);
 	else if (_isCgiPath(clientSocket, header["Path"]))
 		return (new CgiRequest(clientSocket));
@@ -68,8 +69,9 @@ ARequest *ARequest::newRequest(const ClientSocket &clientSocket) {
 }
 
 // private member functions
-bool ARequest::_isCgiPath(const ClientSocket &clientSocket, const std::string &path) {
-	if (path.find("/" + clientSocket.getCgiFolder()) == 0)
+bool ARequest::_isCgiPath(const ClientSocket *clientSocket, const std::string &path) {
+	Location *location = _findLocation(clientSocket, path);
+	if (path.find("/" + location->getCgi()) == 0)
 		return (true);
 	return (false);
 }

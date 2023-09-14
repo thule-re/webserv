@@ -83,8 +83,12 @@ time_t ClientSocket::getConnectionTime() const {
     return _connectionTime;
 }
 
-Response ClientSocket::getResponse() const {
-	return *_response;
+Response *ClientSocket::getResponse() const {
+	return _response;
+}
+
+std::map<std::string, Location> *ClientSocket::getLocationMap() const {
+	return (_locationMap);
 }
 
 
@@ -129,8 +133,8 @@ void ClientSocket::setServerName(const std::string &serverName) {
 	_serverName = serverName;
 }
 
-void ClientSocket::setResponse(const Response& response) {
-	_response = new Response(response);
+void ClientSocket::setResponse(Response* response) {
+	_response = response;
 }
 
 void ClientSocket::setConnectionTime(const time_t &connectionTime) {

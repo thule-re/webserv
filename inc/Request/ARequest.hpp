@@ -24,7 +24,7 @@
 class ARequest {
 public:
 	// constructors
-	ARequest(const ClientSocket& clientSocket);
+	ARequest(ClientSocket* clientSocket);
 	ARequest(const ARequest &);
 
 	// destructor
@@ -34,8 +34,8 @@ public:
 	ARequest &operator=(const ARequest &);
 
 	// member functions
-	virtual Response handle() = 0;
-	static ARequest *newRequest(const ClientSocket& clientSocket);
+	virtual Response *handle() = 0;
+	static ARequest *newRequest(ClientSocket* clientSocket);
 
 protected:
 	// constructors
@@ -45,13 +45,15 @@ protected:
 	static bool _isDirectory(const std::string& path);
 
 	// member variables
-	ClientSocket _clientSocket;
+	ClientSocket *_clientSocket;
 	std::string _rawRequest;
 	RequestHeader _header;
 
 private:
 	// member functions
-	static bool _isCgiPath(const ClientSocket& clientSocket, const std::string& path);
+	static bool _isCgiPath(const ClientSocket* clientSocket, const std::string& path);
+	static Location *_findLocation(const ClientSocket *clientSocket, std::string path);
+	Location *_findLocation(std::string path);
 	void _expandPath();
 	void _unchunkBody();
 
@@ -62,7 +64,7 @@ public:
 		ARequestException(int);
 		virtual const char *what() const throw();
 		std::string message() const;
-		int code();
+		int code() const;
 	private:
 		int _code;
 	};

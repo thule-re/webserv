@@ -25,7 +25,7 @@ extern char **environ;
 class CgiRequest: public ARequest {
 public:
 	// constructors
-	CgiRequest(const ClientSocket &clientSocket);
+	CgiRequest(ClientSocket *clientSocket);
 	CgiRequest(const CgiRequest &);
 
 	// destructor
@@ -35,15 +35,13 @@ public:
 	CgiRequest &operator=(const CgiRequest &);
 
 	// member functions
-	Response handle();
+	Response *handle();
 
 private:
 	// constructors
 	CgiRequest();
 
 	// member functions
-	void _getBoundary();
-	void _extractMultipartFormData();
 	void _getScriptPath();
 	void _getQueryString();
 	void _getPathInfo();
@@ -51,7 +49,7 @@ private:
 	void _readCgiOutput();
 	void _setEnv();
 	void _exportEnv();
-	void _execCgi(Response &response);
+	void _execCgi(Response *response);
 
 	// member variables
 	char **_envp;

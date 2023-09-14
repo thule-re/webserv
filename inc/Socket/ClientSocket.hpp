@@ -46,7 +46,8 @@ public:
 	std::string getUploadFolder() const;
 	std::string getServerName() const;
 	time_t getConnectionTime() const;
-	Response getResponse() const;
+	Response *getResponse() const;
+	std::map<std::string, Location> *getLocationMap() const;
 
 	// setter functions
 	void setRawRequest(const std::string &rawRequest);
@@ -59,7 +60,7 @@ public:
 	void setCgiFolder(const std::string &cgiFolder);
 	void setUploadFolder(const std::string &uploadFolder);
     void setServerName(const std::string &serverName);
-	void setResponse(const Response& response);
+	void setResponse(Response* response);
     void setConnectionTime(const time_t &connectionTime);
 
 	// member functions

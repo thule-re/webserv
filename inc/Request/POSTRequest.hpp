@@ -24,7 +24,7 @@
 class POSTRequest: public ARequest {
 public:
 	// constructors
-	POSTRequest(const ClientSocket &clientSocket);
+	POSTRequest(ClientSocket *clientSocket);
 	POSTRequest(const POSTRequest &other);
 
 	// destructor
@@ -34,7 +34,7 @@ public:
 	POSTRequest &operator=(const POSTRequest &);
 
 	// member functions
-	Response handle();
+	Response *handle();
 
 private:
 	// constructors
