@@ -72,7 +72,11 @@ ARequest *ARequest::newRequest(ClientSocket *clientSocket) {
 // private member functions
 bool ARequest::_isCgiPath(const ClientSocket *clientSocket, const std::string &path) {
 	Location *location = _findLocation(clientSocket, path);
+	if (location->getCgi().empty())
+		return (false);
 	if (path.find("/" + location->getCgi()) == 0)
+		return (true);
+	if (path.find(location->getPath() + "/" + location->getCgi()) == 0)
 		return (true);
 	return (false);
 }
