@@ -55,10 +55,10 @@ std::string GETRequest::_getDirectoryListing(const std::string& path) {
 	DIR *dir;
 	struct dirent *entry;
 	if ((dir = opendir (path.c_str())) != NULL) {
-		body += "<html><head><title>Index of " + path + "</title></head><body><h1>Index of " + path + "</h1><hr><pre>";
+		body += "<html><head><title>Index of " + _location->getPath() + path.substr(_location->getRoot().length()) + "</title></head><body><h1>Index of " + _location->getPath() + path.substr(_location->getRoot().length()) + "</h1><hr><pre>";
 		entry = readdir (dir);
 		while (entry) {
-			body += "<a href=\"" + path.substr(_clientSocket.getRootFolder().length()) + "/" + std::string(entry->d_name) + "\">" + entry->d_name + "</a><br>";
+			body += "<a href=\"" + _location->getPath() + path.substr(_location->getRoot().length()) + "/" + entry->d_name + "\">" + entry->d_name + "</a><br>";
 			entry = readdir (dir);
 		}
 		body += "</pre><hr></body></html>";

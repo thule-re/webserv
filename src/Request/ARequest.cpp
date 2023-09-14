@@ -21,6 +21,7 @@ ARequest::ARequest() : _location() {}
 
 ARequest::ARequest(ClientSocket *clientSocket): _clientSocket(clientSocket), _rawRequest(clientSocket->getRawRequest()), _location() {
 	_header = RequestHeader(_rawRequest.substr(0, _rawRequest.find(CRLF CRLF)));
+	_location = _findLocation(_header["Path"]);
 	if (_header["Path"].find("..") != std::string::npos)
 		throw ARequest::ARequestException(FORBIDDEN);
 	_expandPath();
@@ -84,13 +85,36 @@ bool ARequest::_isDirectory(const std::string &path) {
 	return (false);
 }
 
+Location *ARequest::_findLocation(const ClientSocket *clientSocket, std::string path) {
+	if (path.find('/') == 0)
+		path = path.substr(1);
+	if (!path.empty())
+		path = path.substr(0, path.find('/'));
+	path = "/" + path;
+	if (clientSocket->getLocationMap()->find(path) != clientSocket->getLocationMap()->end())
+		return (&clientSocket->getLocationMap()->find(path)->second);
+	return (&clientSocket->getLocationMap()->find("/")->second);
+}
+
+Location *ARequest::_findLocation(std::string path) {
+	if (path.find('/') == 0)
+		path = path.substr(1);
+	if (!path.empty())
+		path = path.substr(0, path.find('/'));
+	path = "/" + path;
+	if (_clientSocket->getLocationMap()->find(path) != _clientSocket->getLocationMap()->end())
+		return (&_clientSocket->getLocationMap()->find(path)->second);
+	return (&_clientSocket->getLocationMap()->find("/")->second);
+}
+
 void ARequest::_expandPath() {
 	std::string path = _header["Path"];
-	if (path.find(_clientSocket.getRootFolder()) != 0)
-		path = _clientSocket.getRootFolder() + path;
-	if (path[path.length() - 1] == '/')
-		path += _clientSocket.getIndexFile();
-
+	if (path.find(_location->getPath()) == 0)
+		path.replace(path.find(_location->getPath()), _location->getPath().length(), _location->getRoot());
+	if (path[path.length() - 1] == '/' && path.length() > 1)
+		path = path.substr(0, path.length() - 1);
+	if (_isDirectory(path) && !_location->getIndex().empty())
+		path += "/" + _location->getIndex();
 	_header["Path"] = path;
 }
 

@@ -82,7 +82,8 @@ private:
 
 	std::string	_errorPath;
 
-	std::map<int, ClientSocket> _clientsMap;
+	std::map<int, ClientSocket>		_clientsMap;
+	std::map<std::string, Location>	_locationMap;
 };
 
 #endif

@@ -65,6 +65,7 @@ public:
     void setServerName(const std::string &serverName);
 	void setResponse(Response* response);
     void setConnectionTime(const time_t &connectionTime);
+	void setLocationMap(std::map<std::string, Location> *locationMap);
 
 	// member functions
 	void sendResponse();

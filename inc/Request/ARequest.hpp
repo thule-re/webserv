@@ -48,6 +48,7 @@ protected:
 	ClientSocket *_clientSocket;
 	std::string _rawRequest;
 	RequestHeader _header;
+	Location *_location;
 
 private:
 	// member functions

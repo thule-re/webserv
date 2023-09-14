@@ -49,6 +49,9 @@ Server &Server::operator=(const Server &other) {
 void	Server::init() {
 	struct sockaddr_in serverAddress = {};
 
+	_locationMap["/"] = Location("/", "www/", "garbage.html", "cgi-bin", "upload", false);
+	_locationMap["/test"] = Location("/test", "../../../../../../../Users/treeps/Documents", "", "cgi-bin", "upload", true);
+
 	initializeServerSocket();
 	setServerSocketOptions(&serverAddress);
 	bindServerSocket(serverAddress);
