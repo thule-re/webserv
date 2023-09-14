@@ -14,6 +14,7 @@ OBJ_DIR		=	./obj
 OBJ_DIRS	=	./obj \
 				./obj/main \
 				./obj/Header \
+				./obj/Parser \
 				./obj/Request \
 				./obj/Response \
 				./obj/Server \
@@ -24,6 +25,8 @@ FILES 		=	main/main \
 				Header/AHeader \
 				Header/RequestHeader \
 				Header/ResponseHeader \
+				Parser/Config \
+				Parser/Parser \
 				Request/ARequest \
 				Request/CgiRequest \
 				Request/DELETERequest \
@@ -38,6 +41,8 @@ FILES 		=	main/main \
 HEADER		=	Header/AHeader \
 				Header/RequestHeader \
 				Header/ResponseHeader \
+				Parser/Config \
+				Parser/Parser \
 				Request/ARequest \
 				Request/CgiRequest \
 				Request/DELETERequest \
