@@ -45,6 +45,12 @@ class Cluster {
 		void handleLoopException(std::exception &exception);
 
 		void closeConnection(ClientSocket socket);
+
+	void addConnectionToServer(int i);
+
+	void readRequestFromClient(int i);
+
+	void sendResponseToServer(int i);
 };
 
 

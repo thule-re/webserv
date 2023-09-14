@@ -65,7 +65,7 @@ public:
 
 	int getServerSocket();
 
-	ClientSocket process(int socketId, ClientSocket socket);
+	Response process(int socketId, ClientSocket socket);
 
 private:
 	// member functions
