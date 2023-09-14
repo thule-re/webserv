@@ -121,7 +121,7 @@ ClientSocket Server::setupClient(int clientSocket) {
 	return socket;
 }
 
-ClientSocket Server::process(int socketId, ClientSocket socket)
+Response Server::process(int socketId, ClientSocket socket)
 {
 	Response response(socketId);
 	ARequest *request;
@@ -139,15 +139,12 @@ ClientSocket Server::process(int socketId, ClientSocket socket)
 		response.buildErrorPage(INTERNAL_SERVER_ERROR);
 	}
 	delete request;
-	socket.setResponse(response);
-	return socket;
+	return response;
 }
 
 int Server::getServerSocket() {
 	return _serverSocket;
 }
-
-
 
 void Server::handleARequestException(ARequest::ARequestException &exception, Response &response) {
 	std::cerr << exception.message() << std::endl;
