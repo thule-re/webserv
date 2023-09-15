@@ -28,12 +28,15 @@ ClientSocket &ClientSocket::operator=(const ClientSocket &other) {
 	if (this == &other)
 		return (*this);
     _socketFd = other._socketFd;
+    _serverFd = other._serverFd;
 	_allowedHTTPVersion = other._allowedHTTPVersion;
 	_allowedMethods = other._allowedMethods;
+
 	_rawRequest = other._rawRequest;
 	_errorFolder = other._errorFolder;
 	_serverName = other._serverName;
 	_locationMap = other._locationMap;
+
 	_response = other._response;
 	_connectionTime = other._connectionTime;
 
@@ -77,6 +80,10 @@ std::map<std::string, Location> *ClientSocket::getLocationMap() const {
 	return (_locationMap);
 }
 
+int ClientSocket::getServerFd()
+{
+    return _serverFd;
+}
 
 // setters
 void ClientSocket::setRawRequest(const std::string &rawRequest) {
@@ -114,6 +121,11 @@ void ClientSocket::setConnectionTime(const time_t &connectionTime) {
 void ClientSocket::setLocationMap(std::map<std::string, Location> *locationMap) {
 	_locationMap = locationMap;
 }
+
+void ClientSocket::setServerFd(int serverFd) {
+	_serverFd = serverFd;
+}
+
 
 // member functions
 void ClientSocket::closeSocket() const {

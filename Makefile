@@ -15,6 +15,7 @@ OBJ_DIRS	=	./obj \
 				./obj/main \
 				./obj/Header \
 				./obj/Location \
+				./obj/Parser \
 				./obj/Request \
 				./obj/Response \
 				./obj/Server \
@@ -26,6 +27,8 @@ FILES 		=	main/main \
 				Header/RequestHeader \
 				Header/ResponseHeader \
 				Location/Location \
+				Parser/Config \
+				Parser/Parser \
 				Request/ARequest \
 				Request/CgiRequest \
 				Request/DELETERequest \
@@ -33,6 +36,7 @@ FILES 		=	main/main \
 				Request/POSTRequest \
 				Response/Response \
 				Server/Server \
+				Server/Cluster \
 				Socket/ClientSocket \
 				utils/utils \
 
@@ -40,6 +44,8 @@ HEADER		=	Header/AHeader \
 				Header/RequestHeader \
 				Header/ResponseHeader \
 				Location/Location \
+				Parser/Config \
+				Parser/Parser \
 				Request/ARequest \
 				Request/CgiRequest \
 				Request/DELETERequest \
@@ -48,6 +54,7 @@ HEADER		=	Header/AHeader \
 				Response/Response \
 				Response/responseCodes \
 				Server/Server \
+				Server/Cluster \
 				Socket/ClientSocket \
 				utils/utils \
 

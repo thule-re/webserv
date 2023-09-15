@@ -42,30 +42,24 @@ public:
 	std::string getAllowedHTTPVersion() const;
 	std::string getAllowedMethods() const;
 	std::string getRawRequest() const;
-	// std::string getIndexFile() const;
-	// std::string getRootFolder() const;
 	std::string getErrorFolder() const;
-	// std::string getCgiFolder() const;
-	// std::string getUploadFolder() const;
 	std::string getServerName() const;
 	time_t getConnectionTime() const;
 	Response *getResponse() const;
 	std::map<std::string, Location> *getLocationMap() const;
+    int getServerFd();
 
 	// setter functions
 	void setRawRequest(const std::string &rawRequest);
 	void setAllowedHTTPVersion(const std::string &allowedHTTPVersion);
 	void setAllowedMethods(const std::string &allowedMethods);
 	void addToAllowedMethods(const std::string &allowedMethods);
-	// void setIndexFile(const std::string &indexFile);
-	// void setIndexFolder(const std::string &indexFolder);
 	void setErrorFolder(const std::string &errorFolder);
-	// void setCgiFolder(const std::string &cgiFolder);
-	// void setUploadFolder(const std::string &uploadFolder);
     void setServerName(const std::string &serverName);
 	void setResponse(Response* response);
     void setConnectionTime(const time_t &connectionTime);
 	void setLocationMap(std::map<std::string, Location> *locationMap);
+    void setServerFd(int i);
 
 	// member functions
 	void sendResponse();
@@ -73,8 +67,11 @@ public:
 	void closeSocket() const;
 	bool isCompleteRequest() const;
 
+
+
 private:
-	int								_socketFd;
+	int						        _socketFd;
+	int 					        _serverFd;
 
 	std::string						_allowedHTTPVersion;
 	std::string						_allowedMethods;

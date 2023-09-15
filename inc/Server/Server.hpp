@@ -35,6 +35,7 @@
 # include "Request/ARequest.hpp"
 # include "Response/Response.hpp"
 # include "Socket/ClientSocket.hpp"
+# include "Parser/Config.hpp"
 
 # define MAX_CLIENT_CONNECTIONS 100
 # define BUFFER_SIZE 1024
@@ -44,6 +45,8 @@ public:
 	// constructors
 	Server();
 	Server(int port, const std::string& error);
+	Server(const Config &);
+	Server(int port, const std::string& index, const std::string& error, const std::string& folder);
 	Server(const Server &);
 
 	// destructor
@@ -56,19 +59,27 @@ public:
 	void	init();
 	void	loop();
 
+	ClientSocket addNewConnection();
+	ClientSocket setupClient(int clientSocket);
+
+	void closeConnection(int clientSocket);
+
+	void closeConnection(ClientSocket socket);
+
+	int getServerSocket();
+
+	Response *process(int socketId, ClientSocket socket);
+
 private:
 	// member functions
-	void setupClient(int clientSocket);
 	void selectClientSockets();
-	void addNewConnection();
 	void handleLoopException(std::exception &exception);
 	void handleARequestException(ARequest::ARequestException &, Response *);
 	void initializeServerSocket();
 	void setServerSocketOptions(sockaddr_in *serverAddress);
 	void listenOnServerSocket();
 	void bindServerSocket(sockaddr_in serverAddress);
-    void process(int clientSocket);
-    void closeConnection(int clientSocket);
+
 
 	// member variables
 	int			_port;
@@ -79,8 +90,6 @@ private:
 	fd_set		_writeSet;
 	fd_set		_readSetCopy;
 	fd_set		_writeSetCopy;
-
-	std::string	_errorPath;
 
 	std::map<int, ClientSocket>		_clientsMap;
 	std::map<std::string, Location>	_locationMap;

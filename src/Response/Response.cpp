@@ -26,11 +26,13 @@ Response::~Response() {}
 Response &Response::operator=(const Response &other) {
 	if (this == &other)
 		return (*this);
+
 	_clientSocket = other._clientSocket;
 	_header = other._header;
 	_body = other._body;
 	_statusCode = other._statusCode;
 	_statusMessage = other._statusMessage;
+
 	return (*this);
 }
 
