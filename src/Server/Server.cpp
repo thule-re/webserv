@@ -19,6 +19,14 @@ Server::Server(): _port(80), _serverSocket(), _indexPath("garbage.html"), _error
 Server::Server(int port, const std::string& index, const std::string& error, const std::string& folder): _port(port), _serverSocket(), _indexPath(index), _errorPath(error), _root(folder) {
 }
 
+Server::Server(const Config &config):
+	_port(std::stoi(config.getMap()["port"])),
+	_serverSocket(),
+	_indexPath(config.getMap()["indexDirectory"]),
+	_errorPath(config.getMap()["errorDirectory"]),
+	_root(config.getMap()["root"]) {
+}
+
 Server::Server(const Server &other) : _port(), _serverSocket() {
 	*this = other;
 }

@@ -59,6 +59,7 @@ void Cluster::initializeServer(Config &config) {
 
 	Server server(atoi(map["port"].c_str()), map["indexFile"],
 				  map["errorDirectory"], map["root"]);
+//	Server server(config);
 
 	server.init();
 	int socket = server.getServerSocket();

@@ -6,7 +6,7 @@
 /*   By: mtrautne <mtrautne@student.42wolfsburg.d>  +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2023/08/22 15:50:45 by mtrautne          #+#    #+#             */
-/*   Updated: 2023/08/22 15:51:42 by mtrautne         ###   ########.fr       */
+/*   Updated: 2023/09/15 11:53:32 by mtrautne         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -17,12 +17,13 @@ Parser::Parser() {}
 Parser::Parser(const std::string &pathToConfig) {
 	std::ifstream	configFile(pathToConfig);
 	if (!configFile.is_open())
-		throw CantOpenError();
+		throw CantOpenException();
 	std::string	fileContent((std::istreambuf_iterator<char>(configFile)),
 								(std::istreambuf_iterator<char>()));
 	if (fileContent.empty())
-		throw EmptyConfigFileError();
+		throw EmptyConfigFileException();
 	parseConfig(fileContent);
+	checkForDuplicateConfigs();
 }
 
 Parser::Parser(const Parser &other) {
@@ -41,16 +42,20 @@ Parser &Parser::operator=(const Parser &other) {
 }
 
 // exceptions
-const char *Parser::NoArgError::what() const _NOEXCEPT {
-	return ("Parser initialised without config file");
+const char *Parser::NoArgException::what() const _NOEXCEPT {
+	return ("Error: Parser initialised without config file path argument.");
 }
 
-const char *Parser::CantOpenError::what() const _NOEXCEPT {
-	return ("Parser can't open config file");
+const char *Parser::CantOpenException::what() const _NOEXCEPT {
+	return ("Error: Parser can't open config file.");
 }
 
-const char *Parser::EmptyConfigFileError::what() const _NOEXCEPT {
-	return ("Empty config file");
+const char *Parser::EmptyConfigFileException::what() const _NOEXCEPT {
+	return ("Error: Parser detected empty config file.");
+}
+
+const char *Parser::DuplicateConfigException::what() const _NOEXCEPT {
+	return ("Error: Parser detected duplicate config.");
 }
 
 //member functions
@@ -68,9 +73,21 @@ void	Parser::parseConfig(std::string &rawConfig) {
 				|| rawConfig[start] == '\n'))
 			start++;
 	}
-//	std::cout << rawConfig << std::endl;
 	for (size_t i = 0; i < serverBlocks.size(); i++) {
 		Config	conf(serverBlocks[i]);
 		_configArr.push_back(conf);
+	}
+}
+
+void	Parser::checkForDuplicateConfigs() {
+	std::vector<std::string> uniqueConfigs;
+	for (size_t i = 0; i < _configArr.size(); i++) {
+		std::string configIdent = _configArr[i].getMap()["serverName"]
+								+ _configArr[i].getMap()["port"];
+		for (size_t j = 0; j < uniqueConfigs.size(); j++) {
+			if (configIdent == uniqueConfigs[j])
+				throw DuplicateConfigException();
+		}
+		uniqueConfigs.push_back(configIdent);
 	}
 }

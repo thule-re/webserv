@@ -6,7 +6,7 @@
 /*   By: treeps <treeps@student.42wolfsburg.de>     +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2023/08/17 11:29:17 by treeps            #+#    #+#             */
-/*   Updated: 2023/08/17 11:29:17 by treeps           ###   ########.fr       */
+/*   Updated: 2023/09/15 11:50:42 by mtrautne         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -19,11 +19,15 @@ int main(int argc, char **argv) {
 		std::cerr << "You need a config file, bozo!" << std::endl;
 		return (1);
 	}
-
-	Parser parser(argv[1]);
-
-	Cluster cluster(parser.getConfigArr());
-
-	cluster.loop();
+	try {
+		Parser parser(argv[1]);
+		Cluster cluster(parser.getConfigArr());
+		cluster.loop();
+	}
+	//catch block potentially needs work to properly free cluster stuff
+	catch (std::exception &e) {
+		std::cout << e.what() << std::endl;
+		return (1);
+	}
 	return (0);
 }

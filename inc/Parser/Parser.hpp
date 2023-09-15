@@ -6,7 +6,7 @@
 /*   By: mtrautne <mtrautne@student.42wolfsburg.d>  +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2023/08/22 15:56:34 by mtrautne          #+#    #+#             */
-/*   Updated: 2023/08/22 15:56:34 by mtrautne         ###   ########.fr       */
+/*   Updated: 2023/09/15 11:39:39 by mtrautne         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -33,21 +33,26 @@ class Parser {
 	Parser &operator=(const Parser &other);
 
 // exceptions
-	class NoArgError : public std::exception {
+	class NoArgException : public std::exception {
 	public:
 		const char *what() const _NOEXCEPT;
 	};
-	class CantOpenError : public std::exception {
+	class CantOpenException : public std::exception {
 	public:
 		const char *what() const _NOEXCEPT;
 	};
-	class EmptyConfigFileError: public std::exception {
+	class EmptyConfigFileException: public std::exception {
+	public:
+		const char *what() const _NOEXCEPT;
+	};
+	class DuplicateConfigException: public std::exception {
 	public:
 		const char *what() const _NOEXCEPT;
 	};
 
 	// member functions
 	std::vector<Config>&	getConfigArr();
+	void					checkForDuplicateConfigs();
 
 	private:
 		Parser();

@@ -6,7 +6,7 @@
 /*   By: mtrautne <mtrautne@student.42wolfsburg.d>  +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2023/08/24 09:40:26 by mtrautne          #+#    #+#             */
-/*   Updated: 2023/08/24 09:40:26 by mtrautne         ###   ########.fr       */
+/*   Updated: 2023/09/15 11:52:44 by mtrautne         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -68,23 +68,23 @@ const char *Config::InvalidSyntaxException::what() const _NOEXCEPT {
 }
 
 const char *Config::NotADirectoryException::what() const _NOEXCEPT {
-	return ("Invalid directory in config file.");
+	return ("Error: Invalid directory in config.");
 }
 
 const char *Config::NoValidMethodException::what() const _NOEXCEPT {
-	return ("No valid Method found for server block in config file.");
+	return ("Error: No valid Method found for server block in config.");
 }
 
 const char *Config::InvalidHtmlException::what() const _NOEXCEPT {
-	return ("Invalid Html standard in config.");
+	return ("Error: Invalid Html standard in config.");
 }
 
 const char *Config::InvalidPortException::what() const _NOEXCEPT {
-	return ("Invalid Port in config file.");
+	return ("Error: Invalid Port in config file.");
 }
 
 const char *Config::EmptyValueException::what() const _NOEXCEPT {
-	return ("Empty Value in config file.");
+	return ("Errror: Empty Value in config file.");
 }
 
 // member functions
@@ -130,7 +130,6 @@ void 	Config::validateNoEmptyEntry() {
 		|| _configMap["errorDirectory"] == ";" || _configMap["cgiDirectory"] == ";"
 		|| _configMap["uploadDirectory"] == ";")
 		throw EmptyValueException();
-	std::cout << _configMap["serverName"] << std::endl;
 }
 
 void	Config::validateDir(std::string const &directory) {
@@ -180,16 +179,10 @@ void	Config::validatePort() {
 // catch exceptions in main to correctly close program with bad config
 void	Config::parseConfig(const std::string& configBlock) {
 	std::vector<std::string> configAttributes;
-
-	try {
-		populateConfig(configBlock);
-		validateNoEmptyEntry();
-		validateConfigDirs();
-		validateMethods();
-		validateHtml();
-		validatePort();
-	}
-	catch (std::exception &e) {
-		std::cout << e.what() << std::endl;
-	}
+	populateConfig(configBlock);
+	validateNoEmptyEntry();
+	validateConfigDirs();
+	validateMethods();
+	validateHtml();
+	validatePort();
 }

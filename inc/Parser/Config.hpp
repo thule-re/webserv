@@ -43,27 +43,22 @@ public:
 	private:
 		int	_key;
 	};
-
 	class NotADirectoryException : public std::exception {
 	public:
 		virtual const char* what() const _NOEXCEPT;
 	};
-
 	class NoValidMethodException : public std::exception {
 	public:
 		virtual const char* what() const _NOEXCEPT;
 	};
-
 	class InvalidHtmlException : public std::exception {
 	public:
 		virtual const char* what() const _NOEXCEPT;
 	};
-
 	class InvalidPortException : public std::exception {
 	public:
 		virtual const char* what() const _NOEXCEPT;
 	};
-
 	class EmptyValueException : public std::exception {
 	public:
 		virtual const char* what() const _NOEXCEPT;
@@ -74,7 +69,6 @@ public:
 
 private:
 	std::map<std::string, std::string>	_configMap;
-
 	void	parseConfig(const std::string &configBlock);
 	void	populateConfig(const std::string &configBlock);
 	void	setValue(int key, const std::string &configBlock);
@@ -84,7 +78,6 @@ private:
 	void 	validateMethods();
 	void	validateHtml();
 	void	validatePort();
-
 };
 
 #endif
