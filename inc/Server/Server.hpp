@@ -46,7 +46,6 @@ public:
 	Server();
 	Server(int port, const std::string& error);
 	Server(const Config &);
-	Server(int port, const std::string& index, const std::string& error, const std::string& folder);
 	Server(const Server &);
 
 	// destructor
@@ -57,23 +56,16 @@ public:
 
 	// member functions
 	void	init();
-	void	loop();
 
-	ClientSocket addNewConnection();
-	ClientSocket setupClient(int clientSocket);
-
-	void closeConnection(int clientSocket);
-
-	void closeConnection(ClientSocket socket);
+	ClientSocket *addNewConnection();
+	void setupClient(ClientSocket *clientSocket);
 
 	int getServerSocket();
 
-	Response *process(int socketId, ClientSocket socket);
+	Response *process(ClientSocket *socket);
 
 private:
 	// member functions
-	void selectClientSockets();
-	void handleLoopException(std::exception &exception);
 	void handleARequestException(ARequest::ARequestException &, Response *);
 	void initializeServerSocket();
 	void setServerSocketOptions(sockaddr_in *serverAddress);
@@ -88,10 +80,9 @@ private:
 
 	fd_set		_readSet;
 	fd_set		_writeSet;
-	fd_set		_readSetCopy;
-	fd_set		_writeSetCopy;
 
-	std::map<int, ClientSocket>		_clientsMap;
+	std::string	_errorPath;
+
 	std::map<std::string, Location>	_locationMap;
 };
 

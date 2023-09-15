@@ -56,10 +56,7 @@ Cluster &Cluster::operator=(const Cluster &other) {
 
 void Cluster::initializeServer(Config &config) {
 	std::map<std::string, std::string> map = config.getMap();
-
-	Server server(atoi(map["port"].c_str()), map["indexFile"],
-				  map["errorDirectory"], map["root"]);
-//	Server server(config);
+	Server server(config);
 
 	server.init();
 	int socket = server.getServerSocket();
@@ -86,7 +83,7 @@ void Cluster::loop() {
 						readRequestFromClient(fd);
 				}
 				if (FD_ISSET(fd, &_writeSetCopy))
-					sendResponseToServer(fd);
+					sendResponseToClient(fd);
 			}
 		}
 		catch (std::exception &e) {
@@ -114,8 +111,8 @@ void Cluster::selectClientSockets()
 }
 
 void Cluster::addConnectionToServer(int serverFd) {
-	ClientSocket clientSocket = _serverMap[serverFd].addNewConnection();
-	int socketFd = clientSocket.getSocketFd();
+	ClientSocket *clientSocket = _serverMap[serverFd].addNewConnection();
+	int socketFd = clientSocket->getSocketFd();
 	FD_SET(socketFd, &_readSet);
 	if (socketFd > _maxFd)
 		_maxFd = socketFd;
@@ -123,33 +120,35 @@ void Cluster::addConnectionToServer(int serverFd) {
 }
 
 
-void Cluster::addClientToMap(ClientSocket clientSocket) {
-	int socketFd = clientSocket.getSocketFd();
+void Cluster::addClientToMap(ClientSocket *clientSocket) {
+	int socketFd = clientSocket->getSocketFd();
 
 	if (_clientsMap.count(socketFd) != 0)
 		_clientsMap.erase(socketFd);
 
 	_clientsMap[socketFd] = clientSocket;
-	_clientsMap[socketFd].setConnectionTime(std::time(NULL));
+	_clientsMap[socketFd]->setConnectionTime(std::time(NULL));
 }
 
 void Cluster::readRequestFromClient(int socketFd) {
-	int clientServer = _clientsMap[socketFd].getServerFd();
-	ClientSocket socket = _serverMap[clientServer].setupClient(socketFd);
+	int clientServer = _clientsMap[socketFd]->getServerFd();
+	ClientSocket *socket = _clientsMap[socketFd];
+	_serverMap[clientServer].setupClient(socket);
+	_clientsMap[socketFd]->setConnectionTime(std::time(NULL));
+	// addClientToMap(socket);
 
-	socket.readRequest();
-	if (socket.isCompleteRequest())
+	socket->readRequest();
+	if (socket->isCompleteRequest())
 	{
 		FD_CLR(socketFd, &_readSet);
 		FD_SET(socketFd, &_writeSet);
-		Response r = _serverMap[clientServer].process(socket.getSocketFd(), socket);
-		socket.setResponse(r);
-		addClientToMap(socket);
+		Response *r = _serverMap[clientServer].process(socket);
+		socket->setResponse(r);
 	}
 }
 
-void Cluster::sendResponseToServer(int clientFd) {
-	_clientsMap[clientFd].sendResponse();
+void Cluster::sendResponseToClient(int clientFd) {
+	_clientsMap[clientFd]->sendResponse();
 	closeConnection(_clientsMap[clientFd]);
 	_clientsMap.erase(clientFd);
 }
@@ -159,13 +158,14 @@ void Cluster::handleLoopException(std::exception &exception) {
 	std::cerr << exception.what() << std::endl;
 }
 
-void Cluster::closeConnection(ClientSocket socket)
+void Cluster::closeConnection(ClientSocket *socket)
 {
-	int socketFd = socket.getSocketFd();
+	int socketFd = socket->getSocketFd();
 	if (FD_ISSET(socketFd, &_readSet))
 		FD_CLR(socketFd, &_readSet);
 	if (FD_ISSET(socketFd, &_writeSet))
 		FD_CLR(socketFd, &_writeSet);
-	socket.closeSocket();
+	socket->closeSocket();
+	delete socket;
 }
 

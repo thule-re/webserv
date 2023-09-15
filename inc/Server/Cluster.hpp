@@ -32,12 +32,12 @@ class Cluster {
 
 		void loop();
 
-		void addClientToMap(ClientSocket clientSocket);
+		void addClientToMap(ClientSocket *clientSocket);
 
 
 		private:
 		std::map<int, Server> _serverMap;
-		std::map<int, ClientSocket> _clientsMap;
+		std::map<int, ClientSocket *> _clientsMap;
 
 		fd_set		_readSet;
 		fd_set		_writeSet;
@@ -48,14 +48,11 @@ class Cluster {
 
 		void handleLoopException(std::exception &exception);
 
-		void closeConnection(ClientSocket socket);
+		void closeConnection(ClientSocket *socket);
 
-	void addConnectionToServer(int i);
-
-	void readRequestFromClient(int i);
-
-	void sendResponseToServer(int i);
-
+	void addConnectionToServer(int);
+	void readRequestFromClient(int);
+	void sendResponseToClient(int);
 	void initializeServer(Config &config);
 };
 

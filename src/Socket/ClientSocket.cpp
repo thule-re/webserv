@@ -27,8 +27,8 @@ ClientSocket::~ClientSocket() {}
 ClientSocket &ClientSocket::operator=(const ClientSocket &other) {
 	if (this == &other)
 		return (*this);
-    _socketFd = other._socketFd;
-    _serverFd = other._serverFd;
+	_socketFd = other._socketFd;
+	_serverFd = other._serverFd;
 	_allowedHTTPVersion = other._allowedHTTPVersion;
 	_allowedMethods = other._allowedMethods;
 

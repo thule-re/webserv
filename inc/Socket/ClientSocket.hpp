@@ -70,8 +70,8 @@ public:
 
 
 private:
-	int						        _socketFd;
-	int 					        _serverFd;
+	int								_socketFd;
+	int 							_serverFd;
 
 	std::string						_allowedHTTPVersion;
 	std::string						_allowedMethods;
