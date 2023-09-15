@@ -13,11 +13,16 @@
 #ifndef WEBSERV_CLIENTSOCKET_HPP
 # define WEBSERV_CLIENTSOCKET_HPP
 
-# include <string>
-# include <unistd.h>
 # include <iostream>
+# include <string>
+# include <map>
 # include <sys/socket.h>
+# include <unistd.h>
+# include "Location/Location.hpp"
+
 # define BUFFER_SIZE 1024
+
+class Response;
 
 class ClientSocket {
 public:
@@ -37,39 +42,47 @@ public:
 	std::string getAllowedHTTPVersion() const;
 	std::string getAllowedMethods() const;
 	std::string getRawRequest() const;
-	std::string getIndexFile() const;
-	std::string getRootFolder() const;
 	std::string getErrorFolder() const;
-	std::string getCgiFolder() const;
-	std::string getUploadFolder() const;
 	std::string getServerName() const;
+	time_t getConnectionTime() const;
+	Response *getResponse() const;
+	std::map<std::string, Location> *getLocationMap() const;
+    int getServerFd();
 
 	// setter functions
+	void setRawRequest(const std::string &rawRequest);
 	void setAllowedHTTPVersion(const std::string &allowedHTTPVersion);
 	void setAllowedMethods(const std::string &allowedMethods);
 	void addToAllowedMethods(const std::string &allowedMethods);
-	void setIndexFile(const std::string &indexFile);
-	void setIndexFolder(const std::string &indexFolder);
 	void setErrorFolder(const std::string &errorFolder);
-	void setCgiFolder(const std::string &cgiFolder);
-	void setUploadFolder(const std::string &uploadFolder);
-	void setServerName(const std::string &serverName);
+    void setServerName(const std::string &serverName);
+	void setResponse(Response* response);
+    void setConnectionTime(const time_t &connectionTime);
+	void setLocationMap(std::map<std::string, Location> *locationMap);
+    void setServerFd(int i);
 
 	// member functions
+	void sendResponse();
 	std::string readRequest();
 	void closeSocket() const;
+	bool isCompleteRequest() const;
+
+
 
 private:
-	const int _socketFd;
-	std::string	_allowedHTTPVersion;
-	std::string	_allowedMethods;
-	std::string	_rawRequest;
-	std::string	_indexFile;
-	std::string	_rootFolder;
-	std::string	_errorFolder;
-	std::string	_cgiFolder;
-	std::string	_uploadFolder;
-	std::string	_serverName;
+	int								_socketFd;
+	int 							_serverFd;
+
+	std::string						_allowedHTTPVersion;
+	std::string						_allowedMethods;
+	std::string						_rawRequest;
+	std::string						_errorFolder;
+	std::string						_serverName;
+
+	std::map<std::string, Location>	*_locationMap;
+	Response						*_response;
+
+	time_t							_connectionTime;
 };
 
 #endif

@@ -3,19 +3,33 @@
 /*                                                        :::      ::::::::   */
 /*   Server.cpp                                         :+:      :+:    :+:   */
 /*                                                    +:+ +:+         +:+     */
-/*   By: treeps <treeps@student.42wolfsburg.de>     +#+  +:+       +#+        */
+/*   By: tony <tony@student.42.fr>                  +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2023/08/17 11:29:03 by treeps            #+#    #+#             */
-/*   Updated: 2023/08/17 11:29:03 by treeps           ###   ########.fr       */
+/*   Updated: 2023/08/25 14:18:50 by tony             ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
 #include "Server/Server.hpp"
 
 // constructors
-Server::Server(): _port(80), _serverSocket(), _indexPath("garbage.html"), _errorPath("www"), _root("www") {}
+Server::Server(): _port(80), _serverSocket() {
+	_maxFd = 1;
+	FD_ZERO(&_readSet);
+	FD_ZERO(&_writeSet);}
 
-Server::Server(int port, const std::string& index, const std::string& error, const std::string& folder): _port(port), _serverSocket(), _indexPath(index), _errorPath(error), _root(folder) {}
+Server::Server(int port, const std::string& error): _port(port), _serverSocket(), _errorPath(error) {
+	_maxFd = 1;
+	FD_ZERO(&_readSet);
+	FD_ZERO(&_writeSet);
+}
+
+Server::Server(const Config &config): _serverSocket() {
+	_maxFd = 1;
+	_port = atoi(config.getMap()["port"].c_str());
+	FD_ZERO(&_readSet);
+	FD_ZERO(&_writeSet);
+}
 
 Server::Server(const Server &other) : _port(), _serverSocket() {
 	*this = other;
@@ -30,9 +44,9 @@ Server &Server::operator=(const Server &other) {
 		return (*this);
 	_port = other._port;
 	_serverSocket = other._serverSocket;
-	_indexPath = other._indexPath;
-	_errorPath = other._errorPath;
-	_root = other._root;
+	_readSet = other._readSet;
+	_writeSet = other._writeSet;
+	_locationMap = other._locationMap;
 
 	return (*this);
 }
@@ -41,13 +55,16 @@ Server &Server::operator=(const Server &other) {
 void	Server::init() {
 	struct sockaddr_in serverAddress = {};
 
+	_locationMap["/"] = Location("/", "www/", "garbage.html", "cgi-bin", "upload", false);
+	_locationMap["/test"] = Location("/test", "www", "", "cgi-bin", "upload", true);
+
 	initializeServerSocket();
 	setServerSocketOptions(&serverAddress);
 	bindServerSocket(serverAddress);
 	listenOnServerSocket();
-	addServerSocketToPoll();
 
 	std::cout << "Server listening on port " << _port << std::endl;
+	_maxFd = _serverSocket;
 }
 
 void Server::initializeServerSocket() {
@@ -78,118 +95,69 @@ void Server::bindServerSocket(sockaddr_in serverAddress) {
 }
 
 void Server::listenOnServerSocket() {
-	if (listen(_serverSocket, 10) < 0) {
+	if (listen(_serverSocket, MAX_CLIENT_CONNECTIONS) < 0) {
 		std::cerr << "Error listening on socket" << std::endl;
 		exit(1);
 	}
 }
 
-void Server::addServerSocketToPoll()
+ClientSocket *Server::addNewConnection()
 {
-	pollfd serverSocket = {};
-
-	serverSocket.fd = _serverSocket;
-	serverSocket.events = POLLIN;
-	_clientSockets.push_back(serverSocket);
-}
-
-void	Server::loop() {
-	while (true) {
-		try {
-			pollThroughClientSockets();
-			addNewConnection();
-			handleAnyNewRequests();
-		}
-		catch (std::exception &e) {
-			handleLoopException(e);
-		}
+	int clientSocket = accept(_serverSocket, NULL, NULL);
+	if (clientSocket > _maxFd)
+		_maxFd = clientSocket;
+	if (clientSocket < 0) {
+		std::cerr << "Error accepting connection" << std::endl;
 	}
+	else {
+		fcntl(clientSocket, F_SETFL, O_NONBLOCK, FD_CLOEXEC);
+	}
+
+	ClientSocket *c = new ClientSocket(clientSocket);
+	c->setServerFd(_serverSocket);
+
+	return c;
 }
 
 
-void Server::pollThroughClientSockets()
+void Server::setupClient(ClientSocket *clientSocket) {
+	clientSocket->setServerFd(_serverSocket);
+
+	clientSocket->setAllowedHTTPVersion(HTTP_VERSION);
+	clientSocket->addToAllowedMethods(METHOD_GET);
+	clientSocket->addToAllowedMethods(METHOD_POST);
+	clientSocket->addToAllowedMethods(METHOD_DELETE);
+	clientSocket->setLocationMap(&_locationMap);
+}
+
+Response *Server::process(ClientSocket *socket)
 {
-	int pollResult = poll(_clientSockets.data(), _clientSockets.size(), -1);
-	if (pollResult == -1) {
-		std::cerr << "Error in poll" << std::endl;
-		// break;
-		// THROW EXCEPTION instead!
-	}
-}
+	Response *response;
+	ARequest *request;
 
-void Server::addNewConnection()
-{
-	pollfd serverSocket = _clientSockets[0];
-
-	if (serverSocket.revents & POLLIN) {
-		pollfd clientSocket = {};
-		clientSocket.fd = accept(_serverSocket, NULL, NULL);
-		if (clientSocket.fd < 0) {
-			throw std::runtime_error("Error accepting connection");
-		}
-		clientSocket.events = POLLIN;
-		if (_clientSockets.size() < MAX_CLIENT_CONNECTIONS) {
-			_clientSockets.push_back(clientSocket);
-		} else {
-			close(clientSocket.fd);
-			throw std::runtime_error("Connection limit reached. Closing the connection.");
-		}
-	}
-}
-
-void Server::handleAnyNewRequests()
-{
-	for (size_t i = 1; i < _clientSockets.size(); i++) {
-		if (_clientSockets[i].revents & POLLIN && _clientSockets[i].fd != -1)
-		{
-			handleRequest(_clientSockets[i].fd);
-			_clientSockets[i].revents = 0; // Reset events
-			removeSocket(i);
-		}
-	}
-}
-
-void Server::removeSocket(size_t i) {
-	_clientSockets.erase(_clientSockets.begin() + i); // Remove an element
-	_clientSockets.shrink_to_fit();
-}
-
-void Server::handleRequest(int clientSocket) {
-	ClientSocket client(clientSocket);
-	Response response(clientSocket);
-	ARequest *request = NULL;
-
-	client.setAllowedHTTPVersion(HTTP_VERSION);
-	client.addToAllowedMethods(METHOD_GET);
-	client.addToAllowedMethods(METHOD_POST);
-	client.addToAllowedMethods(METHOD_DELETE);
-	client.setIndexFile(_indexPath);
-	client.setIndexFolder(_root);
-	client.setErrorFolder(_errorPath);
-	client.setUploadFolder("upload");
-
-	client.readRequest();
 	try {
-		request = ARequest::newRequest(client);
+		request = ARequest::newRequest(socket);
 		response = request->handle();
 	}
 	catch (ARequest::ARequestException &e) {
+		response = new Response(socket);
+		std::cout << "Handling exception... " << std::endl;
 		handleARequestException(e, response);
 	}
 	catch (std::exception &e) {
 		std::cerr << e.what() << std::endl;
-		response.buildErrorPage(INTERNAL_SERVER_ERROR);
+		response = new Response(socket);
+		response->buildErrorPage(INTERNAL_SERVER_ERROR);
 	}
 	delete request;
-	response.send();
-	client.closeSocket();
+	return response;
 }
 
-void Server::handleLoopException(std::exception &exception) {
-	std::cerr << exception.what() << std::endl;
+int Server::getServerSocket() {
+	return _serverSocket;
 }
 
-void Server::handleARequestException(ARequest::ARequestException &exception, Response &response) {
+void Server::handleARequestException(ARequest::ARequestException &exception, Response *response) {
 	std::cerr << exception.message() << std::endl;
-	response.buildErrorPage(exception.code());
+	response->buildErrorPage(exception.code());
 }

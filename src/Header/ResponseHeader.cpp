@@ -17,6 +17,7 @@ ResponseHeader::ResponseHeader(): AHeader() {
 	_headerMap["HTTP-Version"] = HTTP_VERSION;
 	_headerMap["HTTP-Status-Code"] = toString(OK);
 	_headerMap["HTTP-Status-Message"] = getHTTPErrorMessages(OK);
+	_headerMap["Content-Type"] = "text/html";
 }
 
 ResponseHeader::ResponseHeader(const std::string &rawHeader): AHeader(rawHeader) {

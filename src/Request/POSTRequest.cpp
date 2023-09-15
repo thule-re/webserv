@@ -3,10 +3,10 @@
 /*                                                        :::      ::::::::   */
 /*   POSTRequest.cpp                                    :+:      :+:    :+:   */
 /*                                                    +:+ +:+         +:+     */
-/*   By: treeps <treeps@student.42wolfsburg.de>     +#+  +:+       +#+        */
+/*   By: tony <tony@student.42.fr>                  +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2023/08/21 16:11:41 by treeps            #+#    #+#             */
-/*   Updated: 2023/08/21 16:11:41 by treeps           ###   ########.fr       */
+/*   Updated: 2023/08/26 13:53:48 by tony             ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -14,7 +14,7 @@
 
 // constructors
 POSTRequest::POSTRequest() {}
-POSTRequest::POSTRequest(const ClientSocket& clientSocket) : ARequest(clientSocket) {}
+POSTRequest::POSTRequest(ClientSocket* clientSocket) : ARequest(clientSocket) {}
 POSTRequest::POSTRequest(const POSTRequest &other): ARequest(other) {}
 
 // destructor
@@ -24,27 +24,24 @@ POSTRequest::~POSTRequest() {}
 POSTRequest &POSTRequest::operator=(const POSTRequest &other) {
 	if (this == &other)
 		return (*this);
-	_clientSocket = other._clientSocket;
-	_rawRequest = other._rawRequest;
-	_header = other._header;
-	_boundary = other._boundary;
-	_fileData = other._fileData;
-	_filename = other._filename;
 	return (*this);
 }
 
-Response POSTRequest::handle() {
-	Response response(_clientSocket);
-	std::cout << "POSTRequest::handle()" << std::endl;
+Response *POSTRequest::handle() {
+	Response *response = new Response(_clientSocket);
+	std::cerr << "POSTRequest::handle()" << std::endl;
+
+	std::ofstream out("rawRequest.txt");
+	out << _rawRequest;
+	out.close();
 
 	_getBoundary();
-	_extractMultipartFormData();
+	if (atoi(_header["Content-Length"].c_str()) > MAX_FILE_SIZE)
+		throw ARequest::ARequestException(REQUEST_ENTITY_TOO_LARGE);
+	_getFileData();
 	_getFilename();
 	_checkFilename();
-	_getFileData();
 	_writeDataToOutfile();
-	response.setHeader("HTTP-Status-Code", toString(CREATED));
-	response.setHeader("HTTP-Status-Message", getHTTPErrorMessages(CREATED));
 	return (response);
 }
 
@@ -55,7 +52,7 @@ void POSTRequest::_checkFilename()
 	} else if (_filename.find("..") != std::string::npos) {
 		throw ARequest::ARequestException(FORBIDDEN);
 	}
-	_filename = _clientSocket.getRootFolder() + "/" + _clientSocket.getUploadFolder() + "/" + _filename;
+	_filename = _location->getRoot() + "/" + _location->getUpload() + "/" + _filename;
 }
 
 void POSTRequest::_getBoundary()
@@ -66,34 +63,10 @@ void POSTRequest::_getBoundary()
 	_boundary = _boundary.substr(0, newlinePos);
 }
 
-void POSTRequest::_extractMultipartFormData()
-{
-	int clientSocket = _clientSocket.getSocketFd();
-	std::string body;
-	char buffer[BUFFER_SIZE];
-	int bytesRead;
-
-	while (true) {
-		bytesRead = recv(clientSocket, buffer, BUFFER_SIZE, 0);
-		if (bytesRead <= 0) {
-			break;
-		}
-		body.append(buffer, bytesRead);
-		size_t pos = body.find(_boundary);
-		if (pos != std::string::npos) {
-			std::string part = body.substr(0, pos);
-			body.erase(0, pos + _boundary.length());
-		}
-		if ((unsigned long)bytesRead < sizeof(buffer))
-			break;
-	}
-	if (!body.empty())
-		_rawRequest = body;
-}
-
 void POSTRequest::_getFileData()
 {
-	size_t contentStart = _rawRequest.find("\r\n\r\n") + 4;
+	size_t contentStart = _rawRequest.find(CRLF CRLF);
+	contentStart = _rawRequest.find(CRLF CRLF,contentStart + 5) + 4;
 	size_t contentEnd = _rawRequest.find_last_of(_boundary) - _boundary.length() - 4;
 
 	_fileData = _rawRequest.substr(contentStart, contentEnd - contentStart);
@@ -105,7 +78,6 @@ void POSTRequest::_writeDataToOutfile()
 
 	if (!outfile.is_open()) {
 		std::cerr << "Error opening file: " << _filename << std::endl;
-		throw ARequest::ARequestException(INTERNAL_SERVER_ERROR);
 	}
 	outfile << _fileData << std::endl;
 	outfile.close();
@@ -123,6 +95,4 @@ void POSTRequest::_getFilename()
 			_filename = _rawRequest.substr(filenamePos, filenameEndPos - filenamePos);
 		}
 	}
-	if (_filename.empty())
-		throw ARequest::ARequestException(BAD_REQUEST);
 }

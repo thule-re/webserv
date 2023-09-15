@@ -19,7 +19,7 @@
 class DELETERequest: public ARequest {
 public:
 	// constructors
-	DELETERequest(const ClientSocket &clientSocket);
+	DELETERequest(ClientSocket *clientSocket);
 	DELETERequest(const DELETERequest &);
 
 	// destructor
@@ -29,7 +29,7 @@ public:
 	DELETERequest &operator=(const DELETERequest &);
 
 	// member functions
-	Response handle();
+	Response *handle();
 private:
 	// constructors
 	DELETERequest();

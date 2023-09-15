@@ -14,12 +14,13 @@
 # define WEBSERV_GETREQUEST_HPP
 
 # include <iostream>
+# include <dirent.h>
 # include "ARequest.hpp"
 
 class GETRequest: public ARequest {
 public:
 	// constructors
-	GETRequest(const ClientSocket& clientSocket);
+	GETRequest(ClientSocket* clientSocket);
 	GETRequest(const GETRequest &);
 
 	// destructor
@@ -29,11 +30,14 @@ public:
 	GETRequest &operator=(const GETRequest &);
 
 	// member functions
-	Response handle();
+	Response *handle();
 
 private:
 	// constructors
 	GETRequest();
+
+	// member functions
+	std::string _getDirectoryListing(const std::string& path);
 };
 
 #endif

@@ -14,7 +14,7 @@
 
 // constructors
 GETRequest::GETRequest() {}
-GETRequest::GETRequest(const ClientSocket& clientSocket) : ARequest(clientSocket) {}
+GETRequest::GETRequest(ClientSocket* clientSocket) : ARequest(clientSocket) {}
 GETRequest::GETRequest(const GETRequest &other): ARequest(other) {}
 
 // destructor
@@ -30,15 +30,41 @@ GETRequest &GETRequest::operator=(const GETRequest &other) {
 	return (*this);
 }
 
-Response GETRequest::handle() {
-	Response response(_clientSocket);
+Response *GETRequest::handle() {
+	Response *response = new Response(_clientSocket);
 	std::cout << "GETRequest::handle()" << std::endl;
 
-	std::ifstream file(_header["Path"].c_str());
-	if (!file.is_open()) {
+	std::string path = _header["Path"];
+	if (_location->getAutoindex() && _isDirectory(path))
+		response->setBody(_getDirectoryListing(path));
+	else
+	{
+		std::ifstream file(path.c_str());
+		if (!file.is_open()) {
+			delete response;
+			throw ARequest::ARequestException(NOT_FOUND);
+		}
+		response->setHeader("Content-Type" ,getContentType(_header["Path"]));
+		response->setBody(readFile(file));
+	}
+	return (response);
+}
+
+std::string GETRequest::_getDirectoryListing(const std::string& path) {
+	std::string body;
+	DIR *dir;
+	struct dirent *entry;
+	if ((dir = opendir (path.c_str())) != NULL) {
+		body += "<html><head><title>Index of " + _location->getPath() + path.substr(_location->getRoot().length()) + "</title></head><body><h1>Index of " + _location->getPath() + path.substr(_location->getRoot().length()) + "</h1><hr><pre>";
+		entry = readdir (dir);
+		while (entry) {
+			body += "<a href=\"" + _location->getPath() + path.substr(_location->getRoot().length()) + "/" + entry->d_name + "\">" + entry->d_name + "</a><br>";
+			entry = readdir (dir);
+		}
+		body += "</pre><hr></body></html>";
+		closedir (dir);
+	} else {
 		throw ARequest::ARequestException(NOT_FOUND);
 	}
-	response.setHeader("Content-Type" ,getContentType(_header["Path"]));
-	response.setBody(readFile(file));
-	return (response);
+	return (body);
 }

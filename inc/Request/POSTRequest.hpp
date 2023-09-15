@@ -3,10 +3,10 @@
 /*                                                        :::      ::::::::   */
 /*   POSTRequest.hpp                                    :+:      :+:    :+:   */
 /*                                                    +:+ +:+         +:+     */
-/*   By: treeps <treeps@student.42wolfsburg.de>     +#+  +:+       +#+        */
+/*   By: tony <tony@student.42.fr>                  +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2023/08/21 16:11:41 by treeps            #+#    #+#             */
-/*   Updated: 2023/08/21 16:11:41 by treeps           ###   ########.fr       */
+/*   Updated: 2023/08/26 13:54:37 by tony             ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -15,12 +15,16 @@
 
 # include <iostream>
 # include <fstream>
+# include <fcntl.h>
+
 # include "ARequest.hpp"
+# define BUFFER_SIZE 1024
+# define MAX_FILE_SIZE 2000000
 
 class POSTRequest: public ARequest {
 public:
 	// constructors
-	POSTRequest(const ClientSocket &clientSocket);
+	POSTRequest(ClientSocket *clientSocket);
 	POSTRequest(const POSTRequest &other);
 
 	// destructor
@@ -30,7 +34,7 @@ public:
 	POSTRequest &operator=(const POSTRequest &);
 
 	// member functions
-	Response handle();
+	Response *handle();
 
 private:
 	// constructors
@@ -44,7 +48,6 @@ private:
 	void _getBoundary();
 	void _writeDataToOutfile();
 	void _checkFilename();
-	void _extractMultipartFormData();
 };
 
 #endif

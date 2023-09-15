@@ -95,7 +95,7 @@ class Response {
 public:
 	// constructors
 	Response();
-	Response(const ClientSocket& clientSocket);
+	Response(ClientSocket* clientSocket);
 	Response(const Response &);
 
 	// destructor
@@ -107,6 +107,7 @@ public:
 	// member functions
 	void send();
 	void setHeader(const std::string& key, const std::string& value);
+	void setHeader(const ResponseHeader &header);
 	void setBody(const std::string &body);
 	void buildErrorPage(int statusCode);
 
@@ -116,9 +117,8 @@ public:
 private:
 
 	// member variables
-	ClientSocket _clientSocket;
+	ClientSocket *_clientSocket;
 	ResponseHeader _header;
-	std::string	_contentType;
 	std::string _body;
 	std::string _statusCode;
 	std::string _statusMessage;
