@@ -6,7 +6,7 @@
 /*   By: mtrautne <mtrautne@student.42wolfsburg.d>  +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2023/08/24 09:40:26 by mtrautne          #+#    #+#             */
-/*   Updated: 2023/09/15 11:52:44 by mtrautne         ###   ########.fr       */
+/*   Updated: 2023/09/15 17:08:34 by mtrautne         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -47,8 +47,8 @@ std::string	getConfigValStr(const int& key) {
 			return "indexFile";
 		case ERRORDIR:
 			return "errorDirectory";
-		case CGIDIR:
-			return "cgiDirectory";
+		case CGIEXTENSION:
+			return "cgiExtension";
 		case UPLOADDIR:
 			return "uploadDirectory";
 		case PORT:
@@ -62,7 +62,8 @@ std::string	getConfigValStr(const int& key) {
 Config::InvalidSyntaxException::InvalidSyntaxException(int key) : _key(key) {}
 
 const char *Config::InvalidSyntaxException::what() const _NOEXCEPT {
-	std::string	ret = "Invalid Config File: " + getConfigValStr(_key);
+	std::string	ret = "Invalid Config File, missing: "
+			+ getConfigValStr(_key);
 	const char *ret_c_str = ret.c_str();
 	return (ret_c_str);
 }
@@ -95,13 +96,13 @@ std::map<std::string, std::string>	Config::getMap() const {
 void	Config::populateConfig(const std::string &configBlock) {
 	setValue(SERVERNAME, configBlock);
 	setValue(ALLOWEDHTML, configBlock);
-	setValue(ALLOWEDMETHODS, configBlock);
-	setValue(ROOT, configBlock);
-	setValue(INDEXFILE, configBlock);
-	setValue(ERRORDIR, configBlock);
-	setValue(CGIDIR, configBlock);
-	setValue(UPLOADDIR, configBlock);
 	setValue(PORT, configBlock);
+	setLocations(configBlock);
+//	setValue(ROOT, configBlock);
+//	setValue(INDEXFILE, configBlock);
+//	setValue(ERRORDIR, configBlock);
+//	setValue(CGIEXTENSION, configBlock);
+//	setValue(UPLOADDIR, configBlock);
 }
 
 void	Config::setValue(const int key, const std::string &configBlock) {
@@ -121,6 +122,10 @@ void	Config::setValue(const int key, const std::string &configBlock) {
 	if (configBlock[valEnd] == '\n')
 		throw InvalidSyntaxException(key);
 	_configMap[keyStr] = configBlock.substr(valStart, valEnd - valStart + 1);
+}
+
+void	Config::setLocations(const std::string &configBlock) {
+
 }
 
 void 	Config::validateNoEmptyEntry() {

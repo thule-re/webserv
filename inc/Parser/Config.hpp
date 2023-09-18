@@ -72,6 +72,7 @@ private:
 	void	parseConfig(const std::string &configBlock);
 	void	populateConfig(const std::string &configBlock);
 	void	setValue(int key, const std::string &configBlock);
+	void	setLocations(const std::string &configBlock);
 	void 	validateNoEmptyEntry();
 	void	validateConfigDirs();
 	void	validateDir(std::string const &directory);

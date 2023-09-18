@@ -19,7 +19,7 @@
 #define ROOT			4
 #define INDEXFILE		5
 #define ERRORDIR		6
-#define CGIDIR			7
+#define CGIEXTENSION	7
 #define UPLOADDIR		8
 #define PORT			9
 
