@@ -13,14 +13,15 @@
 #ifndef ERRORCODES_HPP
 # define ERRORCODES_HPP
 
-#define SERVERNAME		1
-#define ALLOWEDHTML		2
-#define ALLOWEDMETHODS	3
-#define ROOT			4
-#define INDEXFILE		5
-#define ERRORDIR		6
-#define CGIEXTENSION	7
-#define UPLOADDIR		8
-#define PORT			9
+#define PORT			1
+#define SERVERNAME		2
+#define HTML			3
+#define METHODS			4
+#define ROOT			5
+#define INDEXFILE		6
+#define ERRORDIR		7
+#define CGIEXTENSION	8
+#define UPLOADDIR		9
+#define NOSEMICOL		10
 
 #endif

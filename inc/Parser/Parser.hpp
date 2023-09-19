@@ -52,11 +52,12 @@ class Parser {
 
 	// member functions
 	std::vector<Config>&	getConfigArr();
-	void					checkForDuplicateConfigs();
 
 	private:
 		Parser();
+		static void	removeComments(std::string &fileContent);
 		void	parseConfig(std::string &rawConfig);
+		void	checkForDuplicateServerConfigs();
 		std::vector<Config>	_configArr;
 };
 

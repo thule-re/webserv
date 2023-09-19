@@ -36,21 +36,13 @@ Config &Config::operator=(const Config &other) {
 std::string	getConfigValStr(const int& key) {
 	switch (key) {
 		case SERVERNAME:
-			return "serverName";
-		case ALLOWEDHTML:
-			return "allowedHtml";
-		case ALLOWEDMETHODS:
-			return "allowedMethods";
+			return "servername";
+		case HTML:
+			return "html";
+		case METHODS:
+			return "methods";
 		case ROOT:
 			return "root";
-		case INDEXFILE:
-			return "indexFile";
-		case ERRORDIR:
-			return "errorDirectory";
-		case CGIEXTENSION:
-			return "cgiExtension";
-		case UPLOADDIR:
-			return "uploadDirectory";
 		case PORT:
 			return "port";
 		default:
@@ -59,13 +51,17 @@ std::string	getConfigValStr(const int& key) {
 }
 
 // exceptions
-Config::InvalidSyntaxException::InvalidSyntaxException(int key) : _key(key) {}
+Config::ValueMissingException::ValueMissingException(const int &missingKey)
+	: _key(missingKey) {}
 
-const char *Config::InvalidSyntaxException::what() const _NOEXCEPT {
-	std::string	ret = "Invalid Config File, missing: "
-			+ getConfigValStr(_key);
-	const char *ret_c_str = ret.c_str();
-	return (ret_c_str);
+const char *Config::ValueMissingException::what() const throw() {
+	std::string	retString = "No value found for: " + getConfigValStr(_key);
+	const char	*retStringC = retString.c_str();
+	return (retStringC);
+}
+
+const char *Config::MissingSemicolonException::what() const _NOEXCEPT {
+	return ("Error: Missing semicolon in config.");
 }
 
 const char *Config::NotADirectoryException::what() const _NOEXCEPT {
@@ -73,19 +69,19 @@ const char *Config::NotADirectoryException::what() const _NOEXCEPT {
 }
 
 const char *Config::NoValidMethodException::what() const _NOEXCEPT {
-	return ("Error: No valid Method found for server block in config.");
+	return ("Error: No valid method found for server block in config.");
 }
 
 const char *Config::InvalidHtmlException::what() const _NOEXCEPT {
-	return ("Error: Invalid Html standard in config.");
+	return ("Error: Invalid html standard in config.");
 }
 
 const char *Config::InvalidPortException::what() const _NOEXCEPT {
-	return ("Error: Invalid Port in config file.");
+	return ("Error: Invalid port in config file.");
 }
 
 const char *Config::EmptyValueException::what() const _NOEXCEPT {
-	return ("Errror: Empty Value in config file.");
+	return ("Error: Empty value in config file.");
 }
 
 // member functions
@@ -94,24 +90,25 @@ std::map<std::string, std::string>	Config::getMap() const {
 }
 
 void	Config::populateConfig(const std::string &configBlock) {
-	setValue(SERVERNAME, configBlock);
-	setValue(ALLOWEDHTML, configBlock);
-	setValue(PORT, configBlock);
+	setGlobalValues(configBlock);
 	setLocations(configBlock);
-//	setValue(ROOT, configBlock);
-//	setValue(INDEXFILE, configBlock);
-//	setValue(ERRORDIR, configBlock);
-//	setValue(CGIEXTENSION, configBlock);
-//	setValue(UPLOADDIR, configBlock);
+}
+
+void 	Config::setGlobalValues(const std:: string &configBlock) {
+	setValue(SERVERNAME, configBlock);
+	setValue(PORT, configBlock);
+	setValue(METHODS, configBlock);
+	setValue(HTML, configBlock);
+	setValue(ROOT, configBlock);
 }
 
 void	Config::setValue(const int key, const std::string &configBlock) {
-	size_t	valStart;
-	size_t	valEnd;
+	size_t		valStart;
+	size_t		valEnd;
+	std::string	keyStr;
 
-	std::string	keyStr = getConfigValStr(key);
-	if (configBlock.find(keyStr) == std::string::npos)
-		throw InvalidSyntaxException(key);
+	if (configBlock.find(getConfigValStr(key)) == std::string::npos)
+		throw ValueMissingException(key);
 	else
 		valStart = configBlock.find(keyStr);
 	valStart = configBlock.find(':', valStart) + 2;
@@ -120,20 +117,37 @@ void	Config::setValue(const int key, const std::string &configBlock) {
 			&& configBlock[valEnd + 1] != '\n')
 		valEnd++;
 	if (configBlock[valEnd] == '\n')
-		throw InvalidSyntaxException(key);
-	_configMap[keyStr] = configBlock.substr(valStart, valEnd - valStart + 1);
+		throw MissingSemicolonException();
+	_configMap[keyStr] = configBlock.substr(valStart,
+						(valEnd - valStart + 1));
 }
 
 void	Config::setLocations(const std::string &configBlock) {
+	std::vector<std::string>	locationBlocks;
+	splitLocationBlocks(locationBlocks, configBlock);
+}
 
+void	Config::splitLocationBlocks(std::vector<std::string> &locBlocks,
+									const std::string &configBlock) {
+	size_t	blockStart = 0;
+	size_t	numLocBlocks = 0;
+	size_t	blockEnd = 0;
+
+	while (blockStart < configBlock.length() && blockEnd < configBlock.length()) {
+		blockStart = configBlock.find("location", blockEnd);
+		blockEnd = configBlock.find('}', blockStart);
+		locBlocks.push_back(configBlock.substr(blockStart,
+							(blockEnd - blockStart)));
+		numLocBlocks++;
+	}
+	std::stringstream ss;
+	ss << numLocBlocks;
+	_configMap["numLocBlocks"] = ss.str();
 }
 
 void 	Config::validateNoEmptyEntry() {
-	if (_configMap["serverName"] == ";" || _configMap["allowedHtml"] == ";"
-		|| _configMap["allowedMethods"] == ";" || _configMap["port"] == ";"
-		|| _configMap["root"] == ";" || _configMap["indexFile"] == ";"
-		|| _configMap["errorDirectory"] == ";" || _configMap["cgiDirectory"] == ";"
-		|| _configMap["uploadDirectory"] == ";")
+	if (_configMap["html"] == ";" || _configMap["port"] == ";"
+		|| _configMap["root"] == ";")
 		throw EmptyValueException();
 }
 

@@ -15,6 +15,7 @@
 
 # include <string>
 # include <iostream>
+# include <sstream>
 # include <fstream>
 # include <map>
 # include <vector>
@@ -36,14 +37,18 @@ public:
 	Config &operator=(const Config &other);
 
 	// exceptions
-	class InvalidSyntaxException : public std::exception {
+	class ValueMissingException : public std::exception {
 	public:
-		InvalidSyntaxException(int key);
 		virtual const char *what() const _NOEXCEPT;
+		ValueMissingException(const int &missingKey);
 	private:
 		int	_key;
 	};
 	class NotADirectoryException : public std::exception {
+	public:
+		virtual const char* what() const _NOEXCEPT;
+	};
+	class MissingSemicolonException : public std::exception {
 	public:
 		virtual const char* what() const _NOEXCEPT;
 	};
@@ -71,8 +76,10 @@ private:
 	std::map<std::string, std::string>	_configMap;
 	void	parseConfig(const std::string &configBlock);
 	void	populateConfig(const std::string &configBlock);
-	void	setValue(int key, const std::string &configBlock);
+	void 	setGlobalValues(const std:: string &configBlock);
+	void	setValue(const int key, const std::string &configBlock);
 	void	setLocations(const std::string &configBlock);
+	void 	splitLocationBlocks(std::vector<std::string> &, const std::string &);
 	void 	validateNoEmptyEntry();
 	void	validateConfigDirs();
 	void	validateDir(std::string const &directory);

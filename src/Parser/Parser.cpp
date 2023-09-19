@@ -22,8 +22,9 @@ Parser::Parser(const std::string &pathToConfig) {
 								(std::istreambuf_iterator<char>()));
 	if (fileContent.empty())
 		throw EmptyConfigFileException();
+	removeComments(fileContent);
 	parseConfig(fileContent);
-	checkForDuplicateConfigs();
+	checkForDuplicateServerConfigs();
 }
 
 Parser::Parser(const Parser &other) {
@@ -63,6 +64,19 @@ std::vector<Config>&	Parser::getConfigArr() {
 	return(_configArr);
 }
 
+void	Parser::removeComments(std::string &fileContent) {
+	size_t	endComment;
+	size_t	startComment = std::min(std::min(fileContent.find("\n#", 0),
+				fileContent.find(" #", 0)), fileContent.find("\t#", 0));
+	while (startComment != std::string::npos) {
+		endComment = fileContent.find('\n', startComment + 1);
+
+		fileContent = fileContent.erase(startComment + 1, (endComment - startComment - 1));
+		startComment = std::min(std::min(fileContent.find("\n#", startComment),
+			fileContent.find(" #", startComment)), fileContent.find("\t#", startComment));
+	}
+}
+
 void	Parser::parseConfig(std::string &rawConfig) {
 	std::vector<std::string> serverBlocks;
 	size_t start = 0, end;
@@ -79,7 +93,7 @@ void	Parser::parseConfig(std::string &rawConfig) {
 	}
 }
 
-void	Parser::checkForDuplicateConfigs() {
+void	Parser::checkForDuplicateServerConfigs() {
 	std::vector<std::string> uniqueConfigs;
 	for (size_t i = 0; i < _configArr.size(); i++) {
 		std::string configIdent = _configArr[i].getMap()["serverName"]
