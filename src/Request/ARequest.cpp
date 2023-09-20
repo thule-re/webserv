@@ -15,6 +15,7 @@
 #include "Request/DELETERequest.hpp"
 #include "Request/GETRequest.hpp"
 #include "Request/POSTRequest.hpp"
+#include "Request/RedirectRequest.hpp"
 
 // constructor
 ARequest::ARequest() : _location() {}
@@ -51,12 +52,15 @@ ARequest &ARequest::operator=(const ARequest &other) {
 ARequest *ARequest::newRequest(ClientSocket *clientSocket) {
 	std::string request = clientSocket->getRawRequest();
 	RequestHeader header(request.substr(0, request.find(CRLF CRLF)));
+	Location *location = _findLocation(clientSocket, header["Path"]);
 	if (header["Method"].empty() || header["Path"].empty() || header["HTTP-Version"].empty())
 		throw ARequest::ARequestException(BAD_REQUEST);
 	else if (clientSocket->getAllowedHTTPVersion() != header["HTTP-Version"])
 		throw ARequest::ARequestException(HTTP_VERSION_NOT_SUPPORTED);
-	else if (clientSocket->getAllowedMethods().find(header["Method"]) == std::string::npos)
+	else if (location->getAllowedMethods().find(header["Method"]) == std::string::npos)
 		throw ARequest::ARequestException(METHOD_NOT_ALLOWED);
+	else if (!location->getRedirect().empty())
+		return (new RedirectRequest(clientSocket));
 	else if (_isCgiPath(clientSocket, header["Path"]))
 		return (new CgiRequest(clientSocket));
 	else if (header["Method"] == "GET")
@@ -72,11 +76,12 @@ ARequest *ARequest::newRequest(ClientSocket *clientSocket) {
 // private member functions
 bool ARequest::_isCgiPath(const ClientSocket *clientSocket, const std::string &path) {
 	Location *location = _findLocation(clientSocket, path);
-	if (location->getCgi().empty())
+
+	size_t pos = path.find_last_of('.');
+	if (pos == std::string::npos)
 		return (false);
-	if (path.find("/" + location->getCgi()) == 0)
-		return (true);
-	if (path.find(location->getPath() + "/" + location->getCgi()) == 0)
+	std::string extension = path.substr(pos);
+	if (location->getCgiExtension().find(extension) != std::string::npos)
 		return (true);
 	return (false);
 }

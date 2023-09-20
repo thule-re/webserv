@@ -34,6 +34,7 @@ FILES 		=	main/main \
 				Request/DELETERequest \
 				Request/GETRequest \
 				Request/POSTRequest \
+				Request/RedirectRequest \
 				Response/Response \
 				Server/Server \
 				Server/Cluster \
@@ -51,6 +52,7 @@ HEADER		=	Header/AHeader \
 				Request/DELETERequest \
 				Request/GETRequest \
 				Request/POSTRequest \
+				Request/RedirectRequest \
 				Response/Response \
 				Response/responseCodes \
 				Server/Server \

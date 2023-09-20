@@ -24,6 +24,8 @@ public:
 			 const std::string& index,
 			 const std::string& cgi,
 			 const std::string& upload,
+			 const std::string& redirect,
+			 const std::string& allowedMethods,
 			 bool autoindex);
 	Location(const Location &);
 
@@ -39,16 +41,20 @@ public:
 	void setPath(const std::string &path);
 	void setRoot(const std::string &root);
 	void setIndex(const std::string &index);
-	void setCgi(const std::string &cgi);
+	void setCgiExtension(const std::string &cgi);
 	void setUpload(const std::string &upload);
+	void setRedirect(const std::string &redirect);
+	void setAllowedMethods(const std::string &allowedMethods);
 	void setAutoindex(bool autoindex);
 
 	// getter functions
 	std::string getPath() const;
 	std::string getRoot() const;
 	std::string getIndex() const;
-	std::string getCgi() const;
+	std::string getCgiExtension() const;
 	std::string getUpload() const;
+	std::string getRedirect() const;
+	std::string getAllowedMethods() const;
 	bool getAutoindex() const;
 
 private:
@@ -56,8 +62,10 @@ private:
 	std::string _path;
 	std::string _root;
 	std::string _index;
-	std::string _cgi;
+	std::string _cgiExtension;
 	std::string _upload;
+	std::string _redirect;
+	std::string _allowedMethods;
 	bool _autoindex;
 };
 
