@@ -59,8 +59,10 @@ void CgiRequest::_getScriptPath() {
 		_scriptPath = path.substr(0, queryString);
 	else
 		_scriptPath = path.substr(0, pathInfo);
-	if (access(_scriptPath.c_str(), X_OK) == -1)
+	if (access(_scriptPath.c_str(), F_OK) == -1)
 		throw ARequest::ARequestException(NOT_FOUND);
+	if (access(_scriptPath.c_str(), X_OK) == -1)
+		throw ARequest::ARequestException(FORBIDDEN);
 }
 
 void CgiRequest::_getQueryString() {
@@ -108,7 +110,7 @@ void CgiRequest::_exportEnv() {
 	_envp = new char*[_env.size() + 1];
 	while (i < (int)_env.size()) {
 		_envp[i] = new char[_env[i].length() + 1];
-		strcpy(_envp[i], _env[i].c_str());
+		_envp[i] = (char *)_env[i].c_str();
 		i++;
 	}
 	_envp[i] = NULL;
