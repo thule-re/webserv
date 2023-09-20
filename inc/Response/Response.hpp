@@ -107,11 +107,18 @@ public:
 	// member functions
 	void send();
 	void setHeader(const std::string& key, const std::string& value);
+	void buildErrorPage(int statusCode);
+	std::string getRawResponse();
+
+	// setters
 	void setHeader(const ResponseHeader &header);
 	void setBody(const std::string &body);
-	void buildErrorPage(int statusCode);
+	void setClientSocket(ClientSocket *clientSocket);
 
-	std::string getRawResponse();
+	// getters
+	ResponseHeader getHeader() const;
+	std::string getBody() const;
+	ClientSocket *getClientSocket() const;
 
 
 private:
@@ -120,8 +127,6 @@ private:
 	ClientSocket *_clientSocket;
 	ResponseHeader _header;
 	std::string _body;
-	std::string _statusCode;
-	std::string _statusMessage;
 
 	// member functions
 	void defaultErrorPage(int statusCode);

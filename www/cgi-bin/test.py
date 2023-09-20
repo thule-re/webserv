@@ -2,6 +2,8 @@
 # Importing the 'cgi' module
 import cgi
 import os
+import sys
+
 
 print("<html><body>")
 print("<h1> Hello Program! </h1>")
@@ -21,7 +23,7 @@ if form.getvalue("sad"):
 
 
 # Using HTML input and forms method
-print("<form method='post' action='test.py' enctype='multipart/form-data'>")
+print("<form method='post' action='test.py' enctype='multipart/*'>")
 print("<input type='checkbox' name='happy' value='on' /> Happy")
 print("<input type='checkbox' name='sad' value='on' /> Sad")
 print("<p>Name: <input type='text' name='name' /></p>")

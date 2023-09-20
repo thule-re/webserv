@@ -48,6 +48,7 @@ private:
 	void _getBoundary();
 	void _writeDataToOutfile();
 	void _checkFilename();
+	static bool _fileExists(const std::string &filename);
 };
 
 #endif

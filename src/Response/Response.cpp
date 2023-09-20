@@ -14,7 +14,7 @@
 
 // constructors
 Response::Response() {}
-Response::Response(ClientSocket* clientSocket): _clientSocket(clientSocket), _statusCode("-1") {}
+Response::Response(ClientSocket* clientSocket): _clientSocket(clientSocket), _header() {}
 Response::Response(const Response &other) {
 	*this = other;
 }
@@ -30,8 +30,6 @@ Response &Response::operator=(const Response &other) {
 	_clientSocket = other._clientSocket;
 	_header = other._header;
 	_body = other._body;
-	_statusCode = other._statusCode;
-	_statusMessage = other._statusMessage;
 
 	return (*this);
 }
@@ -40,10 +38,6 @@ Response &Response::operator=(const Response &other) {
 void Response::send() {
 	std::string response = _header.exportHeader() + CRLF + _body;
 	::send(_clientSocket->getSocketFd(), response.c_str(), response.length(), 0);
-}
-
-void Response::setBody(const std::string &body) {
-	_body = body;
 }
 
 void Response::buildErrorPage(int statusCode) {
@@ -75,6 +69,30 @@ void Response::setHeader(const std::string& key, const std::string& value) {
 	_header[key] = value;
 }
 
+// setters
+
 void Response::setHeader(const ResponseHeader &header) {
 	_header = header;
+}
+
+void Response::setClientSocket(ClientSocket *clientSocket) {
+	_clientSocket = clientSocket;
+}
+
+void Response::setBody(const std::string &body) {
+	_body = body;
+}
+
+// getters
+
+ResponseHeader Response::getHeader() const {
+	return (_header);
+}
+
+ClientSocket *Response::getClientSocket() const {
+	return (_clientSocket);
+}
+
+std::string Response::getBody() const {
+	return (_body);
 }

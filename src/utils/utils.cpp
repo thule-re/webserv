@@ -66,6 +66,7 @@ std::string getHTTPErrorMessages(int statusCode) {
 		case ACCEPTED:							return MSG_202;
 		case NO_CONTENT:						return MSG_204;
 		case PARTIAL_CONTENT:					return MSG_206;
+
 		case MULTIPLE_CHOICES:					return MSG_300;
 		case MOVED_PERMANENTLY:					return MSG_301;
 		case FOUND:								return MSG_302;
@@ -73,6 +74,8 @@ std::string getHTTPErrorMessages(int statusCode) {
 		case NOT_MODIFIED:						return MSG_304;
 		case USE_PROXY:							return MSG_305;
 		case TEMPORARY_REDIRECT:				return MSG_307;
+		case PERMANENT_REDIRECT:				return MSG_308;
+
 		case BAD_REQUEST:						return MSG_400;
 		case UNAUTHORIZED:						return MSG_401;
 		case PAYMENT_REQUIRED:					return MSG_402;
@@ -92,12 +95,14 @@ std::string getHTTPErrorMessages(int statusCode) {
 		case REQUESTED_RANGE_NOT_SATISFIABLE:	return MSG_416;
 		case EXPECTATION_FAILED:				return MSG_417;
 		case IM_A_TEAPOT:						return MSG_418;
+
 		case INTERNAL_SERVER_ERROR:				return MSG_500;
 		case NOT_IMPLEMENTED:					return MSG_501;
 		case BAD_GATEWAY:						return MSG_502;
 		case SERVICE_UNAVAILABLE:				return MSG_503;
 		case GATEWAY_TIMEOUT:					return MSG_504;
 		case HTTP_VERSION_NOT_SUPPORTED:		return MSG_505;
+
 		default: return "Unknown HTTP Error";
 	}
 }

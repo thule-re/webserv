@@ -74,13 +74,34 @@ void POSTRequest::_getFileData()
 
 void POSTRequest::_writeDataToOutfile()
 {
+	if (_fileExists(_filename)) {
+		std::cerr << "File already exists: " << _filename << std::endl;
+		throw ARequest::ARequestException(FORBIDDEN);
+	}
 	std::ofstream outfile(_filename);
 
 	if (!outfile.is_open()) {
 		std::cerr << "Error opening file: " << _filename << std::endl;
+		throw ARequest::ARequestException(INTERNAL_SERVER_ERROR);
 	}
 	outfile << _fileData << std::endl;
 	outfile.close();
+
+	int pid = fork();
+	if (pid == -1) {
+		std::cerr << "Error forking" << std::endl;
+		throw ARequest::ARequestException(INTERNAL_SERVER_ERROR);
+	} else if (pid == 0) {
+		char *argv[4];
+		argv[0] = (char *) "chmod";
+		argv[1] = (char *) "ugo-x";
+		argv[2] = (char *) _filename.c_str();
+		argv[3] = NULL;
+
+		execve("/bin/chmod", argv, NULL);
+	} else {
+		waitpid(pid, NULL, 0);
+	}
 }
 
 void POSTRequest::_getFilename()
@@ -95,4 +116,9 @@ void POSTRequest::_getFilename()
 			_filename = _rawRequest.substr(filenamePos, filenameEndPos - filenamePos);
 		}
 	}
+}
+
+bool POSTRequest::_fileExists(const std::string &filename) {
+	struct stat buffer = {};
+	return (stat(filename.c_str(), &buffer) == 0);
 }

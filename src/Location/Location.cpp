@@ -20,14 +20,18 @@ Location::Location(const std::string& path,
 				   const std::string& index,
 				   const std::string& cgi,
 				   const std::string& upload,
+				   const std::string& redirect,
+				   const std::string& allowedMethods,
 				   const std::string& tryFiles,
 				   bool autoindex):
 				   _path(path),
 				   _root(root),
 				   _index(index),
-				   _cgi(cgi),
+				   _cgiExtension(cgi),
 				   _upload(upload),
 				   _tryFiles(tryFiles),
+				   _redirect(redirect),
+				   _allowedMethods(allowedMethods),
 				   _autoindex(autoindex) {}
 
 Location::Location(const Location &other) {
@@ -44,8 +48,10 @@ Location &Location::operator=(const Location &other) {
 	_path = other._path;
 	_root = other._root;
 	_index = other._index;
-	_cgi = other._cgi;
+	_cgiExtension = other._cgiExtension;
 	_upload = other._upload;
+	_redirect = other._redirect;
+	_allowedMethods = other._allowedMethods;
 	_tryFiles= other._tryFiles;
 	_autoindex = other._autoindex;
 	return (*this);
@@ -67,12 +73,20 @@ void Location::setIndex(const std::string &index) {
 	_index = index;
 }
 
-void Location::setCgi(const std::string &cgi) {
-	_cgi = cgi;
+void Location::setCgiExtension(const std::string &cgi) {
+	_cgiExtension = cgi;
 }
 
 void Location::setUpload(const std::string &upload) {
 	_upload = upload;
+}
+
+void Location::setRedirect(const std::string &redirect) {
+	_redirect = redirect;
+}
+
+void Location::setAllowedMethods(const std::string &allowedMethods) {
+	_allowedMethods = allowedMethods;
 }
 
 void Location::setAutoindex(bool autoindex) {
@@ -93,12 +107,20 @@ std::string Location::getIndex() const {
 	return (_index);
 }
 
-std::string Location::getCgi() const {
-	return (_cgi);
+std::string Location::getCgiExtension() const {
+	return (_cgiExtension);
 }
 
 std::string Location::getUpload() const {
 	return (_upload);
+}
+
+std::string Location::getRedirect() const {
+	return (_redirect);
+}
+
+std::string Location::getAllowedMethods() const {
+	return (_allowedMethods);
 }
 
 std::string Location::getAlias() const {
