@@ -190,7 +190,7 @@ void	Config::validatePort() {
 		if (!std::isdigit(_configMap["port"][i]))
 			throw InvalidPortException();
 	}
-	int	portInt = stoi(_configMap["port"]);
+	int	portInt = stoi(_configMap["port"]); // todo: change to c++98 conforming fct
 	if (portInt < 0 || portInt > 65535)
 		throw InvalidPortException();
 }
