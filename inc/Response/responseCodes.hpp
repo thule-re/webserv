@@ -29,6 +29,7 @@
 # define NOT_MODIFIED 304
 # define USE_PROXY 305
 # define TEMPORARY_REDIRECT 307
+# define PERMANENT_REDIRECT 308
 
 // 4xx Client Error
 # define BAD_REQUEST 400
@@ -75,6 +76,7 @@
 # define MSG_304 "Not Modified"
 # define MSG_305 "Use Proxy"
 # define MSG_307 "Temporary Redirect"
+# define MSG_308 "Permanent Redirect"
 
 // 4xx Client Error
 # define MSG_400 "Bad Request"
