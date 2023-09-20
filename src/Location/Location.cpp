@@ -29,9 +29,9 @@ Location::Location(const std::string& path,
 				   _index(index),
 				   _cgiExtension(cgi),
 				   _upload(upload),
-				   _tryFiles(tryFiles),
 				   _redirect(redirect),
 				   _allowedMethods(allowedMethods),
+				   _tryFiles(tryFiles),
 				   _autoindex(autoindex) {}
 
 Location::Location(const Location &other) {
@@ -137,7 +137,7 @@ bool Location::getAutoindex() const {
 
 std::ostream& operator<<(std::ostream& output, const Location& object) {
 	output << "location: path:" << object.getPath() << "| root:" << object.getRoot() << "| alias:"
-		<< object.getAlias()<< "| index:" << object.getIndex() << "| cgiDir:" << object.getCgi()
+		<< object.getAlias()<< "| index:" << object.getIndex() << "| cgiDir:" << object.getCgiExtension()
 		<< "| uploadDir:" << object.getUpload() << "| tryFiles:" << object.getTryFiles()
 		<< "| autoIndex:" << object.getAutoindex();
 	return (output);

@@ -19,6 +19,7 @@
 # include <vector>
 # include <unistd.h>
 # include <sys/wait.h>
+# include <sys/types.h>
 
 extern char **environ;
 

@@ -61,13 +61,6 @@ Server &Server::operator=(const Server &other) {
 void	Server::init() {
 	struct sockaddr_in serverAddress = {};
 
-	_locationMap["/"] = Location("/", "www/", "garbage.html", ".py", "upload", "", "GETPOSTDELETE", false);
-	_locationMap["/test"] = Location("/test", "www", "", ".sh", "upload", "", "GETPOSTDELETE", true);
-	_locationMap["/netpractice"] = Location("/netpractice", "/Users/treeps/Documents/Core/net_practice", "index.html", "", "", "", "GETPOSTDELETE", false);
-	_locationMap["/intra"] = Location("/intra", "", "", "", "", "https://profile.intra.42.fr/", "GETPOSTDELETE", true);
-	_locationMap["/42"] = Location("/42", "", "", "", "", "https://42wolfsburg.de/", "GETPOSTDELETE", true);
-	_locationMap["/google"] = Location("/google", "", "", "", "", "https://www.google.com", "GETPOSTDELETE", true);
-	_locationMap["/joemama"] = Location("/joemama", "", "", "", "", "https://www.youtube.com/watch?v=dQw4w9WgXcQ", "GETPOSTDELETE", true);
 
 	initializeServerSocket();
 	setServerSocketOptions(&serverAddress);

@@ -95,6 +95,8 @@ private:
 	std::string	extractCgi(const std::string &locationBlock);
 	std::string	extractUpload(const std::string &locationBlock);
 	std::string	extractTryFiles(const std::string &locationBlock);
+	std::string	extractRedirect(const std::string &locationBlock);
+	std::string	extractMethods(const std::string &locationBlock);
 	bool	extractAutoIndex(const std::string &locationBlock);
 	void	validateNoEmptyEntry();
 	void	validateConfigDirs();

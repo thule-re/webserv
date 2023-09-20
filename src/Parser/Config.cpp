@@ -11,6 +11,7 @@
 /* ************************************************************************** */
 
 #include "Parser/Config.hpp"
+#include "utils/utils.hpp"
 
 Config::Config() {}
 
@@ -106,7 +107,6 @@ void	Config::populateConfigMap(const std::string &configBlock) {
 void 	Config::setGlobalValues(const std:: string &configBlock) {
 	setConfigValue(SERVERNAME, configBlock);
 	setConfigValue(PORT, configBlock);
-	setConfigValue(METHODS, configBlock);
 	setConfigValue(HTML, configBlock);
 	setConfigValue(ROOT, configBlock);
 }
@@ -148,16 +148,42 @@ void	Config::populateLocation(std::string &locationBlock) {
 	std::string	cgi = extractCgi(locationBlock);
 	std::string	upload = extractUpload(locationBlock);
 	std::string	tryFiles = extractTryFiles(locationBlock);
+	std::string	redirect = extractRedirect(locationBlock);
+	std::string methods = extractMethods(locationBlock);
 	bool	autoIndex = extractAutoIndex(locationBlock);
-	Location	location(path, root, index, cgi, upload, tryFiles, autoIndex);
+	Location	location(path, root, index, cgi, upload, tryFiles, redirect, methods, autoIndex);
 	_locations.push_back(location);
+}
+
+std::string	Config::extractRedirect(const std::string &locationBlock) {
+	if (locationBlock.find("httpRedir:") == std::string::npos)
+		return ("");
+	size_t start = locationBlock.find("httpRedir:") + 11;
+	size_t end = locationBlock.find('{', start);
+	std::string value = locationBlock.substr(start, end - start - 1);
+	return (value);
+}
+
+std::string	Config::extractMethods(const std::string &locationBlock) {
+	if (locationBlock.find("methods:") == std::string::npos)
+		return ("");
+	size_t start = locationBlock.find("methods:") + 9;
+	size_t end = locationBlock.find(';', start);
+	//if (locationBlock.find('\n', start) < locationBlock.find(';', start))
+	//	throw MissingSemicolonException();
+	std::string value = locationBlock.substr(start, end - start);
+	replaceAll(value, ", ", "");
+	std::cout << value << std::endl;
+	return (value);
 }
 
 std::string	Config::extractPath(const std::string &locationBlock) {
 	if (locationBlock.find("location") == std::string::npos)
 		return ("");
 	size_t start = locationBlock.find("location") + 9;
-	size_t end = locationBlock.find('{', start);
+	size_t end = locationBlock.find(';', start);
+	// if (locationBlock.find('\n', start) < locationBlock.find(';', start))
+	// 	throw MissingSemicolonException();
 	std::string value = locationBlock.substr(start, end - start - 1);
 	return (value);
 }
@@ -167,8 +193,8 @@ std::string	Config::extractRoot(const std::string &locationBlock) {
 		return ("");
 	size_t start = locationBlock.find("root:") + 6;
 	size_t end = locationBlock.find(';', start);
-	if (locationBlock.find('\n', start) < locationBlock.find(';', start))
-		throw MissingSemicolonException();
+	// if (locationBlock.find('\n', start) < locationBlock.find(';', start))
+	// 	throw MissingSemicolonException();
 	std::string value = locationBlock.substr(start, end - start);
 	return (value);
 }
@@ -178,8 +204,8 @@ std::string	Config::extractIndex(const std::string &locationBlock) {
 		return ("");
 	size_t start = locationBlock.find("index:") + 7;
 	size_t end = locationBlock.find(';', start);
-	if (locationBlock.find('\n', start) < locationBlock.find(';', start))
-		throw MissingSemicolonException();
+	// if (locationBlock.find('\n', start) < locationBlock.find(';', start))
+	// 	throw MissingSemicolonException();
 	std::string value = locationBlock.substr(start, end - start);
 	return (value);
 }
@@ -189,8 +215,8 @@ std::string	Config::extractCgi(const std::string &locationBlock) {
 		return ("");
 	size_t start = locationBlock.find("cgiDir:") + 8;
 	size_t end = locationBlock.find(';', start);
-	if (locationBlock.find('\n', start) < locationBlock.find(';', start))
-		throw MissingSemicolonException();
+	//if (locationBlock.find('\n', start) < locationBlock.find(';', start))
+	//	throw MissingSemicolonException();
 	std::string value = locationBlock.substr(start, end - start);
 	return (value);
 }
@@ -200,8 +226,8 @@ std::string	Config::extractUpload(const std::string &locationBlock) {
 		return ("");
 	size_t start = locationBlock.find("uploadDir:") + 11;
 	size_t end = locationBlock.find(';', start);
-	if (locationBlock.find('\n', start) < locationBlock.find(';', start))
-		throw MissingSemicolonException();
+	//if (locationBlock.find('\n', start) < locationBlock.find(';', start))
+	//	throw MissingSemicolonException();
 	std::string value = locationBlock.substr(start, end - start);
 	return (value);
 }
@@ -212,8 +238,8 @@ std::string	Config::extractTryFiles(const std::string &locationBlock) {
 	}
 	size_t start = locationBlock.find("tryFiles:") + 10;
 	size_t end = locationBlock.find(';', start);
-	if (locationBlock.find('\n', start) < locationBlock.find(';', start))
-		throw MissingSemicolonException();
+	//if (locationBlock.find('\n', start) < locationBlock.find(';', start))
+	//	throw MissingSemicolonException();
 	std::string value = locationBlock.substr(start, end - start);
 	return (value);
 }
@@ -224,8 +250,8 @@ bool	Config::extractAutoIndex(const std::string &locationBlock) {
 	}
 	size_t start = locationBlock.find("AutoIndex:") + 11;
 	size_t end = locationBlock.find(';', start);
-	if (locationBlock.find('\n', start) < locationBlock.find(';', start))
-		throw MissingSemicolonException();
+	//if (locationBlock.find('\n', start) < locationBlock.find(';', start))
+	//	throw MissingSemicolonException();
 	std::string value = locationBlock.substr(start, end - start);
 	if (value == "1" || value == "on" || value == "true")
 		return (true);
