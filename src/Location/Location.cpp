@@ -20,12 +20,14 @@ Location::Location(const std::string& path,
 				   const std::string& index,
 				   const std::string& cgi,
 				   const std::string& upload,
+				   const std::string& tryFiles,
 				   bool autoindex):
 				   _path(path),
 				   _root(root),
 				   _index(index),
 				   _cgi(cgi),
 				   _upload(upload),
+				   _tryFiles(tryFiles),
 				   _autoindex(autoindex) {}
 
 Location::Location(const Location &other) {
@@ -44,6 +46,7 @@ Location &Location::operator=(const Location &other) {
 	_index = other._index;
 	_cgi = other._cgi;
 	_upload = other._upload;
+	_tryFiles= other._tryFiles;
 	_autoindex = other._autoindex;
 	return (*this);
 }
@@ -98,6 +101,22 @@ std::string Location::getUpload() const {
 	return (_upload);
 }
 
+std::string Location::getAlias() const {
+	return (_alias);
+}
+
+std::string Location::getTryFiles() const {
+	return (_tryFiles);
+}
+
 bool Location::getAutoindex() const {
 	return (_autoindex);
+}
+
+std::ostream& operator<<(std::ostream& output, const Location& object) {
+	output << "location: path:" << object.getPath() << "| root:" << object.getRoot() << "| alias:"
+		<< object.getAlias()<< "| index:" << object.getIndex() << "| cgiDir:" << object.getCgi()
+		<< "| uploadDir:" << object.getUpload() << "| tryFiles:" << object.getTryFiles()
+		<< "| autoIndex:" << object.getAutoindex();
+	return (output);
 }

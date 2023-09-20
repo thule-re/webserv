@@ -27,6 +27,12 @@ Server::Server(int port, const std::string& error): _port(port), _serverSocket()
 Server::Server(const Config &config): _serverSocket() {
 	_maxFd = 1;
 	_port = atoi(config.getMap()["port"].c_str());
+	size_t i = 0;
+	while (i < config.getLocations().size()) {
+		std::string	key = config.getLocations()[i].getPath();
+		_locationMap[key] = config.getLocations()[i];
+		i++;
+	}
 	FD_ZERO(&_readSet);
 	FD_ZERO(&_writeSet);
 }
@@ -54,9 +60,6 @@ Server &Server::operator=(const Server &other) {
 // member functions
 void	Server::init() {
 	struct sockaddr_in serverAddress = {};
-
-	_locationMap["/"] = Location("/", "www/", "garbage.html", "cgi-bin", "upload", false);
-	_locationMap["/test"] = Location("/test", "www", "", "cgi-bin", "upload", true);
 
 	initializeServerSocket();
 	setServerSocketOptions(&serverAddress);

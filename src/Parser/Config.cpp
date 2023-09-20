@@ -20,6 +20,7 @@ Config::Config(std::string &rawConfig) {
 
 Config::Config(const Config &other) {
 	this->_configMap = other.getMap();
+	this->_locations = other.getLocations();
 }
 
 // destructor
@@ -29,11 +30,12 @@ Config::~Config() {}
 Config &Config::operator=(const Config &other) {
 	if (this == &other)
 		return (*this);
-	this->_configMap = other._configMap;
+	this->_configMap = other.getMap();
+	this->_locations = other.getLocations();
 	return (*this);
 }
 
-std::string	getConfigValStr(const int& key) {
+std::string	getValStr(const int& key) {
 	switch (key) {
 		case SERVERNAME:
 			return "servername";
@@ -55,7 +57,7 @@ Config::ValueMissingException::ValueMissingException(const int &missingKey)
 	: _key(missingKey) {}
 
 const char *Config::ValueMissingException::what() const throw() {
-	std::string	retString = "No value found for: " + getConfigValStr(_key);
+	std::string	retString = "No value found for: " + getValStr(_key);
 	const char	*retStringC = retString.c_str();
 	return (retStringC);
 }
@@ -84,30 +86,38 @@ const char *Config::EmptyValueException::what() const _NOEXCEPT {
 	return ("Error: Empty value in config file.");
 }
 
+const char *Config::MissingClosingBracketException::what() const _NOEXCEPT {
+	return ("Error: Missing closing brackets for location in config file.");
+}
+
 // member functions
 std::map<std::string, std::string>	Config::getMap() const {
 	return (this->_configMap);
 }
 
-void	Config::populateConfig(const std::string &configBlock) {
+std::vector<Location>	Config::getLocations() const {
+	return (this->_locations);
+}
+
+void	Config::populateConfigMap(const std::string &configBlock) {
 	setGlobalValues(configBlock);
-	setLocations(configBlock);
 }
 
 void 	Config::setGlobalValues(const std:: string &configBlock) {
-	setValue(SERVERNAME, configBlock);
-	setValue(PORT, configBlock);
-	setValue(METHODS, configBlock);
-	setValue(HTML, configBlock);
-	setValue(ROOT, configBlock);
+	setConfigValue(SERVERNAME, configBlock);
+	setConfigValue(PORT, configBlock);
+	setConfigValue(METHODS, configBlock);
+	setConfigValue(HTML, configBlock);
+	setConfigValue(ROOT, configBlock);
 }
 
-void	Config::setValue(const int key, const std::string &configBlock) {
+void	Config::setConfigValue(const int key, const std::string &configBlock) {
 	size_t		valStart;
 	size_t		valEnd;
 	std::string	keyStr;
 
-	if (configBlock.find(getConfigValStr(key)) == std::string::npos)
+	keyStr = getValStr(key);
+	if (configBlock.find(keyStr) == std::string::npos)
 		throw ValueMissingException(key);
 	else
 		valStart = configBlock.find(keyStr);
@@ -124,20 +134,119 @@ void	Config::setValue(const int key, const std::string &configBlock) {
 
 void	Config::setLocations(const std::string &configBlock) {
 	std::vector<std::string>	locationBlocks;
+
 	splitLocationBlocks(locationBlocks, configBlock);
+	for (size_t i = 0; i < locationBlocks.size(); i++) {
+		populateLocation(locationBlocks[i]);
+	}
+}
+
+void	Config::populateLocation(std::string &locationBlock) {
+	std::string	path = extractPath(locationBlock);
+	std::string	root = extractRoot(locationBlock);
+	std::string	index = extractIndex(locationBlock);
+	std::string	cgi = extractCgi(locationBlock);
+	std::string	upload = extractUpload(locationBlock);
+	std::string	tryFiles = extractTryFiles(locationBlock);
+	bool	autoIndex = extractAutoIndex(locationBlock);
+	Location	location(path, root, index, cgi, upload, tryFiles, autoIndex);
+	_locations.push_back(location);
+}
+
+std::string	Config::extractPath(const std::string &locationBlock) {
+	if (locationBlock.find("location") == std::string::npos)
+		return ("");
+	size_t start = locationBlock.find("location") + 9;
+	size_t end = locationBlock.find('{', start);
+	std::string value = locationBlock.substr(start, end - start - 1);
+	return (value);
+}
+
+std::string	Config::extractRoot(const std::string &locationBlock) {
+	if (locationBlock.find("root:") == std::string::npos)
+		return ("");
+	size_t start = locationBlock.find("root:") + 6;
+	size_t end = locationBlock.find(';', start);
+	if (locationBlock.find('\n', start) < locationBlock.find(';', start))
+		throw MissingSemicolonException();
+	std::string value = locationBlock.substr(start, end - start);
+	return (value);
+}
+
+std::string	Config::extractIndex(const std::string &locationBlock) {
+	if (locationBlock.find("index:") == std::string::npos)
+		return ("");
+	size_t start = locationBlock.find("index:") + 7;
+	size_t end = locationBlock.find(';', start);
+	if (locationBlock.find('\n', start) < locationBlock.find(';', start))
+		throw MissingSemicolonException();
+	std::string value = locationBlock.substr(start, end - start);
+	return (value);
+}
+
+std::string	Config::extractCgi(const std::string &locationBlock) {
+	if (locationBlock.find("cgiDir:") == std::string::npos)
+		return ("");
+	size_t start = locationBlock.find("cgiDir:") + 8;
+	size_t end = locationBlock.find(';', start);
+	if (locationBlock.find('\n', start) < locationBlock.find(';', start))
+		throw MissingSemicolonException();
+	std::string value = locationBlock.substr(start, end - start);
+	return (value);
+}
+
+std::string	Config::extractUpload(const std::string &locationBlock) {
+	if (locationBlock.find("uploadDir:") == std::string::npos)
+		return ("");
+	size_t start = locationBlock.find("uploadDir:") + 11;
+	size_t end = locationBlock.find(';', start);
+	if (locationBlock.find('\n', start) < locationBlock.find(';', start))
+		throw MissingSemicolonException();
+	std::string value = locationBlock.substr(start, end - start);
+	return (value);
+}
+
+std::string	Config::extractTryFiles(const std::string &locationBlock) {
+	if (locationBlock.find("tryFiles:") == std::string::npos) {
+		return ("");
+	}
+	size_t start = locationBlock.find("tryFiles:") + 10;
+	size_t end = locationBlock.find(';', start);
+	if (locationBlock.find('\n', start) < locationBlock.find(';', start))
+		throw MissingSemicolonException();
+	std::string value = locationBlock.substr(start, end - start);
+	return (value);
+}
+
+bool	Config::extractAutoIndex(const std::string &locationBlock) {
+	if (locationBlock.find("AutoIndex:") == std::string::npos) {
+		return ("");
+	}
+	size_t start = locationBlock.find("AutoIndex:") + 11;
+	size_t end = locationBlock.find(';', start);
+	if (locationBlock.find('\n', start) < locationBlock.find(';', start))
+		throw MissingSemicolonException();
+	std::string value = locationBlock.substr(start, end - start);
+	if (value == "1" || value == "on" || value == "true")
+		return (true);
+	else
+		return (false);
 }
 
 void	Config::splitLocationBlocks(std::vector<std::string> &locBlocks,
 									const std::string &configBlock) {
-	size_t	blockStart = 0;
-	size_t	numLocBlocks = 0;
 	size_t	blockEnd = 0;
+	size_t	blockStart = configBlock.find("location", blockEnd);
+	size_t	numLocBlocks = 0;
 
 	while (blockStart < configBlock.length() && blockEnd < configBlock.length()) {
-		blockStart = configBlock.find("location", blockEnd);
+		if (configBlock.find('}', blockStart) == std::string::npos) {
+			throw (MissingClosingBracketException());
+		}
 		blockEnd = configBlock.find('}', blockStart);
 		locBlocks.push_back(configBlock.substr(blockStart,
-							(blockEnd - blockStart)));
+							(blockEnd - blockStart + 1)));
+		blockStart = configBlock.find("location", blockEnd);
 		numLocBlocks++;
 	}
 	std::stringstream ss;
@@ -151,6 +260,7 @@ void 	Config::validateNoEmptyEntry() {
 		throw EmptyValueException();
 }
 
+// todo:: is this the correct behaviour or should it just show 404 not found?
 void	Config::validateDir(std::string const &directory) {
 	std::string	full_path;
 
@@ -167,10 +277,10 @@ void	Config::validateDir(std::string const &directory) {
 
 void	Config::validateConfigDirs() {
 	validateDir("root");
-//	validateDir("indexFile");
-//	validateDir("errorDirectory");
-//	validateDir("cgiDirectory");
-//	validateDir("uploadDirectory");
+	validateDir("indexFile");
+	validateDir("errorDirectory");
+	validateDir("cgiDirectory");
+	validateDir("uploadDirectory");
 }
 
 void	Config::validateMethods() {
@@ -196,13 +306,13 @@ void	Config::validatePort() {
 		throw InvalidPortException();
 }
 
-// catch exceptions in main to correctly close program with bad config
+// todo: catch exceptions in main to correctly close program with bad config
 void	Config::parseConfig(const std::string& configBlock) {
-	std::vector<std::string> configAttributes;
-	populateConfig(configBlock);
-	validateNoEmptyEntry();
-	validateConfigDirs();
-	validateMethods();
-	validateHtml();
-	validatePort();
+	populateConfigMap(configBlock);
+	setLocations(configBlock);
+//	validateNoEmptyEntry();
+//	validateConfigDirs();
+//	validateMethods();
+//	validateHtml();
+//	validatePort();
 }

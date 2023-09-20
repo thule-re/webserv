@@ -20,7 +20,8 @@
 # include <map>
 # include <vector>
 # include <exception>
-#include "Parser/errorCodes.hpp"
+# include "Parser/errorCodes.hpp"
+# include "Location/Location.hpp"
 
 class Config {
 public:
@@ -68,22 +69,37 @@ public:
 	public:
 		virtual const char* what() const _NOEXCEPT;
 	};
+	class MissingClosingBracketException : public std::exception {
+	public:
+		virtual const char* what() const _NOEXCEPT;
+	};
 
 	// member functions
 	std::map<std::string, std::string>	getMap() const;
+	std::vector<Location>	getLocations() const;
 
 private:
 	std::map<std::string, std::string>	_configMap;
+	std::vector<Location>				_locations;
+
 	void	parseConfig(const std::string &configBlock);
-	void	populateConfig(const std::string &configBlock);
-	void 	setGlobalValues(const std:: string &configBlock);
-	void	setValue(const int key, const std::string &configBlock);
+	void	populateConfigMap(const std::string &configBlock);
+	void	setGlobalValues(const std:: string &configBlock);
+	void	setConfigValue(const int key, const std::string &configBlock);
 	void	setLocations(const std::string &configBlock);
-	void 	splitLocationBlocks(std::vector<std::string> &, const std::string &);
-	void 	validateNoEmptyEntry();
+	void	splitLocationBlocks(std::vector<std::string> &, const std::string &);
+	void	populateLocation(std::string &locationBlock);
+	std::string	extractPath(const std::string &locationBlock);
+	std::string	extractRoot(const std::string &locationBlock);
+	std::string	extractIndex(const std::string &locationBlock);
+	std::string	extractCgi(const std::string &locationBlock);
+	std::string	extractUpload(const std::string &locationBlock);
+	std::string	extractTryFiles(const std::string &locationBlock);
+	bool	extractAutoIndex(const std::string &locationBlock);
+	void	validateNoEmptyEntry();
 	void	validateConfigDirs();
 	void	validateDir(std::string const &directory);
-	void 	validateMethods();
+	void	validateMethods();
 	void	validateHtml();
 	void	validatePort();
 };

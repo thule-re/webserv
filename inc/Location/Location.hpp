@@ -14,6 +14,7 @@
 # define WEBSERV_LOCATION_HPP
 
 # include <string>
+# include <iostream>
 
 class Location {
 public:
@@ -24,6 +25,7 @@ public:
 			 const std::string& index,
 			 const std::string& cgi,
 			 const std::string& upload,
+			 const std::string& tryFiles,
 			 bool autoindex);
 	Location(const Location &);
 
@@ -49,16 +51,22 @@ public:
 	std::string getIndex() const;
 	std::string getCgi() const;
 	std::string getUpload() const;
+	std::string getAlias() const;
+	std::string getTryFiles() const;
 	bool getAutoindex() const;
 
 private:
 	// member variables
 	std::string _path;
 	std::string _root;
+	std::string _alias;
 	std::string _index;
 	std::string _cgi;
 	std::string _upload;
+	std::string _tryFiles;
 	bool _autoindex;
 };
+
+std::ostream& operator<<(std::ostream& output, const Location& object);
 
 #endif

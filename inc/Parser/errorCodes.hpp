@@ -18,10 +18,10 @@
 #define HTML			3
 #define METHODS			4
 #define ROOT			5
-#define INDEXFILE		6
-#define ERRORDIR		7
-#define CGIEXTENSION	8
-#define UPLOADDIR		9
-#define NOSEMICOL		10
+#define PATH			6
+#define INDEX			7
+#define CGI				8
+#define UPLOAD			9
+#define	ALIAS			10
 
 #endif

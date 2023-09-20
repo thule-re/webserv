@@ -21,10 +21,10 @@ int main(int argc, char **argv) {
 	}
 	try {
 		Parser parser(argv[1]);
-//		Cluster cluster(parser.getConfigArr());
-//		cluster.loop();
+		Cluster cluster(parser.getConfigArr());
+		cluster.loop();
 	}
-	//catch block potentially needs work to properly free cluster stuff
+	//todo: catch block potentially needs work to properly free cluster stuff
 	catch (std::exception &e) {
 		std::cout << e.what() << std::endl;
 		return (1);
