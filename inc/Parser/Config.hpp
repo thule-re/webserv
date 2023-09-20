@@ -83,12 +83,12 @@ private:
 	std::vector<Location>				_locations;
 
 	void	parseConfig(const std::string &configBlock);
-	void	populateConfigMap(const std::string &configBlock);
-	void	setGlobalValues(const std:: string &configBlock);
+	void	populateGlobalVarsMap(const std:: string &configBlock);
 	void	setConfigValue(const int key, const std::string &configBlock);
 	void	setLocations(const std::string &configBlock);
 	void	splitLocationBlocks(std::vector<std::string> &, const std::string &);
 	void	populateLocation(std::string &locationBlock);
+
 	std::string	extractPath(const std::string &locationBlock);
 	std::string	extractRoot(const std::string &locationBlock);
 	std::string	extractIndex(const std::string &locationBlock);
@@ -98,6 +98,7 @@ private:
 	std::string	extractRedirect(const std::string &locationBlock);
 	std::string	extractMethods(const std::string &locationBlock);
 	bool	extractAutoIndex(const std::string &locationBlock);
+
 	void	validateNoEmptyEntry();
 	void	validateConfigDirs();
 	void	validateDir(std::string const &directory);

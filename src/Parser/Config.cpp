@@ -100,15 +100,18 @@ std::vector<Location>	Config::getLocations() const {
 	return (this->_locations);
 }
 
-void	Config::populateConfigMap(const std::string &configBlock) {
-	setGlobalValues(configBlock);
+void 	Config::populateGlobalVarsMap(const std:: string &configBlock) {
+	std::string globalVarsBlock;
+
+	globalVarsBlock = extractglobalVarsBlock(configBlock);
+	setConfigValue(SERVERNAME, globalVarsBlock);
+	setConfigValue(PORT, globalVarsBlock);
+	setConfigValue(HTML, globalVarsBlock);
+	setConfigValue(ROOT, globalVarsBlock);
 }
 
-void 	Config::setGlobalValues(const std:: string &configBlock) {
-	setConfigValue(SERVERNAME, configBlock);
-	setConfigValue(PORT, configBlock);
-	setConfigValue(HTML, configBlock);
-	setConfigValue(ROOT, configBlock);
+void	extractglobalVarsBlock(std::string &configBlock) {
+	std::
 }
 
 void	Config::setConfigValue(const int key, const std::string &configBlock) {
@@ -226,8 +229,8 @@ std::string	Config::extractUpload(const std::string &locationBlock) {
 		return ("");
 	size_t start = locationBlock.find("uploadDir:") + 11;
 	size_t end = locationBlock.find(';', start);
-	//if (locationBlock.find('\n', start) < locationBlock.find(';', start))
-	//	throw MissingSemicolonException();
+	if (locationBlock.find('\n', start) < locationBlock.find(';', start))
+		throw MissingSemicolonException();
 	std::string value = locationBlock.substr(start, end - start);
 	return (value);
 }
@@ -238,8 +241,8 @@ std::string	Config::extractTryFiles(const std::string &locationBlock) {
 	}
 	size_t start = locationBlock.find("tryFiles:") + 10;
 	size_t end = locationBlock.find(';', start);
-	//if (locationBlock.find('\n', start) < locationBlock.find(';', start))
-	//	throw MissingSemicolonException();
+	if (locationBlock.find('\n', start) < locationBlock.find(';', start))
+		throw MissingSemicolonException();
 	std::string value = locationBlock.substr(start, end - start);
 	return (value);
 }
@@ -334,7 +337,7 @@ void	Config::validatePort() {
 
 // todo: catch exceptions in main to correctly close program with bad config
 void	Config::parseConfig(const std::string& configBlock) {
-	populateConfigMap(configBlock);
+	populateGlobalVarsMap(configBlock);
 	setLocations(configBlock);
 //	validateNoEmptyEntry();
 //	validateConfigDirs();

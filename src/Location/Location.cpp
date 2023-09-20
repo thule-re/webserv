@@ -136,9 +136,10 @@ bool Location::getAutoindex() const {
 }
 
 std::ostream& operator<<(std::ostream& output, const Location& object) {
-	output << "location: path:" << object.getPath() << "| root:" << object.getRoot() << "| alias:"
-		<< object.getAlias()<< "| index:" << object.getIndex() << "| cgiDir:" << object.getCgiExtension()
-		<< "| uploadDir:" << object.getUpload() << "| tryFiles:" << object.getTryFiles()
+	output << "path:" << object.getPath() << "| root:" << object.getRoot() << "| alias:"
+		<< object.getAlias()<< "| index:" << object.getIndex() << "| cgiExtension:" << object.getCgiExtension()
+		<< "| uploadDir:" << object.getUpload() << "| redirect:" << object.getRedirect()
+		<< "| methods:" << object.getAllowedMethods()<< "| tryFiles:" << object.getTryFiles()
 		<< "| autoIndex:" << object.getAutoindex();
 	return (output);
 }
