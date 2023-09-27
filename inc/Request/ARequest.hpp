@@ -16,7 +16,9 @@
 # include <string>
 # include <fstream>
 # include <exception>
+# include <cstdlib> // todo: replace strtol wit c++98 conform function
 # include <sys/stat.h>
+# include <sys/wait.h>
 # include "Header/RequestHeader.hpp"
 # include "Response/Response.hpp"
 # include "utils/utils.hpp"

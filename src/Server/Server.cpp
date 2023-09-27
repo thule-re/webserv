@@ -3,10 +3,10 @@
 /*                                                        :::      ::::::::   */
 /*   Server.cpp                                         :+:      :+:    :+:   */
 /*                                                    +:+ +:+         +:+     */
-/*   By: tony <tony@student.42.fr>                  +#+  +:+       +#+        */
+/*   By: mtrautne <mtrautne@student.42wolfsburg.    +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2023/08/17 11:29:03 by treeps            #+#    #+#             */
-/*   Updated: 2023/08/25 14:18:50 by tony             ###   ########.fr       */
+/*   Updated: 2023/09/27 22:12:09 by mtrautne         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -31,6 +31,8 @@ Server::Server(const Config &config): _serverSocket() {
 	while (i < config.getLocations().size()) {
 		std::string	key = config.getLocations()[i].getPath();
 		_locationMap[key] = config.getLocations()[i];
+		std::cout << "Server key: " << key << std::endl;
+		std::cout << "value: " << _locationMap[key] << "endoflocation" << i << std::endl;
 		i++;
 	}
 	FD_ZERO(&_readSet);
@@ -61,7 +63,7 @@ Server &Server::operator=(const Server &other) {
 void	Server::init() {
 	struct sockaddr_in serverAddress = {};
 
-
+	// std::cout << _port << std::endl;
 	initializeServerSocket();
 	setServerSocketOptions(&serverAddress);
 	bindServerSocket(serverAddress);

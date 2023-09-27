@@ -153,8 +153,8 @@ void CgiRequest::_execCgi(Response *response) {
 		close(_cgiOutput[1]);
 
 		_exportEnv();
-		if (execve(_scriptPath.c_str(), NULL, _envp) == -1)
-			exit(1);
+//		if (execve(_scriptPath.c_str(), NULL, _envp) == -1)
+//			exit(1);
 	} else {
 		if (_header["Method"] == "POST")
 			_writeCgiInput();

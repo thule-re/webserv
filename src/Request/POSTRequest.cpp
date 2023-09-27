@@ -78,7 +78,7 @@ void POSTRequest::_writeDataToOutfile()
 		std::cerr << "File already exists: " << _filename << std::endl;
 		throw ARequest::ARequestException(FORBIDDEN);
 	}
-	std::ofstream outfile(_filename);
+	std::ofstream outfile(_filename.c_str());
 
 	if (!outfile.is_open()) {
 		std::cerr << "Error opening file: " << _filename << std::endl;

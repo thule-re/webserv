@@ -3,10 +3,10 @@
 /*                                                        :::      ::::::::   */
 /*   Parser.cpp                                         :+:      :+:    :+:   */
 /*                                                    +:+ +:+         +:+     */
-/*   By: mtrautne <mtrautne@student.42wolfsburg.d>  +#+  +:+       +#+        */
+/*   By: mtrautne <mtrautne@student.42wolfsburg.    +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2023/08/22 15:50:45 by mtrautne          #+#    #+#             */
-/*   Updated: 2023/09/15 11:53:32 by mtrautne         ###   ########.fr       */
+/*   Updated: 2023/09/21 16:06:18 by mtrautne         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -15,7 +15,7 @@
 Parser::Parser() {}
 
 Parser::Parser(const std::string &pathToConfig) {
-	std::ifstream	configFile(pathToConfig);
+	std::ifstream	configFile(pathToConfig.c_str());
 	if (!configFile.is_open())
 		throw CantOpenException();
 	std::string	fileContent((std::istreambuf_iterator<char>(configFile)),
@@ -24,7 +24,7 @@ Parser::Parser(const std::string &pathToConfig) {
 		throw EmptyConfigFileException();
 	removeComments(fileContent);
 	parseConfig(fileContent);
-	checkForDuplicateServerConfigs();
+	checkForDuplicateServerConfigs(); //!alert
 }
 
 Parser::Parser(const Parser &other) {
@@ -43,19 +43,19 @@ Parser &Parser::operator=(const Parser &other) {
 }
 
 // exceptions
-const char *Parser::NoArgException::what() const _NOEXCEPT {
+const char *Parser::NoArgException::what() const throw() {
 	return ("Error: Parser initialised without config file path argument.");
 }
 
-const char *Parser::CantOpenException::what() const _NOEXCEPT {
+const char *Parser::CantOpenException::what() const throw() {
 	return ("Error: Parser can't open config file.");
 }
 
-const char *Parser::EmptyConfigFileException::what() const _NOEXCEPT {
+const char *Parser::EmptyConfigFileException::what() const throw() {
 	return ("Error: Parser detected empty config file.");
 }
 
-const char *Parser::DuplicateConfigException::what() const _NOEXCEPT {
+const char *Parser::DuplicateConfigException::what() const throw() {
 	return ("Error: Parser detected duplicate config.");
 }
 
@@ -92,6 +92,8 @@ void	Parser::parseConfig(std::string &rawConfig) {
 		_configArr.push_back(conf);
 	}
 }
+
+// ! also check for duplicate ports -see subject?!
 
 void	Parser::checkForDuplicateServerConfigs() {
 	std::vector<std::string> uniqueConfigs;

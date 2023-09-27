@@ -3,10 +3,10 @@
 /*                                                        :::      ::::::::   */
 /*   Location.cpp                                       :+:      :+:    :+:   */
 /*                                                    +:+ +:+         +:+     */
-/*   By: treeps <treeps@student.42wolfsburg.de>     +#+  +:+       +#+        */
+/*   By: mtrautne <mtrautne@student.42wolfsburg.    +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2023/09/08 15:43:00 by treeps            #+#    #+#             */
-/*   Updated: 2023/09/08 15:43:00 by treeps           ###   ########.fr       */
+/*   Updated: 2023/09/27 22:02:18 by mtrautne         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -20,9 +20,9 @@ Location::Location(const std::string& path,
 				   const std::string& index,
 				   const std::string& cgi,
 				   const std::string& upload,
+				   const std::string& tryFiles,
 				   const std::string& redirect,
 				   const std::string& allowedMethods,
-				   const std::string& tryFiles,
 				   bool autoindex):
 				   _path(path),
 				   _root(root),
@@ -140,6 +140,6 @@ std::ostream& operator<<(std::ostream& output, const Location& object) {
 		<< object.getAlias()<< "| index:" << object.getIndex() << "| cgiExtension:" << object.getCgiExtension()
 		<< "| uploadDir:" << object.getUpload() << "| redirect:" << object.getRedirect()
 		<< "| methods:" << object.getAllowedMethods()<< "| tryFiles:" << object.getTryFiles()
-		<< "| autoIndex:" << object.getAutoindex();
+		<< "| autoIndex:" << object.getAutoindex() << std::endl;
 	return (output);
 }

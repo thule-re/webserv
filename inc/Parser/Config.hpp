@@ -40,38 +40,38 @@ public:
 	// exceptions
 	class ValueMissingException : public std::exception {
 	public:
-		virtual const char *what() const _NOEXCEPT;
+		virtual const char *what() const throw();
 		ValueMissingException(const int &missingKey);
 	private:
 		int	_key;
 	};
 	class NotADirectoryException : public std::exception {
 	public:
-		virtual const char* what() const _NOEXCEPT;
+		virtual const char* what() const throw();
 	};
 	class MissingSemicolonException : public std::exception {
 	public:
-		virtual const char* what() const _NOEXCEPT;
+		virtual const char* what() const throw();
 	};
 	class NoValidMethodException : public std::exception {
 	public:
-		virtual const char* what() const _NOEXCEPT;
+		virtual const char* what() const throw();
 	};
 	class InvalidHtmlException : public std::exception {
 	public:
-		virtual const char* what() const _NOEXCEPT;
+		virtual const char* what() const throw();
 	};
 	class InvalidPortException : public std::exception {
 	public:
-		virtual const char* what() const _NOEXCEPT;
+		virtual const char* what() const throw();
 	};
 	class EmptyValueException : public std::exception {
 	public:
-		virtual const char* what() const _NOEXCEPT;
+		virtual const char* what() const throw();
 	};
 	class MissingClosingBracketException : public std::exception {
 	public:
-		virtual const char* what() const _NOEXCEPT;
+		virtual const char* what() const throw();
 	};
 
 	// member functions

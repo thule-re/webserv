@@ -3,10 +3,10 @@
 /*                                                        :::      ::::::::   */
 /*   Config.cpp                                         :+:      :+:    :+:   */
 /*                                                    +:+ +:+         +:+     */
-/*   By: mtrautne <mtrautne@student.42wolfsburg.d>  +#+  +:+       +#+        */
+/*   By: mtrautne <mtrautne@student.42wolfsburg.    +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2023/08/24 09:40:26 by mtrautne          #+#    #+#             */
-/*   Updated: 2023/09/15 17:08:34 by mtrautne         ###   ########.fr       */
+/*   Updated: 2023/09/27 22:02:45 by mtrautne         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -63,31 +63,31 @@ const char *Config::ValueMissingException::what() const throw() {
 	return (retStringC);
 }
 
-const char *Config::MissingSemicolonException::what() const _NOEXCEPT {
+const char *Config::MissingSemicolonException::what() const throw() {
 	return ("Error: Missing semicolon in config.");
 }
 
-const char *Config::NotADirectoryException::what() const _NOEXCEPT {
+const char *Config::NotADirectoryException::what() const throw() {
 	return ("Error: Invalid directory in config.");
 }
 
-const char *Config::NoValidMethodException::what() const _NOEXCEPT {
+const char *Config::NoValidMethodException::what() const throw() {
 	return ("Error: No valid method found for server block in config.");
 }
 
-const char *Config::InvalidHtmlException::what() const _NOEXCEPT {
+const char *Config::InvalidHtmlException::what() const throw() {
 	return ("Error: Invalid html standard in config.");
 }
 
-const char *Config::InvalidPortException::what() const _NOEXCEPT {
+const char *Config::InvalidPortException::what() const throw() {
 	return ("Error: Invalid port in config file.");
 }
 
-const char *Config::EmptyValueException::what() const _NOEXCEPT {
+const char *Config::EmptyValueException::what() const throw() {
 	return ("Error: Empty value in config file.");
 }
 
-const char *Config::MissingClosingBracketException::what() const _NOEXCEPT {
+const char *Config::MissingClosingBracketException::what() const throw() {
 	return ("Error: Missing closing brackets for location in config file.");
 }
 
@@ -101,18 +101,18 @@ std::vector<Location>	Config::getLocations() const {
 }
 
 void 	Config::populateGlobalVarsMap(const std:: string &configBlock) {
-	std::string globalVarsBlock;
-
-	globalVarsBlock = extractglobalVarsBlock(configBlock);
-	setConfigValue(SERVERNAME, globalVarsBlock);
-	setConfigValue(PORT, globalVarsBlock);
-	setConfigValue(HTML, globalVarsBlock);
-	setConfigValue(ROOT, globalVarsBlock);
+//	std::string globalVarsBlock;
+//
+//	globalVarsBlock = extractglobalVarsBlock(configBlock);
+	setConfigValue(SERVERNAME, configBlock);
+	setConfigValue(PORT, configBlock);
+	setConfigValue(HTML, configBlock);
+	setConfigValue(ROOT, configBlock);
 }
 
-void	extractglobalVarsBlock(std::string &configBlock) {
-	std::
-}
+//void	extractglobalVarsBlock(std::string &configBlock) {
+//	std::
+//}
 
 void	Config::setConfigValue(const int key, const std::string &configBlock) {
 	size_t		valStart;
@@ -162,8 +162,9 @@ std::string	Config::extractRedirect(const std::string &locationBlock) {
 	if (locationBlock.find("httpRedir:") == std::string::npos)
 		return ("");
 	size_t start = locationBlock.find("httpRedir:") + 11;
-	size_t end = locationBlock.find('{', start);
-	std::string value = locationBlock.substr(start, end - start - 1);
+	size_t end = locationBlock.find(';', start);
+	std::string value = locationBlock.substr(start, end - start);
+		// std::cout << value << std::endl;
 	return (value);
 }
 
@@ -176,7 +177,7 @@ std::string	Config::extractMethods(const std::string &locationBlock) {
 	//	throw MissingSemicolonException();
 	std::string value = locationBlock.substr(start, end - start);
 	replaceAll(value, ", ", "");
-	std::cout << value << std::endl;
+	// std::cout << value << std::endl;
 	return (value);
 }
 
@@ -184,7 +185,7 @@ std::string	Config::extractPath(const std::string &locationBlock) {
 	if (locationBlock.find("location") == std::string::npos)
 		return ("");
 	size_t start = locationBlock.find("location") + 9;
-	size_t end = locationBlock.find(';', start);
+	size_t end = locationBlock.find('{', start);
 	// if (locationBlock.find('\n', start) < locationBlock.find(';', start))
 	// 	throw MissingSemicolonException();
 	std::string value = locationBlock.substr(start, end - start - 1);
@@ -297,7 +298,7 @@ void	Config::validateDir(std::string const &directory) {
 		full_path = _configMap["root"];
 	else
 		full_path = _configMap["root"] + _configMap[directory];
-	std::ifstream file(full_path);
+	std::ifstream file(full_path.c_str());
 	if (!file.good()) {
 		std::cout <<  full_path << ": " << std::endl;
 		throw NotADirectoryException();
@@ -329,8 +330,9 @@ void	Config::validatePort() {
 		if (!std::isdigit(_configMap["port"][i]))
 			throw InvalidPortException();
 	}
-
-	int	portInt = stoi(_configMap["port"]); // todo: change to c++98 conforming fct
+    std::istringstream ss(_configMap["port"]);
+	int	portInt;
+    ss >> portInt;
 	if (portInt < 0 || portInt > 65535)
 		throw InvalidPortException();
 }

@@ -35,19 +35,19 @@ class Parser {
 // exceptions
 	class NoArgException : public std::exception {
 	public:
-		const char *what() const _NOEXCEPT;
+		const char *what() const throw();
 	};
 	class CantOpenException : public std::exception {
 	public:
-		const char *what() const _NOEXCEPT;
+		const char *what() const throw();
 	};
 	class EmptyConfigFileException: public std::exception {
 	public:
-		const char *what() const _NOEXCEPT;
+		const char *what() const throw();
 	};
 	class DuplicateConfigException: public std::exception {
 	public:
-		const char *what() const _NOEXCEPT;
+		const char *what() const throw();
 	};
 
 	// member functions
