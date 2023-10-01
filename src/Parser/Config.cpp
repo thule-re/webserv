@@ -6,7 +6,7 @@
 /*   By: mtrautne <mtrautne@student.42wolfsburg.    +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2023/08/24 09:40:26 by mtrautne          #+#    #+#             */
-/*   Updated: 2023/09/27 22:02:45 by mtrautne         ###   ########.fr       */
+/*   Updated: 2023/09/28 12:51:51 by mtrautne         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -101,20 +101,20 @@ std::vector<Location>	Config::getLocations() const {
 }
 
 void 	Config::populateGlobalVarsMap(const std:: string &configBlock) {
-//	std::string globalVarsBlock;
-//
-//	globalVarsBlock = extractglobalVarsBlock(configBlock);
-	setConfigValue(SERVERNAME, configBlock);
-	setConfigValue(PORT, configBlock);
-	setConfigValue(HTML, configBlock);
-	setConfigValue(ROOT, configBlock);
-}
+	std::string globalVarsBlock;
 
-//void	extractglobalVarsBlock(std::string &configBlock) {
+//	globalVarsBlock = extractglobalVarsBlock(configBlock);
+    setServerValue(SERVERNAME, configBlock);
+    setServerValue(PORT, configBlock);
+    setServerValue(HTML, configBlock);
+//    setServerValue(ROOT, configBlock);
+}
+//
+//std::string	extractglobalVarsBlock(std::string &configBlock) {
 //	std::
 //}
 
-void	Config::setConfigValue(const int key, const std::string &configBlock) {
+void	Config::setServerValue(const int key, const std::string &configBlock) {
 	size_t		valStart;
 	size_t		valEnd;
 	std::string	keyStr;

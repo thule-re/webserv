@@ -6,7 +6,7 @@
 /*   By: mtrautne <mtrautne@student.42wolfsburg.    +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2023/08/17 11:29:03 by treeps            #+#    #+#             */
-/*   Updated: 2023/09/27 22:12:09 by mtrautne         ###   ########.fr       */
+/*   Updated: 2023/09/28 11:33:10 by mtrautne         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -28,11 +28,11 @@ Server::Server(const Config &config): _serverSocket() {
 	_maxFd = 1;
 	_port = atoi(config.getMap()["port"].c_str());
 	size_t i = 0;
+	std::cout << "Server init: " << std::endl;
 	while (i < config.getLocations().size()) {
 		std::string	key = config.getLocations()[i].getPath();
 		_locationMap[key] = config.getLocations()[i];
-		std::cout << "Server key: " << key << std::endl;
-		std::cout << "value: " << _locationMap[key] << "endoflocation" << i << std::endl;
+		std::cout << "Location " << i << _locationMap[key];
 		i++;
 	}
 	FD_ZERO(&_readSet);

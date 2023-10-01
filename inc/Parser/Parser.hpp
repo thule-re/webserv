@@ -17,48 +17,72 @@
 # include <iostream>
 # include <fstream>
 # include <vector>
+# include <cstdlib>
 # include "Parser/Config.hpp"
 # include "Parser/errorCodes.hpp"
 
 class Parser {
 	public:
-	// constructors
-	Parser(const std::string &pathToConfig);
-	Parser(const Parser & other);
+		// constructors
+		Parser(const std::string &pathToConfig);
+		Parser(const Parser &other);
 
-	// destructor
-	~Parser();
+		// destructor
+		~Parser();
 
-	// operator overload
-	Parser &operator=(const Parser &other);
+		// operator overload
+		Parser &operator=(const Parser &other);
 
-// exceptions
-	class NoArgException : public std::exception {
-	public:
-		const char *what() const throw();
-	};
-	class CantOpenException : public std::exception {
-	public:
-		const char *what() const throw();
-	};
-	class EmptyConfigFileException: public std::exception {
-	public:
-		const char *what() const throw();
-	};
-	class DuplicateConfigException: public std::exception {
-	public:
-		const char *what() const throw();
-	};
+		// exceptions
+		class CantOpenException : public std::exception {
+		public:
+			const char *what() const throw();
+		};
+		class EmptyConfigFileException: public std::exception {
+		public:
+			const char *what() const throw();
+		};
+		class DuplicateConfigException: public std::exception {
+		public:
+			const char *what() const throw();
+		};
+		class InvalidGlobalValueException: public std::exception {
+		public:
+			const char *what() const throw();
+		};
 
-	// member functions
-	std::vector<Config>&	getConfigArr();
+		// member functions
+		std::vector<Config>&	getConfigArr();
+		int						getTimeout();
+		int						getMaxClients();
+		int						getBufferSize();
+		int						getMaxEvents();
+		int						getBacklog();
 
 	private:
-		Parser();
-		static void	removeComments(std::string &fileContent);
-		void	parseConfig(std::string &rawConfig);
-		void	checkForDuplicateServerConfigs();
 		std::vector<Config>	_configArr;
+		int					_timeout;
+		int					_maxClients;
+		int					_bufferSize;
+		int					_maxEvents;
+		int					_backlog;
+
+		Parser();
+		void	parseServerConfigs(std::string &rawConfig);
+		void	checkForDuplicatePorts();
+
+		static void	readConfigFile(const std::string &pathToConfig,
+											std::string &fileContent);
+		static void			removeComments(std::string &fileContent);
+		static void			extractServerBlocks(std::vector<std::string> &serverBlocks,
+													const std::string &rawConfig);
+		void	parseGlobalVars(std::string &rawConfig);
+
+		void	extractTimeout(std::string &rawConfig);
+		void	extractMaxClients(std::string &rawConfig);
+		void	extractBufferSize(std::string &rawConfig);
+		void	extractMaxEvents(std::string &rawConfig);
+		void	extractBacklog(std::string &rawConfig);
 };
 
 #endif

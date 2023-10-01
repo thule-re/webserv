@@ -26,12 +26,9 @@ class Cluster {
 		Cluster &operator=(const Cluster &other);
 
 		//member functions
-		void initializeServers();
-
+		// void initializeServers(); //!alert: function not implemented
 		void selectClientSockets();
-
 		void loop();
-
 		void addClientToMap(ClientSocket *clientSocket);
 
 
@@ -47,7 +44,6 @@ class Cluster {
 		int _maxFd;
 
 		void handleLoopException(std::exception &exception);
-
 		void closeConnection(ClientSocket *socket);
 
 	void addConnectionToServer(int);

@@ -3,10 +3,10 @@
 /*                                                        :::      ::::::::   */
 /*   main.cpp                                           :+:      :+:    :+:   */
 /*                                                    +:+ +:+         +:+     */
-/*   By: treeps <treeps@student.42wolfsburg.de>     +#+  +:+       +#+        */
+/*   By: mtrautne <mtrautne@student.42wolfsburg.    +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2023/08/17 11:29:17 by treeps            #+#    #+#             */
-/*   Updated: 2023/09/15 11:50:42 by mtrautne         ###   ########.fr       */
+/*   Updated: 2023/09/28 11:45:54 by mtrautne         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -14,13 +14,13 @@
 #include "Parser/Parser.hpp"
 
 int main(int argc, char **argv) {
-
-	if (argc != 2) {
-		std::cerr << "You need a config file, bozo!" << std::endl;
-		return (1);
-	}
+	std::string	pathToConfigFile;
+	if (argc != 2)
+		pathToConfigFile = "./config/webserv.conf";
+	else
+		pathToConfigFile = argv[1];
 	try {
-		Parser parser(argv[1]);
+		Parser parser(pathToConfigFile);
 		Cluster cluster(parser.getConfigArr());
 		cluster.loop();
 	}

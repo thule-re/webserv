@@ -3,10 +3,10 @@
 /*                                                        :::      ::::::::   */
 /*   Config.hpp                                         :+:      :+:    :+:   */
 /*                                                    +:+ +:+         +:+     */
-/*   By: mtrautne <mtrautne@student.42wolfsburg.d>  +#+  +:+       +#+        */
+/*   By: mtrautne <mtrautne@student.42wolfsburg.    +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2023/08/23 10:31:42 by mtrautne          #+#    #+#             */
-/*   Updated: 2023/08/23 10:31:42 by mtrautne         ###   ########.fr       */
+/*   Updated: 2023/09/28 12:04:56 by mtrautne         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -29,7 +29,7 @@ public:
 	Config(std::string &rawConfig);
 	Config();
 
-	Config(const Config& other);
+	Config(const Config &other);
 
 	// destructor
 	~Config();
@@ -84,7 +84,7 @@ private:
 
 	void	parseConfig(const std::string &configBlock);
 	void	populateGlobalVarsMap(const std:: string &configBlock);
-	void	setConfigValue(const int key, const std::string &configBlock);
+	void	setServerValue(const int key, const std::string &configBlock);
 	void	setLocations(const std::string &configBlock);
 	void	splitLocationBlocks(std::vector<std::string> &, const std::string &);
 	void	populateLocation(std::string &locationBlock);

@@ -57,7 +57,6 @@ Cluster &Cluster::operator=(const Cluster &other) {
 void Cluster::initializeServer(Config &config) {
 	Server server(config);
 
-//	std::cout << config.getLocations()[0] << std::endl;
 	server.init();
 	int socket = server.getServerSocket();
 
