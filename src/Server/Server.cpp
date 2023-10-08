@@ -27,12 +27,12 @@ Server::Server(int port, const std::string& error): _port(port), _serverSocket()
 Server::Server(const Config &config): _serverSocket() {
 	_maxFd = 1;
 	_port = atoi(config.getMap()["port"].c_str());
+//	std::cout << "Server init: " << std::endl;
 	size_t i = 0;
-	std::cout << "Server init: " << std::endl;
 	while (i < config.getLocations().size()) {
 		std::string	key = config.getLocations()[i].getPath();
 		_locationMap[key] = config.getLocations()[i];
-		std::cout << "Location " << i << _locationMap[key];
+//		std::cout << "Location " << i << _locationMap[key];
 		i++;
 	}
 	FD_ZERO(&_readSet);
@@ -166,3 +166,4 @@ void Server::handleARequestException(ARequest::ARequestException &exception, Res
 	std::cerr << exception.message() << std::endl;
 	response->buildErrorPage(exception.code());
 }
+

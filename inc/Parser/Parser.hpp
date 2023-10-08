@@ -53,11 +53,11 @@ class Parser {
 
 		// member functions
 		std::vector<Config>&	getConfigArr();
-		int						getTimeout();
-		int						getMaxClients();
-		int						getBufferSize();
-		int						getMaxEvents();
-		int						getBacklog();
+		int						getTimeout() const;
+		int						getMaxClients() const;
+		int						getBufferSize() const;
+		int						getMaxEvents() const;
+		int						getBacklog() const;
 
 	private:
 		std::vector<Config>	_configArr;
@@ -84,5 +84,7 @@ class Parser {
 		void	extractMaxEvents(std::string &rawConfig);
 		void	extractBacklog(std::string &rawConfig);
 };
+
+std::ostream &operator<<(std::ostream &output, const Parser& object);
 
 #endif

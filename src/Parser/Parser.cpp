@@ -24,7 +24,8 @@ Parser::Parser(const std::string &pathToConfig) {
 	checkForDuplicatePorts();
 }
 
-Parser::Parser(const Parser &other) {
+Parser::Parser(const Parser &other) :
+_timeout(), _maxClients(), _bufferSize(), _maxEvents(), _backlog() {
 	*this = other;
 }
 
@@ -67,7 +68,26 @@ std::vector<Config>&	Parser::getConfigArr() {
 	return(_configArr);
 }
 
-int getTimeout()
+int	Parser::getTimeout() const {
+	return (_timeout);
+}
+
+int	Parser::getMaxClients() const {
+	return (_maxClients);
+}
+
+int	Parser::getBufferSize() const {
+	return (_bufferSize);
+}
+
+int	Parser::getMaxEvents() const {
+	return (_maxEvents);
+}
+
+int	Parser::getBacklog() const {
+	return (_backlog);
+}
+
 //member functions
 void	Parser::readConfigFile(const std::string &pathToConfig,
 									std::string &fileContent) {
@@ -197,4 +217,13 @@ void	Parser::checkForDuplicatePorts() {
 		}
 		uniquePorts.push_back(port);
 	}
+}
+
+std::ostream& operator<<(std::ostream& output, const Parser& object) {
+	output << "Parser global Vars: timeout:" << object.getTimeout()
+		<< "| maxClients:" << object.getMaxClients()
+		<< "| bufferSize:" << object.getBufferSize()
+		<< "| maxEvents:" << object.getMaxEvents()
+		<< "| backlog:" << object.getBacklog() << "|" << std::endl;
+	return (output);
 }

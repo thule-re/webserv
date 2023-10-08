@@ -21,6 +21,7 @@ int main(int argc, char **argv) {
 		pathToConfigFile = argv[1];
 	try {
 		Parser parser(pathToConfigFile);
+		std::cout << parser << std::endl;
 		Cluster cluster(parser.getConfigArr());
 		cluster.loop();
 	}

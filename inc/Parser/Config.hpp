@@ -89,15 +89,15 @@ private:
 	void	splitLocationBlocks(std::vector<std::string> &, const std::string &);
 	void	populateLocation(std::string &locationBlock);
 
-	std::string	extractPath(const std::string &locationBlock);
-	std::string	extractRoot(const std::string &locationBlock);
-	std::string	extractIndex(const std::string &locationBlock);
-	std::string	extractCgi(const std::string &locationBlock);
-	std::string	extractUpload(const std::string &locationBlock);
-	std::string	extractTryFiles(const std::string &locationBlock);
-	std::string	extractRedirect(const std::string &locationBlock);
-	std::string	extractMethods(const std::string &locationBlock);
-	bool	extractAutoIndex(const std::string &locationBlock);
+	static std::string	extractPath(const std::string &locationBlock);
+	static std::string	extractRoot(const std::string &locationBlock);
+	static std::string	extractIndex(const std::string &locationBlock);
+	static std::string	extractCgi(const std::string &locationBlock);
+	static std::string	extractUpload(const std::string &locationBlock);
+	static std::string	extractTryFiles(const std::string &locationBlock);
+	static std::string	extractRedirect(const std::string &locationBlock);
+	static std::string	extractMethods(const std::string &locationBlock);
+	static bool	extractAutoIndex(const std::string &locationBlock);
 
 	void	validateNoEmptyEntry();
 	void	validateConfigDirs();

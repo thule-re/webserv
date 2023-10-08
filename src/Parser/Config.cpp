@@ -6,7 +6,7 @@
 /*   By: mtrautne <mtrautne@student.42wolfsburg.    +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2023/08/24 09:40:26 by mtrautne          #+#    #+#             */
-/*   Updated: 2023/09/28 12:51:51 by mtrautne         ###   ########.fr       */
+/*   Updated: 2023/10/06 21:12:03 by mtrautne         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -103,16 +103,11 @@ std::vector<Location>	Config::getLocations() const {
 void 	Config::populateGlobalVarsMap(const std:: string &configBlock) {
 	std::string globalVarsBlock;
 
-//	globalVarsBlock = extractglobalVarsBlock(configBlock);
-    setServerValue(SERVERNAME, configBlock);
-    setServerValue(PORT, configBlock);
-    setServerValue(HTML, configBlock);
+	setServerValue(SERVERNAME, configBlock);
+	setServerValue(PORT, configBlock);
+	setServerValue(HTML, configBlock);
 //    setServerValue(ROOT, configBlock);
 }
-//
-//std::string	extractglobalVarsBlock(std::string &configBlock) {
-//	std::
-//}
 
 void	Config::setServerValue(const int key, const std::string &configBlock) {
 	size_t		valStart;
@@ -284,43 +279,8 @@ void	Config::splitLocationBlocks(std::vector<std::string> &locBlocks,
 	_configMap["numLocBlocks"] = ss.str();
 }
 
-void 	Config::validateNoEmptyEntry() {
-	if (_configMap["html"] == ";" || _configMap["port"] == ";"
-		|| _configMap["root"] == ";")
-		throw EmptyValueException();
-}
-
-// todo:: is this the correct behaviour or should it just show 404 not found?
-void	Config::validateDir(std::string const &directory) {
-	std::string	full_path;
-
-	if (directory.find("root") == 0)
-		full_path = _configMap["root"];
-	else
-		full_path = _configMap["root"] + _configMap[directory];
-	std::ifstream file(full_path.c_str());
-	if (!file.good()) {
-		std::cout <<  full_path << ": " << std::endl;
-		throw NotADirectoryException();
-	}
-}
-
-void	Config::validateConfigDirs() {
-	validateDir("root");
-	validateDir("indexFile");
-	validateDir("errorDirectory");
-	validateDir("cgiDirectory");
-	validateDir("uploadDirectory");
-}
-
-void	Config::validateMethods() {
-	if (_configMap["allowedMethods"].find("GET") == std::string::npos
-		&& _configMap["allowedMethods"].find("POST") == std::string::npos
-		&& _configMap["allowedMethods"].find("DELETE") == std::string::npos)
-		throw NoValidMethodException();
-}
-
 void	Config::validateHtml() {
+	std::cout << "html:" << _configMap["allowedHtml"] << std::endl;
 	if (_configMap["allowedHtml"] != "1.1")
 		throw InvalidHtmlException();
 }
@@ -330,20 +290,16 @@ void	Config::validatePort() {
 		if (!std::isdigit(_configMap["port"][i]))
 			throw InvalidPortException();
 	}
-    std::istringstream ss(_configMap["port"]);
+	std::istringstream ss(_configMap["port"]);
 	int	portInt;
-    ss >> portInt;
+	ss >> portInt;
 	if (portInt < 0 || portInt > 65535)
 		throw InvalidPortException();
 }
 
-// todo: catch exceptions in main to correctly close program with bad config
 void	Config::parseConfig(const std::string& configBlock) {
 	populateGlobalVarsMap(configBlock);
 	setLocations(configBlock);
-//	validateNoEmptyEntry();
-//	validateConfigDirs();
-//	validateMethods();
-//	validateHtml();
-//	validatePort();
+	// validateHtml();
+	validatePort();
 }

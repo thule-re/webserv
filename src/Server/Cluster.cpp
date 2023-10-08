@@ -152,7 +152,6 @@ void Cluster::sendResponseToClient(int clientFd) {
 	_clientsMap.erase(clientFd);
 }
 
-
 void Cluster::handleLoopException(std::exception &exception) {
 	std::cerr << exception.what() << std::endl;
 }

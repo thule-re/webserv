@@ -75,6 +75,6 @@ private:
 	bool _autoindex;
 };
 
-std::ostream& operator<<(std::ostream& output, const Location& object);
+std::ostream &operator<<(std::ostream &output, const Location &object);
 
 #endif
