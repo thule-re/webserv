@@ -23,7 +23,7 @@ Location::Location(const std::string& path,
 				   const std::string& tryFiles,
 				   const std::string& redirect,
 				   const std::string& allowedMethods,
-				   bool autoindex):
+				   bool autoIndex):
 				   _path(path),
 				   _root(root),
 				   _index(index),
@@ -32,7 +32,7 @@ Location::Location(const std::string& path,
 				   _redirect(redirect),
 				   _allowedMethods(allowedMethods),
 				   _tryFiles(tryFiles),
-				   _autoindex(autoindex) {}
+				   _autoIndex(autoIndex) {}
 
 Location::Location(const Location &other) {
 	*this = other;
@@ -53,7 +53,7 @@ Location &Location::operator=(const Location &other) {
 	_redirect = other._redirect;
 	_allowedMethods = other._allowedMethods;
 	_tryFiles= other._tryFiles;
-	_autoindex = other._autoindex;
+	_autoIndex = other._autoIndex;
 	return (*this);
 }
 
@@ -89,8 +89,8 @@ void Location::setAllowedMethods(const std::string &allowedMethods) {
 	_allowedMethods = allowedMethods;
 }
 
-void Location::setAutoindex(bool autoindex) {
-	_autoindex = autoindex;
+void Location::setAutoIndex(bool autoIndex) {
+	_autoIndex = autoIndex;
 }
 
 // getter functions
@@ -131,8 +131,8 @@ std::string Location::getTryFiles() const {
 	return (_tryFiles);
 }
 
-bool Location::getAutoindex() const {
-	return (_autoindex);
+bool Location::getAutoIndex() const {
+	return (_autoIndex);
 }
 
 std::ostream& operator<<(std::ostream& output, const Location& object) {
@@ -140,6 +140,6 @@ std::ostream& operator<<(std::ostream& output, const Location& object) {
 		<< object.getAlias()<< "| index:" << object.getIndex() << "| cgiExtension:" << object.getCgiExtension()
 		<< "| uploadDir:" << object.getUpload() << "| redirect:" << object.getRedirect()
 		<< "| methods:" << object.getAllowedMethods()<< "| tryFiles:" << object.getTryFiles()
-		<< "| autoIndex:" << object.getAutoindex() << std::endl;
+		<< "| autoIndex:" << object.getAutoIndex() << std::endl;
 	return (output);
 }

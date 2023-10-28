@@ -28,7 +28,7 @@ public:
 			 const std::string& tryFiles,
 			 const std::string& redirect,
 			 const std::string& allowedMethods,
-			 bool autoindex);
+			 bool autoIndex);
 	Location(const Location &);
 
 	// destructor
@@ -47,7 +47,7 @@ public:
 	void setUpload(const std::string &upload);
 	void setRedirect(const std::string &redirect);
 	void setAllowedMethods(const std::string &allowedMethods);
-	void setAutoindex(bool autoindex);
+	void setAutoIndex(bool autoIndex);
 
 	// getter functions
 	std::string getPath() const;
@@ -59,20 +59,20 @@ public:
 	std::string getTryFiles() const;
 	std::string getRedirect() const;
 	std::string getAllowedMethods() const;
-	bool getAutoindex() const;
+	bool getAutoIndex() const;
 
 private:
 	// member variables
-	std::string _path;
-	std::string _root;
-	std::string _alias;
-	std::string _index;
-	std::string _cgiExtension;
-	std::string _upload;
-	std::string _redirect;
-	std::string _allowedMethods;
-	std::string _tryFiles;
-	bool _autoindex;
+	std::string	_path;
+	std::string	_root;
+	std::string	_alias;
+	std::string	_index;
+	std::string	_cgiExtension;
+	std::string	_upload;
+	std::string	_redirect;
+	std::string	_allowedMethods;
+	std::string	_tryFiles;
+	bool 		_autoIndex;
 };
 
 std::ostream &operator<<(std::ostream &output, const Location &object);

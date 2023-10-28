@@ -35,7 +35,7 @@ Response *GETRequest::handle() {
 	std::cout << "GETRequest::handle()" << std::endl;
 
 	std::string path = _header["Path"];
-	if (_location->getAutoindex() && _isDirectory(path))
+	if (_location->getAutoIndex() && _isDirectory(path))
 		response->setBody(_getDirectoryListing(path));
 	else
 	{
