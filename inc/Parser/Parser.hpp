@@ -3,10 +3,10 @@
 /*                                                        :::      ::::::::   */
 /*   Parser.hpp                                         :+:      :+:    :+:   */
 /*                                                    +:+ +:+         +:+     */
-/*   By: mtrautne <mtrautne@student.42wolfsburg.d>  +#+  +:+       +#+        */
+/*   By: mtrautne <mtrautne@student.42wolfsburg.    +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2023/08/22 15:56:34 by mtrautne          #+#    #+#             */
-/*   Updated: 2023/09/15 11:39:39 by mtrautne         ###   ########.fr       */
+/*   Updated: 2023/10/19 16:44:49 by mtrautne         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -73,9 +73,9 @@ class Parser {
 
 		static void	readConfigFile(const std::string &pathToConfig,
 											std::string &fileContent);
-		static void			removeComments(std::string &fileContent);
-		static void			extractServerBlocks(std::vector<std::string> &serverBlocks,
-													const std::string &rawConfig);
+		static void	removeComments(std::string &fileContent);
+		static void	extractServerBlocks(std::vector<std::string> &serverBlocks,
+										const std::string &rawConfig);
 		void	parseGlobalVars(std::string &rawConfig);
 
 		void	extractTimeout(std::string &rawConfig);
