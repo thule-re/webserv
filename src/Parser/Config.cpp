@@ -44,10 +44,18 @@ std::string	getValStr(const int& key) {
 			return "html";
 		case METHODS:
 			return "methods";
-		case ROOT:
-			return "root";
 		case PORT:
 			return "port";
+		case TIMEOUT:
+			return "timeout";
+		case MAXCLIENTS:
+			return "maxClients";
+		case BUFFERSIZE:
+			return "bufferSize";
+		case MAXEVENTS:
+			return "maxEvents";
+		case BACKLOG:
+			return "backlog";
 		default:
 			return "unspecificConfigValue";
 	}
@@ -67,24 +75,12 @@ const char *Config::MissingSemicolonException::what() const throw() {
 	return ("Error: Missing semicolon in config.");
 }
 
-const char *Config::NotADirectoryException::what() const throw() {
-	return ("Error: Invalid directory in config.");
-}
-
 const char *Config::NoValidMethodException::what() const throw() {
 	return ("Error: No valid method found for server block in config.");
 }
 
-const char *Config::InvalidHtmlException::what() const throw() {
-	return ("Error: Invalid html standard in config.");
-}
-
 const char *Config::InvalidPortException::what() const throw() {
 	return ("Error: Invalid port in config file.");
-}
-
-const char *Config::EmptyValueException::what() const throw() {
-	return ("Error: Empty value in config file.");
 }
 
 const char *Config::MissingClosingBracketException::what() const throw() {
@@ -101,12 +97,14 @@ std::vector<Location>	Config::getLocations() const {
 }
 
 void 	Config::populateGlobalVarsMap(const std:: string &configBlock) {
-	std::string globalVarsBlock;
+	std::string GlobalVarsBlock;
+	std::string serverVarsBlock = extractServerVarsBlock(configBlock);
 
+	setServerValue()
 	setServerValue(SERVERNAME, configBlock);
 	setServerValue(PORT, configBlock);
 	setServerValue(HTML, configBlock);
-//    setServerValue(ROOT, configBlock);
+	setServerValue(METHODS, configBlock);
 }
 
 void	Config::setServerValue(const int key, const std::string &configBlock) {
@@ -158,8 +156,9 @@ std::string	Config::extractRedirect(const std::string &locationBlock) {
 		return ("");
 	size_t start = locationBlock.find("httpRedir:") + 11;
 	size_t end = locationBlock.find(';', start);
+	if (locationBlock.find('\n', start) < locationBlock.find(';', start))
+		throw MissingSemicolonException();
 	std::string value = locationBlock.substr(start, end - start);
-		// std::cout << value << std::endl;
 	return (value);
 }
 
@@ -168,11 +167,10 @@ std::string	Config::extractMethods(const std::string &locationBlock) {
 		return ("");
 	size_t start = locationBlock.find("methods:") + 9;
 	size_t end = locationBlock.find(';', start);
-	//if (locationBlock.find('\n', start) < locationBlock.find(';', start))
-	//	throw MissingSemicolonException();
+	if (locationBlock.find('\n', start) < locationBlock.find(';', start))
+		throw MissingSemicolonException();
 	std::string value = locationBlock.substr(start, end - start);
 	replaceAll(value, ", ", "");
-	// std::cout << value << std::endl;
 	return (value);
 }
 
@@ -181,8 +179,8 @@ std::string	Config::extractPath(const std::string &locationBlock) {
 		return ("");
 	size_t start = locationBlock.find("location") + 9;
 	size_t end = locationBlock.find('{', start);
-	// if (locationBlock.find('\n', start) < locationBlock.find(';', start))
-	// 	throw MissingSemicolonException();
+	if (locationBlock.find('\n', start) < locationBlock.find(';', start))
+		throw MissingSemicolonException();
 	std::string value = locationBlock.substr(start, end - start - 1);
 	return (value);
 }
@@ -192,8 +190,8 @@ std::string	Config::extractRoot(const std::string &locationBlock) {
 		return ("");
 	size_t start = locationBlock.find("root:") + 6;
 	size_t end = locationBlock.find(';', start);
-	// if (locationBlock.find('\n', start) < locationBlock.find(';', start))
-	// 	throw MissingSemicolonException();
+	 if (locationBlock.find('\n', start) < locationBlock.find(';', start))
+	 	throw MissingSemicolonException();
 	std::string value = locationBlock.substr(start, end - start);
 	return (value);
 }
@@ -203,8 +201,8 @@ std::string	Config::extractIndex(const std::string &locationBlock) {
 		return ("");
 	size_t start = locationBlock.find("index:") + 7;
 	size_t end = locationBlock.find(';', start);
-	// if (locationBlock.find('\n', start) < locationBlock.find(';', start))
-	// 	throw MissingSemicolonException();
+	 if (locationBlock.find('\n', start) < locationBlock.find(';', start))
+	 	throw MissingSemicolonException();
 	std::string value = locationBlock.substr(start, end - start);
 	return (value);
 }
@@ -214,8 +212,8 @@ std::string	Config::extractCgi(const std::string &locationBlock) {
 		return ("");
 	size_t start = locationBlock.find("cgiDir:") + 8;
 	size_t end = locationBlock.find(';', start);
-	//if (locationBlock.find('\n', start) < locationBlock.find(';', start))
-	//	throw MissingSemicolonException();
+	if (locationBlock.find('\n', start) < locationBlock.find(';', start))
+		throw MissingSemicolonException();
 	std::string value = locationBlock.substr(start, end - start);
 	return (value);
 }
@@ -249,8 +247,8 @@ bool	Config::extractAutoIndex(const std::string &locationBlock) {
 	}
 	size_t start = locationBlock.find("AutoIndex:") + 11;
 	size_t end = locationBlock.find(';', start);
-	//if (locationBlock.find('\n', start) < locationBlock.find(';', start))
-	//	throw MissingSemicolonException();
+	if (locationBlock.find('\n', start) < locationBlock.find(';', start))
+		throw MissingSemicolonException();
 	std::string value = locationBlock.substr(start, end - start);
 	if (value == "1" || value == "on" || value == "true")
 		return (true);
@@ -276,13 +274,7 @@ void	Config::splitLocationBlocks(std::vector<std::string> &locBlocks,
 	}
 	std::stringstream ss;
 	ss << numLocBlocks;
-	_configMap["numLocBlocks"] = ss.str();
-}
-
-void	Config::validateHtml() {
-	std::cout << "html:" << _configMap["allowedHtml"] << std::endl;
-	if (_configMap["allowedHtml"] != "1.1")
-		throw InvalidHtmlException();
+	_configMap["numLocBlocks"] = ss.str()
 }
 
 void	Config::validatePort() {
@@ -300,6 +292,5 @@ void	Config::validatePort() {
 void	Config::parseConfig(const std::string& configBlock) {
 	populateGlobalVarsMap(configBlock);
 	setLocations(configBlock);
-	// validateHtml();
 	validatePort();
 }

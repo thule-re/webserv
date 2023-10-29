@@ -3,6 +3,18 @@
 /*                                                        :::      ::::::::   */
 /*   Location.cpp                                       :+:      :+:    :+:   */
 /*                                                    +:+ +:+         +:+     */
+/*   By: mtrautne <mtrautne@student.42wolfsburg.d>  +#+  +:+       +#+        */
+/*                                                +#+#+#+#+#+   +#+           */
+/*   Created: 2023/10/06 13:49:17 by mtrautne          #+#    #+#             */
+/*   Updated: 2023/10/29 14:00:06 by mtrautne         ###   ########.fr       */
+/*                                                                            */
+/* ************************************************************************** */
+
+/* ************************************************************************** */
+/*                                                                            */
+/*                                                        :::      ::::::::   */
+/*   Location.cpp                                       :+:      :+:    :+:   */
+/*                                                    +:+ +:+         +:+     */
 /*   By: mtrautne <mtrautne@student.42wolfsburg.    +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2023/09/08 15:43:00 by treeps            #+#    #+#             */
@@ -16,23 +28,23 @@
 Location::Location() {}
 
 Location::Location(const std::string& path,
-				   const std::string& root,
-				   const std::string& index,
-				   const std::string& cgi,
-				   const std::string& upload,
-				   const std::string& tryFiles,
-				   const std::string& redirect,
-				   const std::string& allowedMethods,
-				   bool autoIndex):
-				   _path(path),
-				   _root(root),
-				   _index(index),
-				   _cgiExtension(cgi),
-				   _upload(upload),
-				   _redirect(redirect),
-				   _allowedMethods(allowedMethods),
-				   _tryFiles(tryFiles),
-				   _autoIndex(autoIndex) {}
+					const std::string& root,
+					const std::string& index,
+					const std::string& cgi,
+					const std::string& upload,
+					const std::string& tryFiles,
+					const std::string& redirect,
+					const std::string& allowedMethods,
+					bool autoIndex):
+					_path(path),
+					_root(root),
+					_index(index),
+					_cgiExtension(cgi),
+					_upload(upload),
+					_redirect(redirect),
+					_allowedMethods(allowedMethods),
+					_tryFiles(tryFiles),
+					_autoIndex(autoIndex) {}
 
 Location::Location(const Location &other) {
 	*this = other;

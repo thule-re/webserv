@@ -21,11 +21,9 @@ int main(int argc, char **argv) {
 		pathToConfigFile = argv[1];
 	try {
 		Parser parser(pathToConfigFile);
-		std::cout << parser << std::endl;
 		Cluster cluster(parser.getConfigArr());
 		cluster.loop();
 	}
-	//todo: catch block potentially needs work to properly free cluster stuff
 	catch (std::exception &e) {
 		std::cout << e.what() << std::endl;
 		return (1);

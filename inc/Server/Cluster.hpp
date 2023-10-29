@@ -13,11 +13,8 @@ class Cluster {
 	public:
 		// constructors
 		Cluster();
-
 		Cluster(std::vector<Config> &configs);
-
-
-	Cluster(const Cluster &);
+		Cluster(const Cluster &);
 
 		// destructor
 		~Cluster();
@@ -26,7 +23,7 @@ class Cluster {
 		Cluster &operator=(const Cluster &other);
 
 		//member functions
-		// void initializeServers(); //!alert: function not implemented
+		// void initializeServers(); //!todo: function not implemented
 		void selectClientSockets();
 		void loop();
 		void addClientToMap(ClientSocket *clientSocket);

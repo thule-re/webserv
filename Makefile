@@ -22,7 +22,7 @@ OBJ_DIRS	=	./obj \
 				./obj/Socket \
 				./obj/utils \
 
-FILES 		=	main/main \
+FILES		=	main/main \
 				Header/AHeader \
 				Header/RequestHeader \
 				Header/ResponseHeader \

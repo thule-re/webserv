@@ -6,7 +6,7 @@
 /*   By: treeps <treeps@student.42wolfsburg.de>     +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2023/09/08 15:43:00 by treeps            #+#    #+#             */
-/*   Updated: 2023/09/08 15:43:00 by treeps           ###   ########.fr       */
+/*   Updated: 2023/10/29 14:00:52 by mtrautne         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -40,26 +40,26 @@ public:
 	// member functions
 
 	// setter functions
-	void setPath(const std::string &path);
-	void setRoot(const std::string &root);
-	void setIndex(const std::string &index);
-	void setCgiExtension(const std::string &cgi);
-	void setUpload(const std::string &upload);
-	void setRedirect(const std::string &redirect);
-	void setAllowedMethods(const std::string &allowedMethods);
-	void setAutoIndex(bool autoIndex);
+	void	setPath(const std::string &path);
+	void	setRoot(const std::string &root);
+	void	setIndex(const std::string &index);
+	void	setCgiExtension(const std::string &cgi);
+	void	setUpload(const std::string &upload);
+	void	setRedirect(const std::string &redirect);
+	void	setAllowedMethods(const std::string &allowedMethods);
+	void	setAutoIndex(bool autoIndex);
 
 	// getter functions
-	std::string getPath() const;
-	std::string getRoot() const;
-	std::string getIndex() const;
-	std::string getCgiExtension() const;
-	std::string getUpload() const;
-	std::string getAlias() const;
-	std::string getTryFiles() const;
-	std::string getRedirect() const;
-	std::string getAllowedMethods() const;
-	bool getAutoIndex() const;
+	std::string	getPath() const;
+	std::string	getRoot() const;
+	std::string	getIndex() const;
+	std::string	getCgiExtension() const;
+	std::string	getUpload() const;
+	std::string	getAlias() const;
+	std::string	getTryFiles() const;
+	std::string	getRedirect() const;
+	std::string	getAllowedMethods() const;
+	bool		getAutoIndex() const;
 
 private:
 	// member variables
@@ -72,9 +72,9 @@ private:
 	std::string	_redirect;
 	std::string	_allowedMethods;
 	std::string	_tryFiles;
-	bool 		_autoIndex;
+	bool		_autoIndex;
 };
 
-std::ostream &operator<<(std::ostream &output, const Location &object);
+std::ostream	&operator<<(std::ostream &output, const Location &object);
 
 #endif

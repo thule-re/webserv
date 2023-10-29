@@ -63,7 +63,6 @@ Server &Server::operator=(const Server &other) {
 void	Server::init() {
 	struct sockaddr_in serverAddress = {};
 
-	// std::cout << _port << std::endl;
 	initializeServerSocket();
 	setServerSocketOptions(&serverAddress);
 	bindServerSocket(serverAddress);
