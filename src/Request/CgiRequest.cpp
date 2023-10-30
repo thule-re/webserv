@@ -121,16 +121,16 @@ void CgiRequest::_writeCgiInput() {
 }
 
 void CgiRequest::_readCgiOutput() {
-	char buffer[BUFFER_SIZE];
+	static char buffer[g_bufferSize];
 	ssize_t bytesRead;
 
-	bzero(buffer, BUFFER_SIZE);
+	bzero(buffer, g_bufferSize);
 	while (true) {
-		bytesRead = read(_cgiOutput[0], buffer, BUFFER_SIZE);
+		bytesRead = read(_cgiOutput[0], buffer, g_bufferSize);
 		if (bytesRead <= 0)
 			break;
 		_cgiOutputString.append(buffer, bytesRead);
-		if (bytesRead < BUFFER_SIZE)
+		if (bytesRead < g_bufferSize)
 			break;
 	}
 }

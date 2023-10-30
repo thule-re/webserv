@@ -37,9 +37,6 @@
 # include "Socket/ClientSocket.hpp"
 # include "Parser/Config.hpp"
 
-# define MAX_CLIENT_CONNECTIONS 100
-# define BUFFER_SIZE 1024
-
 class Server {
 public:
 	// constructors

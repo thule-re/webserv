@@ -16,6 +16,7 @@
 Config::Config() {}
 
 Config::Config(std::string &rawConfig) {
+
 	parseConfig(rawConfig);
 }
 
@@ -46,16 +47,6 @@ std::string	getValStr(const int& key) {
 			return "methods";
 		case PORT:
 			return "port";
-		case TIMEOUT:
-			return "timeout";
-		case MAXCLIENTS:
-			return "maxClients";
-		case BUFFERSIZE:
-			return "bufferSize";
-		case MAXEVENTS:
-			return "maxEvents";
-		case BACKLOG:
-			return "backlog";
 		default:
 			return "unspecificConfigValue";
 	}
@@ -88,6 +79,8 @@ const char *Config::MissingClosingBracketException::what() const throw() {
 }
 
 // member functions
+
+// getter functions
 std::map<std::string, std::string>	Config::getMap() const {
 	return (this->_configMap);
 }
@@ -186,8 +179,8 @@ std::string	Config::extractRoot(const std::string &locationBlock) {
 		return ("");
 	size_t start = locationBlock.find("root:") + 6;
 	size_t end = locationBlock.find(';', start);
-	 if (locationBlock.find('\n', start) < locationBlock.find(';', start))
-	 	throw MissingSemicolonException();
+	if (locationBlock.find('\n', start) < locationBlock.find(';', start))
+		throw MissingSemicolonException();
 	std::string value = locationBlock.substr(start, end - start);
 	return (value);
 }
@@ -197,16 +190,16 @@ std::string	Config::extractIndex(const std::string &locationBlock) {
 		return ("");
 	size_t start = locationBlock.find("index:") + 7;
 	size_t end = locationBlock.find(';', start);
-	 if (locationBlock.find('\n', start) < locationBlock.find(';', start))
-	 	throw MissingSemicolonException();
+	if (locationBlock.find('\n', start) < locationBlock.find(';', start))
+		throw MissingSemicolonException();
 	std::string value = locationBlock.substr(start, end - start);
 	return (value);
 }
 
 std::string	Config::extractCgi(const std::string &locationBlock) {
-	if (locationBlock.find("cgiDir:") == std::string::npos)
+	if (locationBlock.find("cgiExtension:") == std::string::npos)
 		return ("");
-	size_t start = locationBlock.find("cgiDir:") + 8;
+	size_t start = locationBlock.find("cgiExtension:") + 14;
 	size_t end = locationBlock.find(';', start);
 	if (locationBlock.find('\n', start) < locationBlock.find(';', start))
 		throw MissingSemicolonException();

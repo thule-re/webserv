@@ -21,6 +21,11 @@
 # include "Parser/Config.hpp"
 # include "Parser/errorCodes.hpp"
 
+extern int	g_bufferSize;
+extern int	g_maxClients;
+extern int	g_timeout;
+extern int	g_maxFileSize;
+
 class Parser {
 	public:
 		// constructors
@@ -53,19 +58,9 @@ class Parser {
 
 		// member functions
 		std::vector<Config>&	getConfigArr();
-		int						getTimeout() const;
-		int						getMaxClients() const;
-		int						getBufferSize() const;
-		int						getMaxEvents() const;
-		int						getBacklog() const;
 
 	private:
 		std::vector<Config>	_configArr;
-		int					_timeout;
-		int					_maxClients;
-		int					_bufferSize;
-		int					_maxEvents;
-		int					_backlog;
 
 		Parser();
 		void	parseServerConfigs(std::string &rawConfig);
@@ -81,10 +76,7 @@ class Parser {
 		void	extractTimeout(std::string &rawConfig);
 		void	extractMaxClients(std::string &rawConfig);
 		void	extractBufferSize(std::string &rawConfig);
-		void	extractMaxEvents(std::string &rawConfig);
-		void	extractBacklog(std::string &rawConfig);
+		void	extractMaxFileSize(std::string &rawConfig);
 };
-
-std::ostream &operator<<(std::ostream &output, const Parser& object);
 
 #endif

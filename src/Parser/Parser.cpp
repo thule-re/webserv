@@ -24,8 +24,7 @@ Parser::Parser(const std::string &pathToConfig) {
 	checkForDuplicatePorts();
 }
 
-Parser::Parser(const Parser &other) :
-_timeout(), _maxClients(), _bufferSize(), _maxEvents(), _backlog() {
+Parser::Parser(const Parser &other) {
 	*this = other;
 }
 
@@ -38,11 +37,6 @@ Parser &Parser::operator=(const Parser &other) {
 	if (this == &other)
 		return (*this);
 	this->_configArr = other._configArr;
-	this->_timeout = other._timeout;
-	this->_maxClients = other._maxClients;
-	this->_bufferSize = other._bufferSize;
-	this->_maxEvents = other._maxEvents;
-	this->_backlog = other._backlog;
 	return (*this);
 }
 
@@ -66,26 +60,6 @@ const char *Parser::InvalidGlobalValueException::what() const throw() {
 //getters
 std::vector<Config>&	Parser::getConfigArr() {
 	return(_configArr);
-}
-
-int	Parser::getTimeout() const {
-	return (_timeout);
-}
-
-int	Parser::getMaxClients() const {
-	return (_maxClients);
-}
-
-int	Parser::getBufferSize() const {
-	return (_bufferSize);
-}
-
-int	Parser::getMaxEvents() const {
-	return (_maxEvents);
-}
-
-int	Parser::getBacklog() const {
-	return (_backlog);
 }
 
 //member functions
@@ -127,21 +101,19 @@ void	Parser::parseGlobalVars(std::string &rawConfig) {
 	extractTimeout(rawConfig);
 	extractMaxClients(rawConfig);
 	extractBufferSize(rawConfig);
-	extractMaxEvents(rawConfig);
-	extractBacklog(rawConfig);
+	extractMaxFileSize(rawConfig);
 }
 
 void	Parser::extractTimeout(std::string &rawConfig) {
 	if (rawConfig.find("timeout:") == std::string::npos)
-		throw InvalidGlobalValueException();
+		return;
 	size_t start = rawConfig.find("timeout:") + 9;
 	size_t end = rawConfig.find(";\n", start);
 
 	std::string timeoutStr = rawConfig.substr(start, end - start);
-	int	timeout = atoi(timeoutStr.c_str());
-	if (timeout < 1 || timeout > 1000)
+	g_timeout = atoi(timeoutStr.c_str());
+	if (g_timeout < 1 || g_timeout > 1000)
 		throw InvalidGlobalValueException();
-	_timeout = timeout;
 }
 
 void	Parser::extractMaxClients(std::string &rawConfig) {
@@ -151,10 +123,9 @@ void	Parser::extractMaxClients(std::string &rawConfig) {
 	size_t end = rawConfig.find(";\n", start);
 
 	std::string maxClientsStr = rawConfig.substr(start, end - start);
-	int	maxClients = atoi(maxClientsStr.c_str());
-	if (maxClients < 1 || maxClients > 100000)
+	g_maxClients = atoi(maxClientsStr.c_str());
+	if (g_maxClients < 1 || g_maxClients > 100000)
 		throw InvalidGlobalValueException();
-	_maxClients = maxClients;
 }
 
 void	Parser::extractBufferSize(std::string &rawConfig) {
@@ -164,36 +135,21 @@ void	Parser::extractBufferSize(std::string &rawConfig) {
 	size_t end = rawConfig.find(";\n", start);
 
 	std::string bufferSizeStr = rawConfig.substr(start, end - start);
-	int	bufferSize = atoi(bufferSizeStr.c_str());
-	if (bufferSize < 1 || bufferSize > 100000)
+	g_bufferSize = atoi(bufferSizeStr.c_str());
+	if (g_bufferSize < 1 || g_bufferSize > 100000)
 		throw InvalidGlobalValueException();
-	_bufferSize = bufferSize;
 }
 
-void	Parser::extractMaxEvents(std::string &rawConfig) {
-	if (rawConfig.find("maxEvents:") == std::string::npos)
+void	Parser::extractMaxFileSize(std::string &rawConfig) {
+	if (rawConfig.find("maxFileSize:") == std::string::npos)
 		throw InvalidGlobalValueException();
-	size_t start = rawConfig.find("maxEvents:") + 10;
+	size_t start = rawConfig.find("maxFileSize:") + 13;
 	size_t end = rawConfig.find(";\n", start);
 
-	std::string maxEventsStr = rawConfig.substr(start, end - start);
-	int	maxEvents = atoi(maxEventsStr.c_str());
-	if (maxEvents < 1 || maxEvents > 10000)
+	std::string maxFileSize = rawConfig.substr(start, end - start);
+	g_maxFileSize = atoi(maxFileSize.c_str());
+	if (g_maxFileSize < 1 || g_maxFileSize > 100000)
 		throw InvalidGlobalValueException();
-	_maxEvents = maxEvents;
-}
-
-void	Parser::extractBacklog(std::string &rawConfig) {
-	if (rawConfig.find("backlog:") == std::string::npos)
-		throw InvalidGlobalValueException();
-	size_t start = rawConfig.find("backlog:") + 8;
-	size_t end = rawConfig.find(";\n", start);
-
-	std::string backlogStr = rawConfig.substr(start, end - start);
-	int	backlog = atoi(backlogStr.c_str());
-	if (backlog < 1 || backlog > 1000)
-		throw InvalidGlobalValueException();
-	_backlog = backlog;
 }
 
 void	Parser::extractServerBlocks(std::vector<std::string> &serverBlocks, const std::string &rawConfig) {
@@ -217,13 +173,4 @@ void	Parser::checkForDuplicatePorts() {
 		}
 		uniquePorts.push_back(port);
 	}
-}
-
-std::ostream& operator<<(std::ostream& output, const Parser& object) {
-	output << "Parser global Vars: timeout:" << object.getTimeout()
-		<< "| maxClients:" << object.getMaxClients()
-		<< "| bufferSize:" << object.getBufferSize()
-		<< "| maxEvents:" << object.getMaxEvents()
-		<< "| backlog:" << object.getBacklog() << "|" << std::endl;
-	return (output);
 }

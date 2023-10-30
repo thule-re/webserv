@@ -12,8 +12,6 @@
 
 #include "../../inc/Server/Cluster.hpp"
 
-
-
 Cluster::Cluster() {
 	_maxFd = 0;
 	FD_ZERO(&_readSet);
@@ -33,11 +31,9 @@ Cluster::Cluster(std::vector<Config> &configs)
 }
 
 Cluster::Cluster(const Cluster &) {
-
 }
 
 Cluster::~Cluster() {
-
 }
 
 Cluster &Cluster::operator=(const Cluster &other) {

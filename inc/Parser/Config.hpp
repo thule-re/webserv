@@ -68,6 +68,7 @@ public:
 	std::map<std::string, std::string>	getMap() const;
 	std::vector<Location>				getLocations() const;
 
+
 private:
 	std::map<std::string, std::string>	_configMap;
 	std::vector<Location>				_locations;

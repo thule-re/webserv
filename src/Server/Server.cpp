@@ -24,15 +24,13 @@ Server::Server(int port, const std::string& error): _port(port), _serverSocket()
 	FD_ZERO(&_writeSet);
 }
 
-Server::Server(const Config &config): _serverSocket() {
+Server::Server(const Config &config) {
 	_maxFd = 1;
 	_port = atoi(config.getMap()["port"].c_str());
-//	std::cout << "Server init: " << std::endl;
 	size_t i = 0;
 	while (i < config.getLocations().size()) {
 		std::string	key = config.getLocations()[i].getPath();
 		_locationMap[key] = config.getLocations()[i];
-//		std::cout << "Location " << i << _locationMap[key];
 		i++;
 	}
 	FD_ZERO(&_readSet);
@@ -100,7 +98,7 @@ void Server::bindServerSocket(sockaddr_in serverAddress) {
 }
 
 void Server::listenOnServerSocket() {
-	if (listen(_serverSocket, MAX_CLIENT_CONNECTIONS) < 0) {
+	if (listen(_serverSocket, g_maxClients) < 0) {
 		std::cerr << "Error listening on socket" << std::endl;
 		exit(1);
 	}

@@ -13,6 +13,11 @@
 #include "Server/Cluster.hpp"
 #include "Parser/Parser.hpp"
 
+int	g_bufferSize = 1024;
+int	g_maxClients = 1000;
+int	g_timeout = 1000;
+int	g_maxFileSize = 10000;
+
 int main(int argc, char **argv) {
 	std::string	pathToConfigFile;
 	if (argc != 2)
