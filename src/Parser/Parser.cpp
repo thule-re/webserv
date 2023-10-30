@@ -103,13 +103,13 @@ void	Parser::readConfigFile(const std::string &pathToConfig,
 void	Parser::removeComments(std::string &fileContent) {
 	size_t	endOfComment;
 	size_t	startOfComment = std::min(std::min(fileContent.find("\n#", 0),fileContent.find(" #", 0)),
-										fileContent.find("\t#", 0));
+								fileContent.find("\t#", 0));
 	while (startOfComment != std::string::npos) {
 		endOfComment = fileContent.find('\n', startOfComment + 1);
 
 		fileContent = fileContent.erase(startOfComment + 1, (endOfComment - startOfComment - 1));
 		startOfComment = std::min(std::min(fileContent.find("\n#", startOfComment),
-										   fileContent.find(" #", startOfComment)), fileContent.find("\t#", startOfComment));
+							fileContent.find(" #", startOfComment)), fileContent.find("\t#", startOfComment));
 	}
 }
 

@@ -96,11 +96,7 @@ std::vector<Location>	Config::getLocations() const {
 	return (this->_locations);
 }
 
-void 	Config::populateGlobalVarsMap(const std:: string &configBlock) {
-	std::string GlobalVarsBlock;
-	std::string serverVarsBlock = extractServerVarsBlock(configBlock);
-
-	setServerValue()
+void 	Config::populateServerVarsMap(const std:: string &configBlock) {
 	setServerValue(SERVERNAME, configBlock);
 	setServerValue(PORT, configBlock);
 	setServerValue(HTML, configBlock);
@@ -263,7 +259,9 @@ void	Config::splitLocationBlocks(std::vector<std::string> &locBlocks,
 	size_t	numLocBlocks = 0;
 
 	while (blockStart < configBlock.length() && blockEnd < configBlock.length()) {
-		if (configBlock.find('}', blockStart) == std::string::npos) {
+		if (configBlock.find('}', blockStart) == std::string::npos ||
+			configBlock.find('}', blockStart) >
+			configBlock.find("location", blockStart)) {
 			throw (MissingClosingBracketException());
 		}
 		blockEnd = configBlock.find('}', blockStart);
@@ -274,7 +272,7 @@ void	Config::splitLocationBlocks(std::vector<std::string> &locBlocks,
 	}
 	std::stringstream ss;
 	ss << numLocBlocks;
-	_configMap["numLocBlocks"] = ss.str()
+	_configMap["numLocBlocks"] = ss.str();
 }
 
 void	Config::validatePort() {
@@ -290,7 +288,7 @@ void	Config::validatePort() {
 }
 
 void	Config::parseConfig(const std::string& configBlock) {
-	populateGlobalVarsMap(configBlock);
+	populateServerVarsMap(configBlock);
 	setLocations(configBlock);
 	validatePort();
 }

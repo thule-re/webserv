@@ -73,7 +73,7 @@ private:
 	std::vector<Location>				_locations;
 
 	void	parseConfig(const std::string &configBlock);
-	void	populateGlobalVarsMap(const std:: string &configBlock);
+	void	populateServerVarsMap(const std:: string &configBlock);
 	void	setServerValue(int key, const std::string &configBlock);
 	void	setLocations(const std::string &configBlock);
 	void	splitLocationBlocks(std::vector<std::string> &, const std::string &);
