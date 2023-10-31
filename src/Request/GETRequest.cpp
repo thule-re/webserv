@@ -44,7 +44,13 @@ Response *GETRequest::handle() {
 			delete response;
 			throw ARequest::ARequestException(NOT_FOUND);
 		}
-		response->setHeader("Content-Type" ,getContentType(_header["Path"]));
+		std::string type = getContentType(_header["Path"]);
+		if (type.find("image") != std::string::npos)
+		{
+			delete response;
+			throw ARequest::ARequestException(UNSUPPORTED_MEDIA_TYPE);
+		}
+		response->setHeader("Content-Type" ,type);
 		response->setBody(readFile(file));
 	}
 	return (response);

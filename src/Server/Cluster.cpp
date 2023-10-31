@@ -90,7 +90,7 @@ void Cluster::loop() {
 void Cluster::selectClientSockets()
 {
 	struct timeval timeout = {};
-	timeout.tv_sec = 1;
+	timeout.tv_sec = 5;
 	timeout.tv_usec = 0;
 
 	FD_ZERO(&_readSetCopy);
@@ -132,8 +132,8 @@ void Cluster::readRequestFromClient(int socketFd) {
 	_clientsMap[socketFd]->setConnectionTime(std::time(NULL));
 	// addClientToMap(socket);
 
-	socket->readRequest();
-	if (socket->isCompleteRequest())
+	ssize_t bytesReceived = socket->readRequest();
+	if (bytesReceived < BUFFER_SIZE || socket->isCompleteRequest())
 	{
 		FD_CLR(socketFd, &_readSet);
 		FD_SET(socketFd, &_writeSet);

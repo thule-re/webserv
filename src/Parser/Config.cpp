@@ -16,7 +16,6 @@
 Config::Config() {}
 
 Config::Config(std::string &rawConfig) {
-
 	parseConfig(rawConfig);
 }
 
@@ -254,7 +253,7 @@ void	Config::splitLocationBlocks(std::vector<std::string> &locBlocks,
 	while (blockStart < configBlock.length() && blockEnd < configBlock.length()) {
 		if (configBlock.find('}', blockStart) == std::string::npos ||
 			configBlock.find('}', blockStart) >
-			configBlock.find("location", blockStart)) {
+			configBlock.find("location", blockStart + 9)) {
 			throw (MissingClosingBracketException());
 		}
 		blockEnd = configBlock.find('}', blockStart);

@@ -17,6 +17,7 @@
 # include "Response/Response.hpp"
 # include <cstring> // todo: replace bzero wit c++98 conform function
 # include <cstdio>
+# include <csignal>
 # include <vector>
 # include <unistd.h>
 # include <sys/wait.h>
