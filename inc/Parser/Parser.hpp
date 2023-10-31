@@ -25,6 +25,25 @@ extern int	g_maxClients;
 extern int	g_timeout;
 extern int	g_maxFileSize;
 
+
+typedef struct s_locationConfig {
+	std::string	path;
+	std::string	root;
+	std::string	index;
+	std::string	cgi;
+	std::string	upload;
+	std::string	tryFiles;
+	std::string	redirect;
+	std::string	allowedMethods;
+	bool		autoIndex;
+}	t_locationConfig;
+
+typedef struct s_serverConfig {
+	int port;
+	std::string serverName;
+	std::map<std::string, t_locationConfig> t_locationMap;
+}	t_serverConfig;
+
 class Parser {
 	public:
 		// constructors
@@ -38,7 +57,7 @@ class Parser {
 		Parser &operator=(const Parser &other);
 
 		// exceptions
-		class CantOpenException : public std::exception {
+		class CantOpenConfigException : public std::exception {
 		public:
 			const char *what() const throw();
 		};
@@ -46,7 +65,7 @@ class Parser {
 		public:
 			const char *what() const throw();
 		};
-		class DuplicateConfigException: public std::exception {
+		class DuplicateServerNameException: public std::exception {
 		public:
 			const char *what() const throw();
 		};
@@ -56,10 +75,10 @@ class Parser {
 		};
 
 		// member functions
-		std::vector<Config>&	getConfigArr();
+		std::map<int, std::map<std::string, t_serverConfig> >&	getConfigMap();
 
 	private:
-		std::vector<Config>	_configArr;
+		std::map<int, std::map<std::string, t_serverConfig> > _configMap;
 
 		Parser();
 		void	parseServerConfigs(std::string &rawConfig);
@@ -68,33 +87,13 @@ class Parser {
 		static void	readConfigFile(const std::string &pathToConfig,
 											std::string &fileContent);
 		static void	removeComments(std::string &fileContent);
-		static void	extractServerBlocks(std::vector<std::string> &serverBlocks,
-										const std::string &rawConfig);
-		void	parseGlobalVars(std::string &rawConfig);
-
+		static void	parseGlobalVars(std::string &rawConfig);
 		static void	extractTimeout(std::string &rawConfig);
 		static void	extractMaxClients(std::string &rawConfig);
 		static void	extractMaxFileSize(std::string &rawConfig);
+		static void	extractServerBlocks(std::vector<std::string> &serverBlocks,
+										const std::string &rawConfig);
+		static void	populateServer(t_serverConfig &server, std::string &serverBlock);
 };
-
-typedef struct s_location {
-	std::string path;
-	std::string root;
-	std::string index;
-	std::string cgi;
-	std::string upload;
-	std::string tryFiles;
-	std::string redirect;
-	std::string allowedMethods;
-	bool autoIndex;
-} t_location;
-
-typedef struct s_serverConfig {
-	int port;
-	std::string serverName;
-	std::map<std::string, t_location> t_locationMap;
-} t_serverConfig;
-
-std::map<int, std::map<std::string, t_serverConfig> > configMap;
 
 #endif

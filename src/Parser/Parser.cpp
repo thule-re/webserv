@@ -20,6 +20,8 @@ Parser::Parser(const std::string &pathToConfig) {
 	readConfigFile(pathToConfig, fileContent);
 	removeComments(fileContent);
 	parseGlobalVars(fileContent);
+	// todo: delete next line if working;
+	std::cout << "timeout: " << g_timeout << " maxClients: " << g_maxClients << " maxFileSize: " << g_maxFileSize;
 	parseServerConfigs(fileContent);
 	checkForDuplicatePorts();
 }
@@ -36,12 +38,12 @@ Parser::~Parser() {
 Parser &Parser::operator=(const Parser &other) {
 	if (this == &other)
 		return (*this);
-	this->_configArr = other._configArr;
+	this->_configMap = other._configMap;
 	return (*this);
 }
 
 // exceptions
-const char *Parser::CantOpenException::what() const throw() {
+const char *Parser::CantOpenConfigException::what() const throw() {
 	return ("Error: Parser can't open config file.");
 }
 
@@ -49,17 +51,17 @@ const char *Parser::EmptyConfigFileException::what() const throw() {
 	return ("Error: Parser detected empty config file.");
 }
 
-const char *Parser::DuplicateConfigException::what() const throw() {
+const char *Parser::DuplicateServerNameException::what() const throw() {
 	return ("Error: Parser detected duplicate config.");
 }
 
 const char *Parser::InvalidGlobalValueException::what() const throw() {
-	return ("Error: Global Value missing or invalid.");
+	return ("Error: Global value out of range or otherwise invalid.");
 }
 
 //getters
-std::vector<Config>&	Parser::getConfigArr() {
-	return(_configArr);
+std::map<int, std::map<std::string, t_serverConfig> >&	Parser::getConfigMap() {
+	return(_configMap);
 }
 
 //member functions
@@ -67,7 +69,7 @@ void	Parser::readConfigFile(const std::string &pathToConfig,
 									std::string &fileContent) {
 	std::ifstream	configFile(pathToConfig.c_str());
 	if (!configFile.is_open())
-		throw CantOpenException();
+		throw CantOpenConfigException();
 	fileContent = std::string((std::istreambuf_iterator<char>(configFile)),
 					(std::istreambuf_iterator<char>()));
 	if (fileContent.empty())
@@ -76,24 +78,16 @@ void	Parser::readConfigFile(const std::string &pathToConfig,
 
 void	Parser::removeComments(std::string &fileContent) {
 	size_t	endOfComment;
-	size_t	startOfComment = std::min(std::min(fileContent.find("\n#", 0),fileContent.find(" #", 0)),
+	size_t	startOfComment = std::min(std::min(fileContent.find("\n#", 0),
+								fileContent.find(" #", 0)),
 								fileContent.find("\t#", 0));
 	while (startOfComment != std::string::npos) {
 		endOfComment = fileContent.find('\n', startOfComment + 1);
 
 		fileContent = fileContent.erase(startOfComment + 1, (endOfComment - startOfComment - 1));
 		startOfComment = std::min(std::min(fileContent.find("\n#", startOfComment),
-							fileContent.find(" #", startOfComment)), fileContent.find("\t#", startOfComment));
-	}
-}
-
-void	Parser::parseServerConfigs(std::string &rawConfig) {
-	std::vector<std::string> serverBlocks;
-
-	extractServerBlocks(serverBlocks, rawConfig);
-	for (size_t i = 0; i < serverBlocks.size(); i++) {
-		Config	conf(serverBlocks[i]);
-		_configArr.push_back(conf);
+							fileContent.find(" #", startOfComment)),
+							fileContent.find("\t#", startOfComment));
 	}
 }
 
@@ -101,7 +95,6 @@ void	Parser::parseGlobalVars(std::string &rawConfig) {
 	extractTimeout(rawConfig);
 	extractMaxClients(rawConfig);
 	extractMaxFileSize(rawConfig);
-	std::cout << "timeout: " << g_timeout << " maxClients: " << g_maxClients
 }
 
 void	Parser::extractTimeout(std::string &rawConfig) {
@@ -140,6 +133,28 @@ void	Parser::extractMaxFileSize(std::string &rawConfig) {
 		throw InvalidGlobalValueException();
 }
 
+void	Parser::parseServerConfigs(std::string &rawConfig) {
+	std::vector<std::string> serverBlocks;
+
+	extractServerBlocks(serverBlocks, rawConfig);
+	for (size_t i = 0; i < serverBlocks.size(); i++) {
+		if (i == 0) {
+			t_serverConfig defaultServer;
+			populateServer(defaultServer, serverBlocks[i]);
+			_configMap[serverConfig.port][serverConfig.serverName] = serverConfig;
+		}
+		t_serverConfig	serverConfig;
+		populateServer(serverConfig, serverBlocks[i]);
+		if (_configMap[serverConfig.port].count(serverConfig.serverName))
+			throw DuplicateServerNameException();
+		_configMap[serverConfig.port][serverConfig.serverName] = serverConfig;
+	}
+}
+
+void	Parser::populateServer(t_serverConfig &server, std::string &serverBlock) {
+
+}
+
 void	Parser::extractServerBlocks(std::vector<std::string> &serverBlocks, const std::string &rawConfig) {
 	size_t start = 0, end;
 	while((end = rawConfig.find("</server>", start)) != std::string::npos) {
@@ -151,14 +166,15 @@ void	Parser::extractServerBlocks(std::vector<std::string> &serverBlocks, const s
 	}
 }
 
-void	Parser::checkForDuplicatePorts() {
-	std::vector<std::string> uniquePorts;
-	for (size_t i = 0; i < _configArr.size(); i++) {
-		std::string port = _configArr[i].getMap()["port"];
-		for (size_t j = 0; j < uniquePorts.size(); j++) {
-			if (port == uniquePorts[j])
-				throw DuplicateConfigException();
-		}
-		uniquePorts.push_back(port);
-	}
-}
+//
+//void	Parser::checkForDuplicatePorts() {
+//	std::vector<std::string> uniquePorts;
+//	for (size_t i = 0; i < _configArr.size(); i++) {
+//		std::string port = _configArr[i].getMap()["port"];
+//		for (size_t j = 0; j < uniquePorts.size(); j++) {
+//			if (port == uniquePorts[j])
+//				throw DuplicateConfigException();
+//		}
+//		uniquePorts.push_back(port);
+//	}
+//}
