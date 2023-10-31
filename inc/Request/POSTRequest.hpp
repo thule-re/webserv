@@ -19,11 +19,6 @@
 
 # include "ARequest.hpp"
 
-extern int	g_bufferSize;
-extern int	g_maxClients;
-extern int	g_timeout;
-# define MAX_FILE_SIZE 2000000
-
 class POSTRequest: public ARequest {
 public:
 	// constructors

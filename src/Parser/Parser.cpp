@@ -100,8 +100,8 @@ void	Parser::parseServerConfigs(std::string &rawConfig) {
 void	Parser::parseGlobalVars(std::string &rawConfig) {
 	extractTimeout(rawConfig);
 	extractMaxClients(rawConfig);
-	extractBufferSize(rawConfig);
 	extractMaxFileSize(rawConfig);
+	std::cout << "timeout: " << g_timeout << " maxClients: " << g_maxClients
 }
 
 void	Parser::extractTimeout(std::string &rawConfig) {
@@ -128,18 +128,6 @@ void	Parser::extractMaxClients(std::string &rawConfig) {
 		throw InvalidGlobalValueException();
 }
 
-void	Parser::extractBufferSize(std::string &rawConfig) {
-	if (rawConfig.find("bufferSize:") == std::string::npos)
-		throw InvalidGlobalValueException();
-	size_t start = rawConfig.find("bufferSize:") + 11;
-	size_t end = rawConfig.find(";\n", start);
-
-	std::string bufferSizeStr = rawConfig.substr(start, end - start);
-	g_bufferSize = atoi(bufferSizeStr.c_str());
-	if (g_bufferSize < 1 || g_bufferSize > 100000)
-		throw InvalidGlobalValueException();
-}
-
 void	Parser::extractMaxFileSize(std::string &rawConfig) {
 	if (rawConfig.find("maxFileSize:") == std::string::npos)
 		throw InvalidGlobalValueException();
@@ -148,7 +136,7 @@ void	Parser::extractMaxFileSize(std::string &rawConfig) {
 
 	std::string maxFileSize = rawConfig.substr(start, end - start);
 	g_maxFileSize = atoi(maxFileSize.c_str());
-	if (g_maxFileSize < 1 || g_maxFileSize > 100000)
+	if (g_maxFileSize < 1 || g_maxFileSize > 2000000)
 		throw InvalidGlobalValueException();
 }
 

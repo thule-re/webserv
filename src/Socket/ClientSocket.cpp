@@ -133,9 +133,9 @@ void ClientSocket::closeSocket() const {
 }
 
 std::string ClientSocket::readRequest() {
-	char buffer[g_bufferSize];
+	char buffer[BUFFER_SIZE];
 
-	if (recv(_socketFd, buffer, g_bufferSize, 0) < 0) {
+	if (recv(_socketFd, buffer, BUFFER_SIZE, 0) < 0) {
 		std::cerr << "Error reading from client socket" << std::endl;
 		exit(1);
 	}

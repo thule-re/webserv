@@ -21,7 +21,6 @@
 # include "Parser/Config.hpp"
 # include "Parser/errorCodes.hpp"
 
-extern int	g_bufferSize;
 extern int	g_maxClients;
 extern int	g_timeout;
 extern int	g_maxFileSize;
@@ -73,10 +72,9 @@ class Parser {
 										const std::string &rawConfig);
 		void	parseGlobalVars(std::string &rawConfig);
 
-		void	extractTimeout(std::string &rawConfig);
-		void	extractMaxClients(std::string &rawConfig);
-		void	extractBufferSize(std::string &rawConfig);
-		void	extractMaxFileSize(std::string &rawConfig);
+		static void	extractTimeout(std::string &rawConfig);
+		static void	extractMaxClients(std::string &rawConfig);
+		static void	extractMaxFileSize(std::string &rawConfig);
 };
 
 #endif
