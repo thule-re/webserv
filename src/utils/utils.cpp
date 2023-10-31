@@ -59,6 +59,8 @@ std::string getContentType(const std::string& path) {
 	}
 }
 
+
+
 std::string getHTTPErrorMessages(int statusCode) {
 	switch (statusCode) {
 		case OK:								return MSG_200;

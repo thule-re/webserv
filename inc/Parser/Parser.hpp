@@ -87,4 +87,24 @@ class Parser {
 
 std::ostream &operator<<(std::ostream &output, const Parser& object);
 
+typedef struct s_location {
+	std::string path;
+	std::string root;
+	std::string index;
+	std::string cgi;
+	std::string upload;
+	std::string tryFiles;
+	std::string redirect;
+	std::string allowedMethods;
+	bool autoIndex;
+} t_location;
+
+typedef struct s_serverConfig {
+	int port;
+	std::string serverName;
+	std::map<std::string, t_location> t_locationMap;
+} t_serverConfig;
+
+std::map<int, std::map<std::string, t_serverConfig> > configMap;
+
 #endif

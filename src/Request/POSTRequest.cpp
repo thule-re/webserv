@@ -51,6 +51,8 @@ void POSTRequest::_checkFilename()
 		throw ARequest::ARequestException(BAD_REQUEST);
 	} else if (_filename.find("..") != std::string::npos) {
 		throw ARequest::ARequestException(FORBIDDEN);
+	} else if (getContentType(_filename).find("image") != std::string::npos) {
+		throw ARequest::ARequestException(UNSUPPORTED_MEDIA_TYPE);
 	}
 	_filename = _location->getRoot() + "/" + _location->getUpload() + "/" + _filename;
 }
@@ -100,7 +102,7 @@ void POSTRequest::_writeDataToOutfile()
 
 		execve("/bin/chmod", argv, NULL);
 	} else {
-		waitpid(pid, NULL, 0);
+		waitpid(pid, NULL, WNOHANG);
 	}
 }
 

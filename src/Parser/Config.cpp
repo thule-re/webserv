@@ -152,8 +152,8 @@ std::string	Config::extractRedirect(const std::string &locationBlock) {
 		return ("");
 	size_t start = locationBlock.find("httpRedir:") + 11;
 	size_t end = locationBlock.find(';', start);
-	if (locationBlock.find('\n', start) < locationBlock.find(';', start))
-		throw MissingSemicolonException();
+//	if (locationBlock.find('\n', start) < locationBlock.find(';', start))
+//		throw MissingSemicolonException();
 	std::string value = locationBlock.substr(start, end - start);
 	return (value);
 }
@@ -163,8 +163,8 @@ std::string	Config::extractMethods(const std::string &locationBlock) {
 		return ("");
 	size_t start = locationBlock.find("methods:") + 9;
 	size_t end = locationBlock.find(';', start);
-	if (locationBlock.find('\n', start) < locationBlock.find(';', start))
-		throw MissingSemicolonException();
+//	if (locationBlock.find('\n', start) < locationBlock.find(';', start))
+//		throw MissingSemicolonException();
 	std::string value = locationBlock.substr(start, end - start);
 	replaceAll(value, ", ", "");
 	return (value);
@@ -175,8 +175,8 @@ std::string	Config::extractPath(const std::string &locationBlock) {
 		return ("");
 	size_t start = locationBlock.find("location") + 9;
 	size_t end = locationBlock.find('{', start);
-	if (locationBlock.find('\n', start) < locationBlock.find(';', start))
-		throw MissingSemicolonException();
+//	if (locationBlock.find('\n', start) < locationBlock.find(';', start))
+//		throw MissingSemicolonException();
 	std::string value = locationBlock.substr(start, end - start - 1);
 	return (value);
 }
@@ -186,8 +186,8 @@ std::string	Config::extractRoot(const std::string &locationBlock) {
 		return ("");
 	size_t start = locationBlock.find("root:") + 6;
 	size_t end = locationBlock.find(';', start);
-	 if (locationBlock.find('\n', start) < locationBlock.find(';', start))
-	 	throw MissingSemicolonException();
+//	 if (locationBlock.find('\n', start) < locationBlock.find(';', start))
+//	 	throw MissingSemicolonException();
 	std::string value = locationBlock.substr(start, end - start);
 	return (value);
 }
@@ -197,19 +197,19 @@ std::string	Config::extractIndex(const std::string &locationBlock) {
 		return ("");
 	size_t start = locationBlock.find("index:") + 7;
 	size_t end = locationBlock.find(';', start);
-	 if (locationBlock.find('\n', start) < locationBlock.find(';', start))
-	 	throw MissingSemicolonException();
+//	 if (locationBlock.find('\n', start) < locationBlock.find(';', start))
+//	 	throw MissingSemicolonException();
 	std::string value = locationBlock.substr(start, end - start);
 	return (value);
 }
 
 std::string	Config::extractCgi(const std::string &locationBlock) {
-	if (locationBlock.find("cgiDir:") == std::string::npos)
+	if (locationBlock.find("cgiExtension:") == std::string::npos)
 		return ("");
-	size_t start = locationBlock.find("cgiDir:") + 8;
+	size_t start = locationBlock.find("cgiExtension:") + 14;
 	size_t end = locationBlock.find(';', start);
-	if (locationBlock.find('\n', start) < locationBlock.find(';', start))
-		throw MissingSemicolonException();
+//	if (locationBlock.find('\n', start) < locationBlock.find(';', start))
+//		throw MissingSemicolonException();
 	std::string value = locationBlock.substr(start, end - start);
 	return (value);
 }
@@ -219,8 +219,8 @@ std::string	Config::extractUpload(const std::string &locationBlock) {
 		return ("");
 	size_t start = locationBlock.find("uploadDir:") + 11;
 	size_t end = locationBlock.find(';', start);
-	if (locationBlock.find('\n', start) < locationBlock.find(';', start))
-		throw MissingSemicolonException();
+//	if (locationBlock.find('\n', start) < locationBlock.find(';', start))
+//		throw MissingSemicolonException();
 	std::string value = locationBlock.substr(start, end - start);
 	return (value);
 }
@@ -231,8 +231,8 @@ std::string	Config::extractTryFiles(const std::string &locationBlock) {
 	}
 	size_t start = locationBlock.find("tryFiles:") + 10;
 	size_t end = locationBlock.find(';', start);
-	if (locationBlock.find('\n', start) < locationBlock.find(';', start))
-		throw MissingSemicolonException();
+// 	if (locationBlock.find('\n', start) < locationBlock.find(';', start))
+// 		throw MissingSemicolonException();
 	std::string value = locationBlock.substr(start, end - start);
 	return (value);
 }
@@ -243,8 +243,8 @@ bool	Config::extractAutoIndex(const std::string &locationBlock) {
 	}
 	size_t start = locationBlock.find("AutoIndex:") + 11;
 	size_t end = locationBlock.find(';', start);
-	if (locationBlock.find('\n', start) < locationBlock.find(';', start))
-		throw MissingSemicolonException();
+//	if (locationBlock.find('\n', start) < locationBlock.find(';', start))
+//		throw MissingSemicolonException();
 	std::string value = locationBlock.substr(start, end - start);
 	if (value == "1" || value == "on" || value == "true")
 		return (true);
@@ -261,7 +261,7 @@ void	Config::splitLocationBlocks(std::vector<std::string> &locBlocks,
 	while (blockStart < configBlock.length() && blockEnd < configBlock.length()) {
 		if (configBlock.find('}', blockStart) == std::string::npos ||
 			configBlock.find('}', blockStart) >
-			configBlock.find("location", blockStart)) {
+			configBlock.find("location", blockStart + 9)) {
 			throw (MissingClosingBracketException());
 		}
 		blockEnd = configBlock.find('}', blockStart);

@@ -132,16 +132,17 @@ void ClientSocket::closeSocket() const {
 	close(_socketFd);
 }
 
-std::string ClientSocket::readRequest() {
+ssize_t ClientSocket::readRequest() {
 	char buffer[BUFFER_SIZE];
+	ssize_t bytesReceived;
 
-	if (recv(_socketFd, buffer, BUFFER_SIZE, 0) < 0) {
+	bytesReceived = recv(_socketFd, buffer, BUFFER_SIZE, 0);
+	if (bytesReceived < 0) {
 		std::cerr << "Error reading from client socket" << std::endl;
 		exit(1);
 	}
-
 	_rawRequest += buffer;
-	return (buffer);
+	return (bytesReceived);
 }
 
 bool ClientSocket::isCompleteRequest() const {

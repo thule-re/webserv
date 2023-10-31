@@ -63,7 +63,7 @@ public:
 
 	// member functions
 	void sendResponse();
-	std::string readRequest();
+	ssize_t readRequest();
 	void closeSocket() const;
 	bool isCompleteRequest() const;
 

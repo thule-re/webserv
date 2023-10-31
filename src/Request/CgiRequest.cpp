@@ -153,16 +153,29 @@ void CgiRequest::_execCgi(Response *response) {
 		close(_cgiOutput[1]);
 
 		_exportEnv();
-//		if (execve(_scriptPath.c_str(), NULL, _envp) == -1)
-//			exit(1);
+		if (execve(_scriptPath.c_str(), NULL, _envp) == -1)
+			exit(1);
 	} else {
 		if (_header["Method"] == "POST")
 			_writeCgiInput();
 		close(_cgiInput[1]);
 		close(_cgiInput[0]);
 		close(_cgiOutput[1]);
-		waitpid(pid, &status, 0);
-		if (WIFEXITED(status) && WEXITSTATUS(status) == 1) {
+		time_t now;
+		std::time(&now);
+		while (std::difftime(std::time(NULL), now) < 5) {
+			waitpid(pid, &status, WNOHANG);
+			if (WIFEXITED(status))
+				break;
+		}
+		if (!WIFEXITED(status))
+		{
+			kill(pid, SIGKILL);
+			close(_cgiOutput[0]);
+			throw ARequest::ARequestException(INTERNAL_SERVER_ERROR);
+		}
+		if (WEXITSTATUS(status) == 1) {
+			close(_cgiOutput[0]);
 			throw ARequest::ARequestException(INTERNAL_SERVER_ERROR);
 		}
 		_readCgiOutput();
