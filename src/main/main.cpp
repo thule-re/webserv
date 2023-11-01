@@ -13,6 +13,10 @@
 #include "Server/Cluster.hpp"
 #include "Parser/Parser.hpp"
 
+int	g_maxClients = 1000;
+int	g_timeout = 1;
+int	g_maxFileSize = 100000;
+
 int main(int argc, char **argv) {
 	std::string	pathToConfigFile;
 	if (argc != 2)
@@ -22,8 +26,8 @@ int main(int argc, char **argv) {
 	try {
 		Parser parser(pathToConfigFile);
 
-		Cluster cluster(parser.getConfigMap());
-		cluster.loop();
+//		Cluster cluster(parser.getConfigArr());
+//		cluster.loop();
 	}
 	catch (std::exception &e) {
 		std::cout << e.what() << std::endl;

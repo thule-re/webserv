@@ -20,7 +20,11 @@
 # include <unistd.h>
 # include "Parser/Parser.hpp"
 
-# define BUFFER_SIZE 1024
+#define BUFFER_SIZE 1024
+
+extern int	g_maxClients;
+extern int	g_timeout;
+extern int	g_maxFileSize;
 
 class Response;
 

@@ -121,7 +121,7 @@ void CgiRequest::_writeCgiInput() {
 }
 
 void CgiRequest::_readCgiOutput() {
-	char buffer[BUFFER_SIZE];
+	static char buffer[BUFFER_SIZE];
 	ssize_t bytesRead;
 
 	bzero(buffer, BUFFER_SIZE);

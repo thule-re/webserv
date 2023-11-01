@@ -18,8 +18,31 @@
 # include <fstream>
 # include <vector>
 # include <cstdlib>
-# include "Parser/Config.hpp"
+# include <map>
 # include "Parser/errorCodes.hpp"
+
+extern int	g_maxClients;
+extern int	g_timeout;
+extern int	g_maxFileSize;
+
+
+typedef struct s_locationConfig {
+	std::string	path;
+	std::string	root;
+	std::string	index;
+	std::string	cgiExtension;
+	std::string	upload;
+	std::string	redirect;
+	std::string	allowedMethods;
+	bool		autoIndex;
+}	t_locationConfig;
+
+typedef struct s_serverConfig {
+	int										port;
+	std::string								serverName;
+	std::string								errorDir;
+	std::map<std::string, t_locationConfig>	locationMap;
+}	t_serverConfig;
 
 class Parser {
 	public:
@@ -34,7 +57,7 @@ class Parser {
 		Parser &operator=(const Parser &other);
 
 		// exceptions
-		class CantOpenException : public std::exception {
+		class CantOpenConfigException : public std::exception {
 		public:
 			const char *what() const throw();
 		};
@@ -42,7 +65,7 @@ class Parser {
 		public:
 			const char *what() const throw();
 		};
-		class DuplicateConfigException: public std::exception {
+		class DuplicateServerNameException: public std::exception {
 		public:
 			const char *what() const throw();
 		};
@@ -50,61 +73,63 @@ class Parser {
 		public:
 			const char *what() const throw();
 		};
-
+		class InvalidConfigException: public std::exception {
+		public:
+			const char *what() const throw();
+		};
+		class ValueMissingException : public std::exception {
+		public:
+			virtual const char *what() const throw();
+			ValueMissingException(const int &missingKey);
+		private:
+			int	_key;
+		};
+		class MissingSemicolonException : public std::exception {
+		public:
+			virtual const char* what() const throw();
+		};
+		class MissingClosingBracketException : public std::exception {
+		public:
+			virtual const char* what() const throw();
+		};
+		class InvalidLocationException : public std::exception {
+		public:
+			virtual const char* what() const throw();
+		};
 		// member functions
-		std::vector<Config>&	getConfigArr();
-		int						getTimeout() const;
-		int						getMaxClients() const;
-		int						getBufferSize() const;
-		int						getMaxEvents() const;
-		int						getBacklog() const;
+		std::map<int, std::map<std::string, t_serverConfig> >&	getConfigMap();
 
 	private:
-		std::vector<Config>	_configArr;
-		int					_timeout;
-		int					_maxClients;
-		int					_bufferSize;
-		int					_maxEvents;
-		int					_backlog;
+		std::map<int, std::map<std::string, t_serverConfig> > _configMap;
 
 		Parser();
 		void	parseServerConfigs(std::string &rawConfig);
-		void	checkForDuplicatePorts();
 
-		static void	readConfigFile(const std::string &pathToConfig,
-											std::string &fileContent);
 		static void	removeComments(std::string &fileContent);
+
+		static void	readConfigFile(const std::string &pathToConfig, std::string &fileContent);
+
+		// global variable parsing
+		static void	parseGlobalVars(std::string &rawConfig);
+		static void	extractTimeout(std::string &rawConfig);
+		static void	extractMaxClients(std::string &rawConfig);
+		static void	extractMaxFileSize(std::string &rawConfig);
+
+		// server parsing
 		static void	extractServerBlocks(std::vector<std::string> &serverBlocks,
 										const std::string &rawConfig);
-		void	parseGlobalVars(std::string &rawConfig);
+		void		populateServerConfig(t_serverConfig &server, std::string &serverBlock);
+		static void	setServerValue(int num, std::string &value,
+									t_serverConfig &serverConfig, std::string &serverBlock);
 
-		void	extractTimeout(std::string &rawConfig);
-		void	extractMaxClients(std::string &rawConfig);
-		void	extractBufferSize(std::string &rawConfig);
-		void	extractMaxEvents(std::string &rawConfig);
-		void	extractBacklog(std::string &rawConfig);
+		// location parsing
+		void				setLocations(t_serverConfig &serverConfig, const std::string &configBlock);
+		static void			splitLocationBlocks(std::vector<std::string> &locationBlocks,
+										const std::string &configBlock);
+		static void				populateLocationConfig(t_locationConfig &locationConfig, std::string &locationBlock);
+		static std::string	extractPath(const std::string &locationBlock);
+		static bool			extractAutoIndex(const std::string &locationBlock);
+		static std::string	extractLocationVariable(const std::string &variable, const std::string &locationBlock);
 };
-
-std::ostream &operator<<(std::ostream &output, const Parser& object);
-
-typedef struct s_location {
-	std::string path;
-	std::string root;
-	std::string index;
-	std::string cgi;
-	std::string upload;
-	std::string tryFiles;
-	std::string redirect;
-	std::string allowedMethods;
-	bool autoIndex;
-} t_location;
-
-typedef struct s_serverConfig {
-	int port;
-	std::string serverName;
-	std::map<std::string, t_location> t_locationMap;
-} t_serverConfig;
-
-std::map<int, std::map<std::string, t_serverConfig> > configMap;
 
 #endif
