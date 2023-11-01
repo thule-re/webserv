@@ -54,7 +54,7 @@ void POSTRequest::_checkFilename()
 	} else if (getContentType(_filename).find("image") != std::string::npos) {
 		throw ARequest::ARequestException(UNSUPPORTED_MEDIA_TYPE);
 	}
-	_filename = _location->getRoot() + "/" + _location->getUpload() + "/" + _filename;
+	_filename = _location.root + "/" + _location.upload + "/" + _filename;
 }
 
 void POSTRequest::_getBoundary()

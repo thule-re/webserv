@@ -14,9 +14,14 @@
 #include "Request/ARequest.hpp"
 
 // constructors
-ClientSocket::ClientSocket() : _socketFd(0) {}
-ClientSocket::ClientSocket(int socketFd): _socketFd(socketFd) {}
-ClientSocket::ClientSocket(const ClientSocket &other) : _socketFd(other._socketFd) {
+ClientSocket::ClientSocket() : _socketFd(0), _connectionTime(), _response() {}
+ClientSocket::ClientSocket(int socketFd, std::map<std::string, t_serverConfig> &serverConfigMap):
+							_socketFd(socketFd),
+							_connectionTime(time(NULL)),
+							_serverConfigMap(serverConfigMap),
+							_response(NULL)
+							{}
+ClientSocket::ClientSocket(const ClientSocket &other) : _socketFd(other._socketFd), _connectionTime(), _response() {
 	*this = other;
 }
 
@@ -28,18 +33,11 @@ ClientSocket &ClientSocket::operator=(const ClientSocket &other) {
 	if (this == &other)
 		return (*this);
 	_socketFd = other._socketFd;
-	_serverFd = other._serverFd;
-	_allowedHTTPVersion = other._allowedHTTPVersion;
-	_allowedMethods = other._allowedMethods;
-
-	_rawRequest = other._rawRequest;
-	_errorFolder = other._errorFolder;
-	_serverName = other._serverName;
-	_locationMap = other._locationMap;
-
-	_response = other._response;
 	_connectionTime = other._connectionTime;
 
+	_rawRequest = other._rawRequest;
+	_serverConfigMap = other._serverConfigMap;
+	_response = other._response;
 	return (*this);
 }
 
@@ -48,24 +46,8 @@ int ClientSocket::getSocketFd() const {
 	return (_socketFd);
 }
 
-std::string ClientSocket::getAllowedHTTPVersion() const {
-	return (_allowedHTTPVersion);
-}
-
-std::string ClientSocket::getAllowedMethods() const {
-	return (_allowedMethods);
-}
-
 std::string ClientSocket::getRawRequest() const {
 	return (_rawRequest);
-}
-
-std::string ClientSocket::getErrorFolder() const {
-	return (_errorFolder);
-}
-
-std::string ClientSocket::getServerName() const {
-	return (_serverName);
 }
 
 time_t ClientSocket::getConnectionTime() const {
@@ -76,38 +58,9 @@ Response *ClientSocket::getResponse() const {
 	return _response;
 }
 
-std::map<std::string, Location> *ClientSocket::getLocationMap() const {
-	return (_locationMap);
-}
-
-int ClientSocket::getServerFd()
-{
-    return _serverFd;
-}
-
 // setters
 void ClientSocket::setRawRequest(const std::string &rawRequest) {
 	_rawRequest = rawRequest;
-}
-
-void ClientSocket::setAllowedHTTPVersion(const std::string &allowedHTTPVersion) {
-	_allowedHTTPVersion = allowedHTTPVersion;
-}
-
-void ClientSocket::setAllowedMethods(const std::string &allowedMethods) {
-	_allowedMethods = allowedMethods;
-}
-
-void ClientSocket::addToAllowedMethods(const std::string &allowedMethods) {
-	_allowedMethods += allowedMethods;
-}
-
-void ClientSocket::setErrorFolder(const std::string &errorFolder) {
-	_errorFolder = errorFolder;
-}
-
-void ClientSocket::setServerName(const std::string &serverName) {
-	_serverName = serverName;
 }
 
 void ClientSocket::setResponse(Response* response) {
@@ -116,14 +69,6 @@ void ClientSocket::setResponse(Response* response) {
 
 void ClientSocket::setConnectionTime(const time_t &connectionTime) {
     _connectionTime = connectionTime;
-}
-
-void ClientSocket::setLocationMap(std::map<std::string, Location> *locationMap) {
-	_locationMap = locationMap;
-}
-
-void ClientSocket::setServerFd(int serverFd) {
-	_serverFd = serverFd;
 }
 
 
@@ -148,7 +93,7 @@ ssize_t ClientSocket::readRequest() {
 bool ClientSocket::isCompleteRequest() const {
 	RequestHeader header(_rawRequest.substr(0, _rawRequest.find(CRLF CRLF)));
 	if (header["Method"] == "POST") {
-		size_t contentLength = atoi(header["Content-Length"].c_str());
+		size_t contentLength = std::strtol(header["Content-Length"].c_str(), NULL, 10);
 		if (_rawRequest.substr(_rawRequest.find(CRLF CRLF)).length() < contentLength)
 			return (false);
 	}
@@ -162,4 +107,16 @@ bool ClientSocket::isCompleteRequest() const {
 void ClientSocket::sendResponse() {
 	_response->send();
 	delete _response;
+}
+
+std::map<std::string, t_serverConfig> ClientSocket::getServerConfigMap() const{
+	return (_serverConfigMap);
+}
+
+t_serverConfig ClientSocket::parseServerConfig() {
+	RequestHeader header(_rawRequest.substr(0, _rawRequest.find(CRLF CRLF)));
+	std::string host = header["Host"];
+	if (_serverConfigMap.count(host))
+		return (_serverConfigMap[host]);
+	return (_serverConfigMap["default"]);
 }

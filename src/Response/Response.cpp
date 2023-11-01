@@ -14,7 +14,9 @@
 
 // constructors
 Response::Response() {}
-Response::Response(ClientSocket* clientSocket): _clientSocket(clientSocket), _header() {}
+Response::Response(ClientSocket* clientSocket): _clientSocket(clientSocket), _header() {
+	_serverConfig = clientSocket->parseServerConfig();
+}
 Response::Response(const Response &other) {
 	*this = other;
 }
@@ -41,7 +43,7 @@ void Response::send() {
 }
 
 void Response::buildErrorPage(int statusCode) {
-	std::string path = _clientSocket->getErrorFolder() + "/error" + toString(statusCode) + ".html";
+	std::string path = _serverConfig.errorDir + "/error" + toString(statusCode) + ".html";
 	_header["HTTP-Status-Code"] = toString(statusCode);
 	_header["HTTP-Status-Message"] = getHTTPErrorMessages(statusCode);
 	_header["Content-Type"] = "text/html";

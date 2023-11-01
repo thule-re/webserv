@@ -34,13 +34,13 @@ Response *RedirectRequest::handle() {
 	std::cout << "RedirectRequest::handle()" << std::endl;
 	if (_header["Method"] == "GET" || _header["Method"] == "HEAD")
 	{
-		response->setHeader("Location", _location->getRedirect());
+		response->setHeader("Location", _location.redirect);
 		response->setHeader("HTTP-Status-Code", toString(MOVED_PERMANENTLY));
 		response->setHeader("HTTP-Status-Message", getHTTPErrorMessages(MOVED_PERMANENTLY));
 	}
 	else if (_header["Method"] == "POST")
 	{
-		response->setHeader("Location", _location->getRedirect());
+		response->setHeader("Location", _location.redirect);
 		response->setHeader("HTTP-Status-Code", toString(PERMANENT_REDIRECT));
 		response->setHeader("HTTP-Status-Message", getHTTPErrorMessages(PERMANENT_REDIRECT));
 	}

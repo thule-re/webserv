@@ -50,15 +50,15 @@ protected:
 	ClientSocket *_clientSocket;
 	std::string _rawRequest;
 	RequestHeader _header;
-	Location *_location;
+	t_locationConfig _location;
+	t_serverConfig _serverConfig;
 
 private:
 	// member functions
-	static bool _isCgiPath(const ClientSocket* clientSocket, const std::string& path);
-	static Location *_findLocation(const ClientSocket *clientSocket, std::string path);
-	Location *_findLocation(std::string path);
-	void _expandPath();
-	void _unchunkBody();
+	static bool				_isCgiPath(const t_serverConfig& serverConfig, const std::string& path);
+	static t_locationConfig	_findLocation(const t_serverConfig &serverConfig, std::string path);
+	void					_expandPath();
+	void					_unchunkBody();
 
 public:
 	// exceptions

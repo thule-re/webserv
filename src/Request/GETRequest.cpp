@@ -35,7 +35,7 @@ Response *GETRequest::handle() {
 	std::cout << "GETRequest::handle()" << std::endl;
 
 	std::string path = _header["Path"];
-	if (_location->getAutoIndex() && _isDirectory(path))
+	if (_location.autoIndex && _isDirectory(path))
 		response->setBody(_getDirectoryListing(path));
 	else
 	{
@@ -61,10 +61,10 @@ std::string GETRequest::_getDirectoryListing(const std::string& path) {
 	DIR *dir;
 	struct dirent *entry;
 	if ((dir = opendir (path.c_str())) != NULL) {
-		body += "<html><head><title>Index of " + _location->getPath() + path.substr(_location->getRoot().length()) + "</title></head><body><h1>Index of " + _location->getPath() + path.substr(_location->getRoot().length()) + "</h1><hr><pre>";
+		body += "<html><head><title>Index of " + _location.path + path.substr(_location.root.length()) + "</title></head><body><h1>Index of " + _location.path + path.substr(_location.root.length()) + "</h1><hr><pre>";
 		entry = readdir (dir);
 		while (entry) {
-			body += "<a href=\"" + _location->getPath() + path.substr(_location->getRoot().length()) + "/" + entry->d_name + "\">" + entry->d_name + "</a><br>";
+			body += "<a href=\"" + _location.path + path.substr(_location.root.length()) + "/" + entry->d_name + "\">" + entry->d_name + "</a><br>";
 			entry = readdir (dir);
 		}
 		body += "</pre><hr></body></html>";

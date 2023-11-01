@@ -22,7 +22,10 @@ ARequest::ARequest() : _location() {}
 
 ARequest::ARequest(ClientSocket *clientSocket): _clientSocket(clientSocket), _rawRequest(clientSocket->getRawRequest()), _location() {
 	_header = RequestHeader(_rawRequest.substr(0, _rawRequest.find(CRLF CRLF)));
-	_location = _findLocation(_header["Path"]);
+	_serverConfig = clientSocket->getServerConfigMap()["default"];
+	if (clientSocket->getServerConfigMap().count(_header["Host"]))
+		_serverConfig = clientSocket->getServerConfigMap()[_header["Host"]];
+	_location = _findLocation(_serverConfig, _header["Path"]);
 	if (_header["Path"].find("..") != std::string::npos)
 		throw ARequest::ARequestException(FORBIDDEN);
 	_expandPath();
@@ -49,39 +52,43 @@ ARequest &ARequest::operator=(const ARequest &other) {
 }
 
 // member functions
-ARequest *ARequest::newRequest(ClientSocket *clientSocket) {
-	std::string request = clientSocket->getRawRequest();
+ARequest *ARequest::newRequest(ClientSocket *client) {
+	std::string request = client->getRawRequest();
 	RequestHeader header(request.substr(0, request.find(CRLF CRLF)));
-	Location *location = _findLocation(clientSocket, header["Path"]);
+	std::map<std::string, t_serverConfig> serverConfigMap = client->getServerConfigMap();
+	t_serverConfig serverConfig = serverConfigMap["default"];
+	if (serverConfigMap.count(header["Host"]))
+		serverConfig = serverConfigMap[header["Host"]];
+	t_locationConfig locationConfig = _findLocation(serverConfig, header["Path"]);
 	if (header["Method"].empty() || header["Path"].empty() || header["HTTP-Version"].empty())
 		throw ARequest::ARequestException(BAD_REQUEST);
-	else if (clientSocket->getAllowedHTTPVersion() != header["HTTP-Version"])
+	else if (header["HTTP-Version"] != "HTTP/1.1")
 		throw ARequest::ARequestException(HTTP_VERSION_NOT_SUPPORTED);
-	else if (location->getAllowedMethods().find(header["Method"]) == std::string::npos)
+	else if (locationConfig.allowedMethods.find(header["Method"]) == std::string::npos)
 		throw ARequest::ARequestException(METHOD_NOT_ALLOWED);
-	else if (!location->getRedirect().empty())
-		return (new RedirectRequest(clientSocket));
-	else if (_isCgiPath(clientSocket, header["Path"]))
-		return (new CgiRequest(clientSocket));
+	else if (!locationConfig.redirect.empty())
+		return (new RedirectRequest(client));
+	else if (_isCgiPath(serverConfig, header["Path"]))
+		return (new CgiRequest(client));
 	else if (header["Method"] == "GET")
-		return (new GETRequest(clientSocket));
+		return (new GETRequest(client));
 	else if (header["Method"] == "POST")
-		return (new POSTRequest(clientSocket));
+		return (new POSTRequest(client));
 	else if (header["Method"] == "DELETE")
-		return (new DELETERequest(clientSocket));
+		return (new DELETERequest(client));
 	else
 		throw ARequest::ARequestException(NOT_IMPLEMENTED);
 }
 
 // private member functions
-bool ARequest::_isCgiPath(const ClientSocket *clientSocket, const std::string &path) {
-	Location *location = _findLocation(clientSocket, path);
+bool ARequest::_isCgiPath(const t_serverConfig& serverConfig, const std::string &path) {
+	t_locationConfig location = _findLocation(serverConfig, path);
 
 	size_t pos = path.find_last_of('.');
 	if (pos == std::string::npos)
 		return (false);
 	std::string extension = path.substr(pos);
-	if (location->getCgiExtension().find(extension) != std::string::npos)
+	if (location.cgiExtension.find(extension) != std::string::npos)
 		return (true);
 	return (false);
 }
@@ -94,36 +101,25 @@ bool ARequest::_isDirectory(const std::string &path) {
 	return (false);
 }
 
-Location *ARequest::_findLocation(const ClientSocket *clientSocket, std::string path) {
+t_locationConfig ARequest::_findLocation(const t_serverConfig& serverConfig, std::string path) {
 	if (path.find('/') == 0)
 		path = path.substr(1);
 	if (!path.empty())
 		path = path.substr(0, path.find('/'));
 	path = "/" + path;
-	if (clientSocket->getLocationMap()->find(path) != clientSocket->getLocationMap()->end())
-		return (&clientSocket->getLocationMap()->find(path)->second);
-	return (&clientSocket->getLocationMap()->find("/")->second);
-}
-
-Location *ARequest::_findLocation(std::string path) {
-	if (path.find('/') == 0)
-		path = path.substr(1);
-	if (!path.empty())
-		path = path.substr(0, path.find('/'));
-	path = "/" + path;
-	if (_clientSocket->getLocationMap()->find(path) != _clientSocket->getLocationMap()->end())
-		return (&_clientSocket->getLocationMap()->find(path)->second);
-	return (&_clientSocket->getLocationMap()->find("/")->second);
+	if (serverConfig.locationMap.find(path) != serverConfig.locationMap.end())
+		return (serverConfig.locationMap.find(path)->second);
+	return (serverConfig.locationMap.find("/")->second);
 }
 
 void ARequest::_expandPath() {
 	std::string path = _header["Path"];
-	if (path.find(_location->getPath()) == 0)
-		path.replace(path.find(_location->getPath()), _location->getPath().length(), _location->getRoot());
+	if (path.find(_location.path) == 0)
+		path.replace(path.find(_location.path), _location.path.length(), _location.root);
 	if (path[path.length() - 1] == '/' && path.length() > 1)
 		path = path.substr(0, path.length() - 1);
-	if (_isDirectory(path) && !_location->getIndex().empty())
-		path += "/" + _location->getIndex();
+	if (_isDirectory(path) && !_location.index.empty())
+		path += "/" + _location.index;
 	_header["Path"] = path;
 }
 

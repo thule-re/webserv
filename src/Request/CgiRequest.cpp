@@ -99,7 +99,7 @@ void CgiRequest::_setEnv() {
 	_env.push_back("REQUEST_METHOD=" + _header["Method"]);
 	_env.push_back("REQUEST_URI=" + _header["Path"]);
 	_env.push_back("SCRIPT_NAME=" + _scriptPath);
-	_env.push_back("SERVER_NAME=" + _clientSocket->getServerName());
+	_env.push_back("SERVER_NAME=" + _serverConfig.serverName);
 	// _env.push_back("SERVER_PORT=" + _clientSocket.getServerPort());
 	_env.push_back("SERVER_PROTOCOL=" + _header["HTTP-Version"]);
 	_env.push_back("SERVER_SOFTWARE=webserv/1.0");

@@ -125,6 +125,7 @@ private:
 
 	// member variables
 	ClientSocket *_clientSocket;
+	t_serverConfig _serverConfig;
 	ResponseHeader _header;
 	std::string _body;
 

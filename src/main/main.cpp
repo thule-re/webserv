@@ -22,7 +22,7 @@ int main(int argc, char **argv) {
 	try {
 		Parser parser(pathToConfigFile);
 
-		Cluster cluster(parser.getConfigArr());
+		Cluster cluster(parser.getConfigMap());
 		cluster.loop();
 	}
 	catch (std::exception &e) {

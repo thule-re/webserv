@@ -14,7 +14,7 @@ OBJ_DIR		=	./obj
 OBJ_DIRS	=	./obj \
 				./obj/main \
 				./obj/Header \
-				./obj/Location \
+				./obj/Listener \
 				./obj/Parser \
 				./obj/Request \
 				./obj/Response \
@@ -26,8 +26,7 @@ FILES		=	main/main \
 				Header/AHeader \
 				Header/RequestHeader \
 				Header/ResponseHeader \
-				Location/Location \
-				Parser/Config \
+				Listener/Listener \
 				Parser/Parser \
 				Request/ARequest \
 				Request/CgiRequest \
@@ -36,7 +35,6 @@ FILES		=	main/main \
 				Request/POSTRequest \
 				Request/RedirectRequest \
 				Response/Response \
-				Server/Server \
 				Server/Cluster \
 				Socket/ClientSocket \
 				utils/utils \
@@ -44,8 +42,7 @@ FILES		=	main/main \
 HEADER		=	Header/AHeader \
 				Header/RequestHeader \
 				Header/ResponseHeader \
-				Location/Location \
-				Parser/Config \
+				Listener/Listener \
 				Parser/Parser \
 				Request/ARequest \
 				Request/CgiRequest \
@@ -55,7 +52,6 @@ HEADER		=	Header/AHeader \
 				Request/RedirectRequest \
 				Response/Response \
 				Response/responseCodes \
-				Server/Server \
 				Server/Cluster \
 				Socket/ClientSocket \
 				utils/utils \

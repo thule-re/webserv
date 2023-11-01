@@ -1,7 +1,7 @@
 /* ************************************************************************** */
 /*                                                                            */
 /*                                                        :::      ::::::::   */
-/*   Server.hpp                                         :+:      :+:    :+:   */
+/*   Listener.hpp                                         :+:      :+:    :+:   */
 /*                                                    +:+ +:+         +:+     */
 /*   By: tony <tony@student.42.fr>                  +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
@@ -35,55 +35,49 @@
 # include "Request/ARequest.hpp"
 # include "Response/Response.hpp"
 # include "Socket/ClientSocket.hpp"
-# include "Parser/Config.hpp"
 
 # define MAX_CLIENT_CONNECTIONS 100
 # define BUFFER_SIZE 1024
 
-class Server {
+class Listener {
 public:
 	// constructors
-	Server();
-	Server(int port, const std::string& error);
-	Server(const Config &);
-	Server(const Server &);
+	Listener(int port, std::map<std::string, t_serverConfig> &);
+	Listener(const Listener &);
 
 	// destructor
-	~Server();
+	~Listener();
 
 	// operator overload
-	Server &operator=(const Server &);
+	Listener &operator=(const Listener &);
 
 	// member functions
-	void	init();
 
 	ClientSocket *addNewConnection();
-	void setupClient(ClientSocket *clientSocket);
 
-	int getServerSocket();
+	int getSocket() const;
 
 	Response *process(ClientSocket *socket);
 
 private:
+	Listener();
 	// member functions
-	void handleARequestException(ARequest::ARequestException &, Response *);
-	void initializeServerSocket();
-	void setServerSocketOptions(sockaddr_in *serverAddress);
-	void listenOnServerSocket();
-	void bindServerSocket(sockaddr_in serverAddress);
+	static void handleARequestException(ARequest::ARequestException &, Response *);
+	void initializeSocket();
+	void setSocketOptions(sockaddr_in *serverAddress) const;
+	void bindSocket(sockaddr_in serverAddress) const;
+	void listen();
 
 
 	// member variables
 	int			_port;
-	int			_serverSocket;
+	int			_socket;
 	int			_maxFd;
 
 	fd_set		_readSet;
 	fd_set		_writeSet;
 
-	std::string	_errorPath;
-
-	std::map<std::string, Location>	_locationMap;
+	std::map<std::string, t_serverConfig> _serverConfigMap;
 };
 
 #endif

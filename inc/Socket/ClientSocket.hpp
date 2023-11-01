@@ -18,7 +18,7 @@
 # include <map>
 # include <sys/socket.h>
 # include <unistd.h>
-# include "Location/Location.hpp"
+# include "Parser/Parser.hpp"
 
 # define BUFFER_SIZE 1024
 
@@ -28,7 +28,7 @@ class ClientSocket {
 public:
 	// constructors
 	ClientSocket();
-	ClientSocket(int socketFd);
+	ClientSocket(int socketFd, std::map<std::string, t_serverConfig> &serverConfigMap);
 	ClientSocket(const ClientSocket &);
 
 	// destructor
@@ -38,51 +38,33 @@ public:
 	ClientSocket &operator=(const ClientSocket &);
 
 	// getter functions
-	int getSocketFd() const;
-	std::string getAllowedHTTPVersion() const;
-	std::string getAllowedMethods() const;
-	std::string getRawRequest() const;
-	std::string getErrorFolder() const;
-	std::string getServerName() const;
-	time_t getConnectionTime() const;
-	Response *getResponse() const;
-	std::map<std::string, Location> *getLocationMap() const;
-    int getServerFd();
+	int										getSocketFd() const;
+	std::string								getRawRequest() const;
+	time_t									getConnectionTime() const;
+	Response								*getResponse() const;
+	std::map<std::string, t_serverConfig>	getServerConfigMap() const;
 
 	// setter functions
-	void setRawRequest(const std::string &rawRequest);
-	void setAllowedHTTPVersion(const std::string &allowedHTTPVersion);
-	void setAllowedMethods(const std::string &allowedMethods);
-	void addToAllowedMethods(const std::string &allowedMethods);
-	void setErrorFolder(const std::string &errorFolder);
-    void setServerName(const std::string &serverName);
-	void setResponse(Response* response);
-    void setConnectionTime(const time_t &connectionTime);
-	void setLocationMap(std::map<std::string, Location> *locationMap);
-    void setServerFd(int i);
+	void			setRawRequest(const std::string &rawRequest);
+	void			setResponse(Response* response);
+	void			setConnectionTime(const time_t &connectionTime);
 
 	// member functions
-	void sendResponse();
-	ssize_t readRequest();
-	void closeSocket() const;
-	bool isCompleteRequest() const;
-
-
+	void			sendResponse();
+	ssize_t			readRequest();
+	void			closeSocket() const;
+	bool			isCompleteRequest() const;
+	t_serverConfig	parseServerConfig();
 
 private:
-	int								_socketFd;
-	int 							_serverFd;
+	int										_socketFd;
+	time_t									_connectionTime;
 
-	std::string						_allowedHTTPVersion;
-	std::string						_allowedMethods;
-	std::string						_rawRequest;
-	std::string						_errorFolder;
-	std::string						_serverName;
+	std::string								_rawRequest;
 
-	std::map<std::string, Location>	*_locationMap;
-	Response						*_response;
+	std::map<std::string, t_serverConfig>	_serverConfigMap;
+	Response								*_response;
 
-	time_t							_connectionTime;
 };
 
 #endif

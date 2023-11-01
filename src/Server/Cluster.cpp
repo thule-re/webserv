@@ -10,9 +10,7 @@
 /*                                                                            */
 /* ************************************************************************** */
 
-#include "../../inc/Server/Cluster.hpp"
-
-
+#include "Server/Cluster.hpp"
 
 Cluster::Cluster() {
 	_maxFd = 0;
@@ -20,28 +18,36 @@ Cluster::Cluster() {
 	FD_ZERO(&_writeSet);
 }
 
-Cluster::Cluster(std::vector<Config> &configs)
+Cluster::Cluster(std::map<int, std::map<std::string, t_serverConfig> > configMap)
 {
 	_maxFd = 0;
 	FD_ZERO(&_readSet);
 	FD_ZERO(&_writeSet);
 
-	for (size_t i = 0; i < configs.size(); i++)
+	for (std::map<int, std::map<std::string, t_serverConfig> >::iterator it = configMap.begin(); it != configMap.end(); it++)
 	{
-		initializeServer(configs[i]);
+		Listener *listener = new Listener(it->first, it->second);
+		int socket = listener->getSocket();
+
+		_listenerMap[socket] = listener;
+		if (socket > _maxFd)
+			_maxFd = socket;
+
+		FD_SET(socket, &_readSet);
 	}
 }
 
-Cluster::Cluster(const Cluster &) {
-
+Cluster::Cluster(const Cluster &other) : _readSet(), _writeSet(), _readSetCopy(), _writeSetCopy(), _maxFd() {
+	*this = other;
 }
 
 Cluster::~Cluster() {
-
+	for (std::map<int, Listener *>::iterator it = _listenerMap.begin(); it != _listenerMap.end(); it++)
+		delete it->second;
 }
 
 Cluster &Cluster::operator=(const Cluster &other) {
-	_serverMap = other._serverMap;
+	_listenerMap = other._listenerMap;
 	_clientsMap = other._clientsMap;
 
 	_readSet = other._readSet;
@@ -54,20 +60,6 @@ Cluster &Cluster::operator=(const Cluster &other) {
 	return *this;
 }
 
-void Cluster::initializeServer(Config &config) {
-	Server server(config);
-
-	server.init();
-	int socket = server.getServerSocket();
-
-	_serverMap[socket] = server;
-
-	if (socket > _maxFd)
-		_maxFd = socket;
-
-	FD_SET(socket, &_readSet);
-}
-
 void Cluster::loop() {
 	while (true)
 	{
@@ -76,7 +68,7 @@ void Cluster::loop() {
 			for (int fd = 0; fd <= _maxFd + 1; fd++)
 			{
 				if (FD_ISSET(fd, &_readSetCopy)) {
-					if(_serverMap.count(fd))
+					if(_listenerMap.count(fd))
 						addConnectionToServer(fd);
 					else
 						readRequestFromClient(fd);
@@ -109,40 +101,39 @@ void Cluster::selectClientSockets()
 	}
 }
 
-void Cluster::addConnectionToServer(int serverFd) {
-	ClientSocket *clientSocket = _serverMap[serverFd].addNewConnection();
-	int socketFd = clientSocket->getSocketFd();
-	FD_SET(socketFd, &_readSet);
-	if (socketFd > _maxFd)
-		_maxFd = socketFd;
+void Cluster::addConnectionToServer(int socket) {
+	ClientSocket *clientSocket = _listenerMap[socket]->addNewConnection();
+	int clientSocketFD = clientSocket->getSocketFd();
+	FD_SET(clientSocketFD, &_readSet);
+	if (clientSocketFD > _maxFd)
+		_maxFd = clientSocketFD;
 	addClientToMap(clientSocket);
 }
 
 
-void Cluster::addClientToMap(ClientSocket *clientSocket) {
-	int socketFd = clientSocket->getSocketFd();
+void Cluster::addClientToMap(ClientSocket *client) {
+	int socketFd = client->getSocketFd();
 
 	if (_clientsMap.count(socketFd) != 0)
 		_clientsMap.erase(socketFd);
 
-	_clientsMap[socketFd] = clientSocket;
+	_clientsMap[socketFd] = client;
 	_clientsMap[socketFd]->setConnectionTime(std::time(NULL));
 }
 
-void Cluster::readRequestFromClient(int socketFd) {
-	int clientServer = _clientsMap[socketFd]->getServerFd();
-	ClientSocket *socket = _clientsMap[socketFd];
-	_serverMap[clientServer].setupClient(socket);
-	_clientsMap[socketFd]->setConnectionTime(std::time(NULL));
+void Cluster::readRequestFromClient(int clientFd) {
+	int listenerFd = _clientsMap[clientFd]->getSocketFd();
+	ClientSocket *client = _clientsMap[clientFd];
+	_clientsMap[listenerFd]->setConnectionTime(std::time(NULL));
 	// addClientToMap(socket);
 
-	ssize_t bytesReceived = socket->readRequest();
-	if (bytesReceived < BUFFER_SIZE || socket->isCompleteRequest())
+	ssize_t bytesReceived = client->readRequest();
+	if (bytesReceived < BUFFER_SIZE || client->isCompleteRequest())
 	{
-		FD_CLR(socketFd, &_readSet);
-		FD_SET(socketFd, &_writeSet);
-		Response *r = _serverMap[clientServer].process(socket);
-		socket->setResponse(r);
+		FD_CLR(listenerFd, &_readSet);
+		FD_SET(listenerFd, &_writeSet);
+		Response *r = _listenerMap[listenerFd]->process(client);
+		client->setResponse(r);
 	}
 }
 
@@ -156,14 +147,14 @@ void Cluster::handleLoopException(std::exception &exception) {
 	std::cerr << exception.what() << std::endl;
 }
 
-void Cluster::closeConnection(ClientSocket *socket)
+void Cluster::closeConnection(ClientSocket *client)
 {
-	int socketFd = socket->getSocketFd();
+	int socketFd = client->getSocketFd();
 	if (FD_ISSET(socketFd, &_readSet))
 		FD_CLR(socketFd, &_readSet);
 	if (FD_ISSET(socketFd, &_writeSet))
 		FD_CLR(socketFd, &_writeSet);
-	socket->closeSocket();
-	delete socket;
+	client->closeSocket();
+	delete client;
 }
 

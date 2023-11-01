@@ -52,7 +52,7 @@
 # define EXPECTATION_FAILED 417
 # define IM_A_TEAPOT 418
 
-// 5xx Server Error
+// 5xx Listener Error
 # define INTERNAL_SERVER_ERROR 500
 # define NOT_IMPLEMENTED 501
 # define BAD_GATEWAY 502
@@ -99,8 +99,8 @@
 # define MSG_417 "Expectation Failed"
 # define MSG_418 "I'm a teapot"
 
-// 5xx Server Error
-# define MSG_500 "Internal Server Error"
+// 5xx Listener Error
+# define MSG_500 "Internal Listener Error"
 # define MSG_501 "Not Implemented"
 # define MSG_502 "Bad Gateway"
 # define MSG_503 "Service Unavailable"
