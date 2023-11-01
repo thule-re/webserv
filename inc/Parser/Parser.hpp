@@ -96,6 +96,11 @@ class Parser {
 		public:
 			virtual const char* what() const throw();
 		};
+		class InvalidPortException : public std::exception {
+		public:
+			virtual const char* what() const throw();
+		};
+
 		// member functions
 		std::map<int, std::map<std::string, t_serverConfig> >&	getConfigMap();
 
@@ -116,11 +121,10 @@ class Parser {
 		static void	extractMaxFileSize(std::string &rawConfig);
 
 		// server parsing
-		static void	extractServerBlocks(std::vector<std::string> &serverBlocks,
+		static void			extractServerBlocks(std::vector<std::string> &serverBlocks,
 										const std::string &rawConfig);
-		void		populateServerConfig(t_serverConfig &server, std::string &serverBlock);
-		static void	setServerValue(int num, std::string &value,
-									t_serverConfig &serverConfig, std::string &serverBlock);
+		void				populateServerConfig(t_serverConfig &server, std::string &serverBlock);
+		static std::string	extractServerValue(int num, std::string key, std::string &serverBlock);
 
 		// location parsing
 		void				setLocations(t_serverConfig &serverConfig, const std::string &configBlock);

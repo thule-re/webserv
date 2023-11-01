@@ -20,8 +20,6 @@ Parser::Parser(const std::string &pathToConfig) {
 	readConfigFile(pathToConfig, fileContent);
 	removeComments(fileContent);
 	parseGlobalVars(fileContent);
-	// todo: delete next line if working;
-	std::cout << "timeout: " << g_timeout << " maxClients: " << g_maxClients << " maxFileSize: " << g_maxFileSize;
 	parseServerConfigs(fileContent);
 	// todo: Some test maybe idk.
 	// checkForDuplicatePorts();
@@ -85,7 +83,7 @@ std::string	getValStr(const int& key) {
 }
 
 const char *Parser::ValueMissingException::what() const throw() {
-	std::string	retString = "No value found for: " + getValStr(_key);
+	std::string	retString = "Error: No value found for: " + getValStr(_key);
 	const char	*retStringC = retString.c_str();
 	return (retStringC);
 }
@@ -96,6 +94,10 @@ const char *Parser::MissingSemicolonException::what() const throw() {
 
 const char *Parser::InvalidLocationException::what() const throw() {
 	return ("Error: No, empty or invalid location block in config.");
+}
+
+const char *Parser::InvalidPortException::what() const throw() {
+	return ("Error: Port value out of acceptable range or missing.");
 }
 
 //getters
@@ -180,13 +182,26 @@ void	Parser::parseServerConfigs(std::string &rawConfig) {
 		if (i == 0) {
 			t_serverConfig	defaultServerConfig;
 			populateServerConfig(defaultServerConfig, serverBlocks[i]);
+			// todo: take out when working
 			defaultServerConfig.serverName = "default";
 			_configMap[defaultServerConfig.port][defaultServerConfig.serverName] = defaultServerConfig;
+			std::cout << "default Config: " << std::endl;
+			std::cout << "port: " << _configMap[defaultServerConfig.port][defaultServerConfig.serverName].port << std::endl;
+			std::cout << "serverName: " << _configMap[defaultServerConfig.port][defaultServerConfig.serverName].serverName << std::endl;
+			std::cout << "errorDir: " << _configMap[defaultServerConfig.port][defaultServerConfig.serverName].errorDir << std::endl;
+			std::cout << std::endl;
 		}
 		t_serverConfig	serverConfig;
 		populateServerConfig(serverConfig, serverBlocks[i]);
-		if (_configMap[serverConfig.port].count(serverConfig.serverName))
+		std::cout << "other Configs: " << std::endl;
+		std::cout << "port: " << serverConfig.port << std::endl;
+		std::cout << "serverName: " << serverConfig.serverName << std::endl;
+		std::cout << "errorDir: " << serverConfig.errorDir << std::endl;
+		std::cout << "count: " << _configMap[serverConfig.port].count(serverConfig.serverName) << std::endl;
+		std::cout << "server name in config: " << _configMap[serverConfig.port][serverConfig.serverName].serverName << std::endl;
+		if (_configMap[serverConfig.port].count("test.com")) {
 			throw DuplicateServerNameException();
+		}
 		else
 			_configMap[serverConfig.port][serverConfig.serverName] = serverConfig;
 	}
@@ -206,28 +221,35 @@ void	Parser::extractServerBlocks(std::vector<std::string> &serverBlocks, const s
 }
 
 void	Parser::populateServerConfig(t_serverConfig &serverConfig, std::string &serverBlock) {
-	setServerValue(SERVERNAME, (std::string &) "serverName:", serverConfig, serverBlock);
-	setServerValue(PORT, (std::string &) "port:", serverConfig, serverBlock);
-	setServerValue(ERRORDIR, (std::string &) "errorDir:", serverConfig, serverBlock);
+	serverConfig.serverName = extractServerValue(SERVERNAME, "serverName:", serverBlock);
+	serverConfig.errorDir = extractServerValue(ERRORDIR, "errorDir:", serverBlock);
+	serverConfig.port = atoi(extractServerValue(PORT, "port:", serverBlock).c_str());
+	if (serverConfig.port < 0 || serverConfig.port > 10000)
+		throw InvalidPortException();
 	setLocations(serverConfig, serverBlock);
 }
 
-void Parser::setServerValue(int num, std::string &value, t_serverConfig &serverConfig, std::string &serverBlock) {
+std::string Parser::extractServerValue(int num, std::string key, std::string &serverBlock) {
 	size_t		valStart;
 	size_t		valEnd;
+	std::string	value;
 
-	if (serverBlock.find(value) == std::string::npos)
+	if (serverBlock.find(key) == std::string::npos)
 		throw ValueMissingException(num);
 	else
-		valStart = serverBlock.find(value);
+		valStart = serverBlock.find(key);
 	valStart = serverBlock.find(':', valStart) + 2;
 	valEnd = valStart;
 	while (valEnd < serverBlock.length() && serverBlock[valEnd + 1] != ';'
 		   && serverBlock[valEnd + 1] != '\n')
 		valEnd++;
-	if (serverBlock[valEnd] == '\n')
+	value = serverBlock.substr(valStart, (valEnd - valStart + 1));
+	if (value.empty())
+		throw InvalidConfigException();
+	if (serverBlock[valEnd] == '\n') {
 		throw MissingSemicolonException();
-	serverConfig.serverName = serverBlock.substr(valStart, (valEnd - valStart + 1));
+	}
+	return (value);
 }
 
 void	Parser::setLocations(t_serverConfig &serverConfig, const std::string &configBlock) {
@@ -279,8 +301,6 @@ std::string	Parser::extractPath(const std::string &locationBlock) {
 		return ("");
 	size_t start = locationBlock.find("location") + 9;
 	size_t end = locationBlock.find('{', start);
-	if (locationBlock.find('\n', start) < locationBlock.find(';', start))
-		throw MissingSemicolonException();
 	std::string value = locationBlock.substr(start, end - start - 1);
 	return (value);
 }
