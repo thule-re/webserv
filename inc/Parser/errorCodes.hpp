@@ -15,7 +15,6 @@
 
 #define PORT			1
 #define SERVERNAME		2
-#define HTML			3
-#define METHODS			4
+#define ERRORDIR		3
 
 #endif

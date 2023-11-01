@@ -23,7 +23,8 @@ Parser::Parser(const std::string &pathToConfig) {
 	// todo: delete next line if working;
 	std::cout << "timeout: " << g_timeout << " maxClients: " << g_maxClients << " maxFileSize: " << g_maxFileSize;
 	parseServerConfigs(fileContent);
-	checkForDuplicatePorts();
+	// todo: Some test maybe idk.
+	// checkForDuplicatePorts();
 }
 
 Parser::Parser(const Parser &other) {
@@ -52,11 +53,49 @@ const char *Parser::EmptyConfigFileException::what() const throw() {
 }
 
 const char *Parser::DuplicateServerNameException::what() const throw() {
-	return ("Error: Parser detected duplicate config.");
+	return ("Error: Parser detected duplicate config block.");
 }
 
 const char *Parser::InvalidGlobalValueException::what() const throw() {
 	return ("Error: Global value out of range or otherwise invalid.");
+}
+
+const char *Parser::InvalidConfigException::what() const throw() {
+	return ("Error: Config for at least one server is incomplete.");
+}
+
+const char *Parser::MissingClosingBracketException::what() const throw() {
+	return ("Error: Missing closing brackets for location in config file.");
+}
+
+Parser::ValueMissingException::ValueMissingException(const int &missingKey)
+		: _key(missingKey) {}
+
+std::string	getValStr(const int& key) {
+	switch (key) {
+		case SERVERNAME:
+			return "serverName";
+		case PORT:
+			return "port";
+		case ERRORDIR:
+			return ("ErrorDir");
+		default:
+			return "unspecificConfigValue";
+	}
+}
+
+const char *Parser::ValueMissingException::what() const throw() {
+	std::string	retString = "No value found for: " + getValStr(_key);
+	const char	*retStringC = retString.c_str();
+	return (retStringC);
+}
+
+const char *Parser::MissingSemicolonException::what() const throw() {
+	return ("Error: Missing semicolon in config.");
+}
+
+const char *Parser::InvalidLocationException::what() const throw() {
+	return ("Error: No, empty or invalid location block in config.");
 }
 
 //getters
@@ -105,7 +144,7 @@ void	Parser::extractTimeout(std::string &rawConfig) {
 
 	std::string timeoutStr = rawConfig.substr(start, end - start);
 	g_timeout = atoi(timeoutStr.c_str());
-	if (g_timeout < 1 || g_timeout > 1000)
+	if (g_timeout < 1 || g_timeout > 60)
 		throw InvalidGlobalValueException();
 }
 
@@ -117,7 +156,7 @@ void	Parser::extractMaxClients(std::string &rawConfig) {
 
 	std::string maxClientsStr = rawConfig.substr(start, end - start);
 	g_maxClients = atoi(maxClientsStr.c_str());
-	if (g_maxClients < 1 || g_maxClients > 100000)
+	if (g_maxClients < 1 || g_maxClients > 1000)
 		throw InvalidGlobalValueException();
 }
 
@@ -129,7 +168,7 @@ void	Parser::extractMaxFileSize(std::string &rawConfig) {
 
 	std::string maxFileSize = rawConfig.substr(start, end - start);
 	g_maxFileSize = atoi(maxFileSize.c_str());
-	if (g_maxFileSize < 1 || g_maxFileSize > 2000000)
+	if (g_maxFileSize < 1 || g_maxFileSize > 100000)
 		throw InvalidGlobalValueException();
 }
 
@@ -139,20 +178,18 @@ void	Parser::parseServerConfigs(std::string &rawConfig) {
 	extractServerBlocks(serverBlocks, rawConfig);
 	for (size_t i = 0; i < serverBlocks.size(); i++) {
 		if (i == 0) {
-			t_serverConfig defaultServer;
-			populateServer(defaultServer, serverBlocks[i]);
-			_configMap[serverConfig.port][serverConfig.serverName] = serverConfig;
+			t_serverConfig	defaultServerConfig;
+			populateServerConfig(defaultServerConfig, serverBlocks[i]);
+			defaultServerConfig.serverName = "default";
+			_configMap[defaultServerConfig.port][defaultServerConfig.serverName] = defaultServerConfig;
 		}
 		t_serverConfig	serverConfig;
-		populateServer(serverConfig, serverBlocks[i]);
+		populateServerConfig(serverConfig, serverBlocks[i]);
 		if (_configMap[serverConfig.port].count(serverConfig.serverName))
 			throw DuplicateServerNameException();
-		_configMap[serverConfig.port][serverConfig.serverName] = serverConfig;
+		else
+			_configMap[serverConfig.port][serverConfig.serverName] = serverConfig;
 	}
-}
-
-void	Parser::populateServer(t_serverConfig &server, std::string &serverBlock) {
-
 }
 
 void	Parser::extractServerBlocks(std::vector<std::string> &serverBlocks, const std::string &rawConfig) {
@@ -161,20 +198,115 @@ void	Parser::extractServerBlocks(std::vector<std::string> &serverBlocks, const s
 		serverBlocks.push_back(rawConfig.substr(start, end - start));
 		start = end + 10;
 		while ((start < rawConfig.length()) && (rawConfig[start] == ' '
-				|| rawConfig[start] == '\n'))
+												|| rawConfig[start] == '\n'))
 			start++;
+	}
+	if (serverBlocks.empty())
+		throw InvalidConfigException();
+}
+
+void	Parser::populateServerConfig(t_serverConfig &serverConfig, std::string &serverBlock) {
+	setServerValue(SERVERNAME, (std::string &) "serverName:", serverConfig, serverBlock);
+	setServerValue(PORT, (std::string &) "port:", serverConfig, serverBlock);
+	setServerValue(ERRORDIR, (std::string &) "errorDir:", serverConfig, serverBlock);
+	setLocations(serverConfig, serverBlock);
+}
+
+void Parser::setServerValue(int num, std::string &value, t_serverConfig &serverConfig, std::string &serverBlock) {
+	size_t		valStart;
+	size_t		valEnd;
+
+	if (serverBlock.find(value) == std::string::npos)
+		throw ValueMissingException(num);
+	else
+		valStart = serverBlock.find(value);
+	valStart = serverBlock.find(':', valStart) + 2;
+	valEnd = valStart;
+	while (valEnd < serverBlock.length() && serverBlock[valEnd + 1] != ';'
+		   && serverBlock[valEnd + 1] != '\n')
+		valEnd++;
+	if (serverBlock[valEnd] == '\n')
+		throw MissingSemicolonException();
+	serverConfig.serverName = serverBlock.substr(valStart, (valEnd - valStart + 1));
+}
+
+void	Parser::setLocations(t_serverConfig &serverConfig, const std::string &configBlock) {
+	std::vector<std::string>	locationBlocks;
+
+	splitLocationBlocks(locationBlocks, configBlock);
+	if (locationBlocks.empty())
+		throw InvalidLocationException();
+	for (size_t i = 0; i < locationBlocks.size(); i++) {
+		t_locationConfig	locationConfig;
+		populateLocationConfig(locationConfig, locationBlocks[i]);
+		_configMap[serverConfig.port][serverConfig.serverName].locationMap[locationConfig.path] = locationConfig;
 	}
 }
 
-//
-//void	Parser::checkForDuplicatePorts() {
-//	std::vector<std::string> uniquePorts;
-//	for (size_t i = 0; i < _configArr.size(); i++) {
-//		std::string port = _configArr[i].getMap()["port"];
-//		for (size_t j = 0; j < uniquePorts.size(); j++) {
-//			if (port == uniquePorts[j])
-//				throw DuplicateConfigException();
-//		}
-//		uniquePorts.push_back(port);
-//	}
-//}
+void	Parser::splitLocationBlocks(std::vector<std::string> &locationBlocks,
+									const std::string &configBlock) {
+	size_t	blockEnd = 0;
+	size_t	blockStart = configBlock.find("location", blockEnd);
+	size_t	numLocBlocks = 0;
+
+	while (blockStart < configBlock.length() && blockEnd < configBlock.length()) {
+		if (configBlock.find('}', blockStart) == std::string::npos ||
+			configBlock.find('}', blockStart) >
+			configBlock.find("location", blockStart + 9)) {
+			throw (MissingClosingBracketException());
+		}
+		blockEnd = configBlock.find('}', blockStart);
+		locationBlocks.push_back(configBlock.substr(blockStart,
+											   (blockEnd - blockStart + 1)));
+		blockStart = configBlock.find("location", blockEnd);
+		numLocBlocks++;
+	}
+}
+
+void	Parser::populateLocationConfig(t_locationConfig &locationConfig, std::string &locationBlock) {
+	locationConfig.path = extractPath(locationBlock);
+	locationConfig.autoIndex = extractAutoIndex(locationBlock);
+	locationConfig.root = extractLocationVariable("root:", locationBlock);
+	locationConfig.index = extractLocationVariable("index:", locationBlock);
+	locationConfig.cgiExtension = extractLocationVariable("cgiExtension:", locationBlock);
+	locationConfig.upload = extractLocationVariable("uploadDir:", locationBlock);
+	locationConfig.redirect = extractLocationVariable("httpRedir:", locationBlock);
+	locationConfig.allowedMethods = extractLocationVariable("methods:", locationBlock);
+}
+
+std::string	Parser::extractPath(const std::string &locationBlock) {
+	if (locationBlock.find("location") == std::string::npos)
+		return ("");
+	size_t start = locationBlock.find("location") + 9;
+	size_t end = locationBlock.find('{', start);
+	if (locationBlock.find('\n', start) < locationBlock.find(';', start))
+		throw MissingSemicolonException();
+	std::string value = locationBlock.substr(start, end - start - 1);
+	return (value);
+}
+
+std::string	Parser::extractLocationVariable(const std::string &variable, const std::string &locationBlock) {
+	if (locationBlock.find(variable) == std::string::npos)
+		return ("");
+	size_t start = locationBlock.find(variable) + variable.size();
+	size_t end = locationBlock.find(';', start);
+	if (locationBlock.find('\n', start) < locationBlock.find(';', start))
+		throw MissingSemicolonException();
+	std::string value = locationBlock.substr(start, end - start);
+	return (value);
+}
+
+bool	Parser::extractAutoIndex(const std::string &locationBlock) {
+	if (locationBlock.find("AutoIndex:") == std::string::npos) {
+		return ("");
+	}
+	size_t start = locationBlock.find("AutoIndex:") + 11;
+	size_t end = locationBlock.find(';', start);
+	if (locationBlock.find('\n', start) < locationBlock.find(';', start))
+		throw MissingSemicolonException();
+	std::string value = locationBlock.substr(start, end - start);
+	if (value == "1" || value == "on" || value == "true")
+		return (true);
+	else
+		return (false);
+}
