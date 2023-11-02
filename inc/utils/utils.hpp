@@ -17,6 +17,8 @@
 # include <string>
 # include <sstream>
 # include "Response/responseCodes.hpp"
+# include "Parser/Parser.hpp"
+# include "Parser/configStructs.hpp"
 
 # define HTTP_VERSION "HTTP/1.1"
 # define METHOD_GET "GET"
@@ -31,6 +33,8 @@ std::string readFile(std::ifstream &file);
 std::string readFile(const std::string &path);
 std::string getContentType(const std::string& path);
 std::string getHTTPErrorMessages(int statusCode);
+
+void	printServerConfigMap(std::map<int, std::map<std::string, t_serverConfig> > &configMap);
 
 // template functions
 template<typename T> std::string toString(const T& value);

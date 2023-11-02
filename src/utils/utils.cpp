@@ -6,7 +6,7 @@
 /*   By: treeps <treeps@student.42wolfsburg.de>     +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2023/08/21 19:20:33 by treeps            #+#    #+#             */
-/*   Updated: 2023/08/21 19:20:33 by treeps           ###   ########.fr       */
+/*   Updated: 2023/11/02 10:54:35 by mtrautne         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -106,5 +106,54 @@ std::string getHTTPErrorMessages(int statusCode) {
 		case HTTP_VERSION_NOT_SUPPORTED:		return MSG_505;
 
 		default: return "Unknown HTTP Error";
+	}
+}
+
+void	printServerConfigMap(std::map<int, std::map<std::string, t_serverConfig> > &configMap) {
+	std::map<int, std::map<std::string, t_serverConfig> >::iterator		portIt; // Iterator for all elements on port level
+
+	// iterates over ports
+	int	portNum = 0;
+	for (portIt = configMap.begin(); portIt != configMap.end(); portIt++) {
+		int port = portIt->first;
+		std::cout << BLUE "###___portID: " << portNum << ", port: |" << port << "|___###" RESET << std::endl;
+
+		// iterates over individual servers
+		std::map<std::string, t_serverConfig>& serverConfigsMap = portIt->second;
+		std::map<std::string, t_serverConfig>::iterator serverConfigsIt;
+		int	serverNum = 0;
+		for (serverConfigsIt = serverConfigsMap.begin(); serverConfigsIt != serverConfigsMap.end(); serverConfigsIt++) {
+			std::string serverName = serverConfigsIt->first;
+			t_serverConfig &ServerConfig = serverConfigsIt->second;
+			std::cout << YELLOW "$$$___portID: " << portNum << ", serverID: " << serverNum << ", server: |"
+			<< serverName << "|___$$$" RESET << std::endl;
+			std::cout << YELLOW "serverName: |" << ServerConfig.serverName << "|" RESET << std::endl;
+			std::cout << YELLOW "port: |" << ServerConfig.port << "|" RESET << std::endl;
+			std::cout << YELLOW "errorDir: |" << ServerConfig.errorDir << "|" RESET << std::endl;
+			std::cout << YELLOW "$$$_____________________________________________$$$" RESET << std::endl;
+
+			// iterates over locations
+			std::map<std::string, t_locationConfig>& locationMap = ServerConfig.locationMap;
+			std::map<std::string, t_locationConfig>::iterator	locationConfigsIt;
+			int	locationNum = 0;
+			for (locationConfigsIt = locationMap.begin(); locationConfigsIt != locationMap.end(); locationConfigsIt++) {
+				std::string locationPath = locationConfigsIt->first;
+				t_locationConfig &locationConfig = locationConfigsIt->second;
+				std::cout << GREEN "///___portID: " << portNum << ", serverID: " << serverNum
+				<< ", serverID: |" << serverName << "|, locationID: " << locationNum << ", locationMapKey: |"
+				<< locationPath << "|---///" RESET << std::endl;
+				std::cout << "path: |" << locationConfig.path << "|" << std::endl;
+				std::cout << "root: |" << locationConfig.root << "|" << std::endl;
+				std::cout << "index: |" << locationConfig.index << "|" << std::endl;
+				std::cout << "cgiExtension: |" << locationConfig.cgiExtension << "|" << std::endl;
+				std::cout << "upload: |" << locationConfig.upload << "|" << std::endl;
+				std::cout << "redirect: |" << locationConfig.redirect << "|" << std::endl;
+				std::cout << "allowedMethods: |" << locationConfig.allowedMethods << "|" << std::endl;
+				std::cout << "autoIndex: |" << locationConfig.autoIndex << "|" << std::endl;
+				locationNum++;
+			}
+		serverNum++;
+		}
+	portNum++;
 	}
 }

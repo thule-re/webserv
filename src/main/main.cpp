@@ -12,6 +12,7 @@
 
 #include "Server/Cluster.hpp"
 #include "Parser/Parser.hpp"
+#include "utils/utils.hpp"
 
 int	g_maxClients = 1000;
 int	g_timeout = 1;
@@ -26,8 +27,8 @@ int main(int argc, char **argv) {
 	try {
 		Parser parser(pathToConfigFile);
 
-//		Cluster cluster(parser.getConfigArr());
-//		cluster.loop();
+		Cluster cluster(parser.getConfigMap());
+		cluster.loop();
 	}
 	catch (std::exception &e) {
 		std::cout << e.what() << std::endl;

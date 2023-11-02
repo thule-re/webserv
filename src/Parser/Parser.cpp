@@ -21,6 +21,7 @@ Parser::Parser(const std::string &pathToConfig) {
 	removeComments(fileContent);
 	parseGlobalVars(fileContent);
 	parseServerConfigs(fileContent);
+	printServerConfigMap(_configMap);
 	// todo: Some test maybe idk.
 	// checkForDuplicatePorts();
 }
@@ -198,7 +199,7 @@ void	Parser::parseServerConfigs(std::string &rawConfig) {
 //		std::cout << "errorDir: " << serverConfig.errorDir << std::endl;
 //		std::cout << "count: " << _configMap[serverConfig.port].count(serverConfig.serverName) << std::endl;
 //		std::cout << "server name in config: " << _configMap[serverConfig.port][serverConfig.serverName].serverName << std::endl;
-		if (_configMap[serverConfig.port].count(serverConfig.serverName) > 1) {
+		if (_configMap[serverConfig.port].count(serverConfig.serverName) > 0) {
 			throw DuplicateServerNameException();
 		}
 		else
@@ -260,7 +261,7 @@ void	Parser::setLocations(t_serverConfig &serverConfig, const std::string &confi
 	for (size_t i = 0; i < locationBlocks.size(); i++) {
 		t_locationConfig	locationConfig;
 		populateLocationConfig(locationConfig, locationBlocks[i]);
-		_configMap[serverConfig.port][serverConfig.serverName].locationMap[locationConfig.path] = locationConfig;
+		serverConfig.locationMap[locationConfig.path] = locationConfig;
 	}
 }
 

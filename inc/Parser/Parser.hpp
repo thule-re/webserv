@@ -20,29 +20,12 @@
 # include <cstdlib>
 # include <map>
 # include "Parser/errorCodes.hpp"
+# include "Parser/configStructs.hpp"
+# include "utils/utils.hpp"
 
 extern int	g_maxClients;
 extern int	g_timeout;
 extern int	g_maxFileSize;
-
-
-typedef struct s_locationConfig {
-	std::string	path;
-	std::string	root;
-	std::string	index;
-	std::string	cgiExtension;
-	std::string	upload;
-	std::string	redirect;
-	std::string	allowedMethods;
-	bool		autoIndex;
-}	t_locationConfig;
-
-typedef struct s_serverConfig {
-	int										port;
-	std::string								serverName;
-	std::string								errorDir;
-	std::map<std::string, t_locationConfig>	locationMap;
-}	t_serverConfig;
 
 class Parser {
 	public:

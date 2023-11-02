@@ -44,6 +44,7 @@ HEADER		=	Header/AHeader \
 				Header/ResponseHeader \
 				Listener/Listener \
 				Parser/Parser \
+				Parser/configStructs \
 				Request/ARequest \
 				Request/CgiRequest \
 				Request/DELETERequest \
