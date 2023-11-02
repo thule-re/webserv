@@ -183,12 +183,13 @@ void	Parser::parseServerConfigs(std::string &rawConfig) {
 
 	extractServerBlocks(serverBlocks, rawConfig);
 	for (size_t i = 0; i < serverBlocks.size(); i++) {
-		if (i == 0) {
-			t_serverConfig	defaultServerConfig;
-			populateServerConfig(defaultServerConfig, serverBlocks[i]);
-			defaultServerConfig.serverName = "default";
+
+		t_serverConfig	defaultServerConfig;
+		populateServerConfig(defaultServerConfig, serverBlocks[i]);
+		defaultServerConfig.serverName = "default";
+		if (!_configMap.count(defaultServerConfig.port))
 			_configMap[defaultServerConfig.port][defaultServerConfig.serverName] = defaultServerConfig;
-		}
+
 		t_serverConfig	serverConfig;
 		populateServerConfig(serverConfig, serverBlocks[i]);
 		if (_configMap[serverConfig.port].count(serverConfig.serverName) > 0) {
