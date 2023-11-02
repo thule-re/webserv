@@ -115,7 +115,7 @@ std::map<std::string, t_serverConfig> ClientSocket::getServerConfigMap() const{
 
 t_serverConfig ClientSocket::parseServerConfig() {
 	RequestHeader header(_rawRequest.substr(0, _rawRequest.find(CRLF CRLF)));
-	std::string host = header["Host"];
+	std::string host = header["Host"].substr(0, header["Host"].find(':'));
 	if (_serverConfigMap.count(host))
 		return (_serverConfigMap[host]);
 	return (_serverConfigMap["default"]);

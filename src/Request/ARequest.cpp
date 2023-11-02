@@ -57,8 +57,9 @@ ARequest *ARequest::newRequest(ClientSocket *client) {
 	RequestHeader header(request.substr(0, request.find(CRLF CRLF)));
 	std::map<std::string, t_serverConfig> serverConfigMap = client->getServerConfigMap();
 	t_serverConfig serverConfig = serverConfigMap["default"];
-	if (serverConfigMap.count(header["Host"]))
-		serverConfig = serverConfigMap[header["Host"]];
+	std::string host = header["Host"].substr(0, header["Host"].find(':'));
+	if (serverConfigMap.count(host))
+		serverConfig = serverConfigMap[host];
 	t_locationConfig locationConfig = _findLocation(serverConfig, header["Path"]);
 	if (header["Method"].empty() || header["Path"].empty() || header["HTTP-Version"].empty())
 		throw ARequest::ARequestException(BAD_REQUEST);
@@ -115,7 +116,7 @@ t_locationConfig ARequest::_findLocation(const t_serverConfig& serverConfig, std
 void ARequest::_expandPath() {
 	std::string path = _header["Path"];
 	if (path.find(_location.path) == 0)
-		path.replace(path.find(_location.path), _location.path.length(), _location.root);
+		path.replace(0, _location.path.length(), _location.root + "/");
 	if (path[path.length() - 1] == '/' && path.length() > 1)
 		path = path.substr(0, path.length() - 1);
 	if (_isDirectory(path) && !_location.index.empty())
