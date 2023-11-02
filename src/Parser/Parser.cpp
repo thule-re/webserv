@@ -146,6 +146,7 @@ void	Parser::extractTimeout(std::string &rawConfig) {
 	size_t end = rawConfig.find(";\n", start);
 
 	std::string timeoutStr = rawConfig.substr(start, end - start);
+	removeLeadingWhitespaces(timeoutStr);
 	g_timeout = atoi(timeoutStr.c_str());
 	if (g_timeout < 1 || g_timeout > 60)
 		throw InvalidGlobalValueException();
@@ -158,6 +159,7 @@ void	Parser::extractMaxClients(std::string &rawConfig) {
 	size_t end = rawConfig.find(";\n", start);
 
 	std::string maxClientsStr = rawConfig.substr(start, end - start);
+	removeLeadingWhitespaces(maxClientsStr);
 	g_maxClients = atoi(maxClientsStr.c_str());
 	if (g_maxClients < 1 || g_maxClients > 1000)
 		throw InvalidGlobalValueException();
@@ -170,6 +172,7 @@ void	Parser::extractMaxFileSize(std::string &rawConfig) {
 	size_t end = rawConfig.find(";\n", start);
 
 	std::string maxFileSize = rawConfig.substr(start, end - start);
+	removeLeadingWhitespaces(maxFileSize);
 	g_maxFileSize = atoi(maxFileSize.c_str());
 	if (g_maxFileSize < 1 || g_maxFileSize > 100000)
 		throw InvalidGlobalValueException();
@@ -185,20 +188,9 @@ void	Parser::parseServerConfigs(std::string &rawConfig) {
 			populateServerConfig(defaultServerConfig, serverBlocks[i]);
 			defaultServerConfig.serverName = "default";
 			_configMap[defaultServerConfig.port][defaultServerConfig.serverName] = defaultServerConfig;
-//			std::cout << "default Config: " << std::endl;
-//			std::cout << "port: " << _configMap[defaultServerConfig.port][defaultServerConfig.serverName].port << std::endl;
-//			std::cout << "serverName: " << _configMap[defaultServerConfig.port][defaultServerConfig.serverName].serverName << std::endl;
-//			std::cout << "errorDir: " << _configMap[defaultServerConfig.port][defaultServerConfig.serverName].errorDir << std::endl;
-//			std::cout << std::endl;
 		}
 		t_serverConfig	serverConfig;
 		populateServerConfig(serverConfig, serverBlocks[i]);
-//		std::cout << "other Configs: " << std::endl;
-//		std::cout << "port: " << serverConfig.port << std::endl;
-//		std::cout << "serverName: " << serverConfig.serverName << std::endl;
-//		std::cout << "errorDir: " << serverConfig.errorDir << std::endl;
-//		std::cout << "count: " << _configMap[serverConfig.port].count(serverConfig.serverName) << std::endl;
-//		std::cout << "server name in config: " << _configMap[serverConfig.port][serverConfig.serverName].serverName << std::endl;
 		if (_configMap[serverConfig.port].count(serverConfig.serverName) > 0) {
 			throw DuplicateServerNameException();
 		}
@@ -244,6 +236,7 @@ std::string Parser::extractServerValue(int num, std::string key, std::string &se
 		   && serverBlock[valEnd + 1] != '\n')
 		valEnd++;
 	value = serverBlock.substr(valStart, (valEnd - valStart + 1));
+	removeLeadingWhitespaces(value);
 	if (value.empty())
 		throw InvalidConfigException();
 	if (serverBlock[valEnd] == '\n') {
@@ -302,6 +295,7 @@ std::string	Parser::extractPath(const std::string &locationBlock) {
 	size_t start = locationBlock.find("location") + 9;
 	size_t end = locationBlock.find('{', start);
 	std::string value = locationBlock.substr(start, end - start - 1);
+	removeLeadingWhitespaces(value);
 	return (value);
 }
 
@@ -313,6 +307,7 @@ std::string	Parser::extractLocationVariable(const std::string &variable, const s
 	if (locationBlock.find('\n', start) < locationBlock.find(';', start))
 		throw MissingSemicolonException();
 	std::string value = locationBlock.substr(start, end - start);
+	removeLeadingWhitespaces(value);
 	return (value);
 }
 
@@ -325,6 +320,7 @@ bool	Parser::extractAutoIndex(const std::string &locationBlock) {
 	if (locationBlock.find('\n', start) < locationBlock.find(';', start))
 		throw MissingSemicolonException();
 	std::string value = locationBlock.substr(start, end - start);
+	removeLeadingWhitespaces(value);
 	if (value == "1" || value == "on" || value == "true")
 		return (true);
 	else

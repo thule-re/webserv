@@ -35,6 +35,7 @@ std::string getContentType(const std::string& path);
 std::string getHTTPErrorMessages(int statusCode);
 
 void	printServerConfigMap(std::map<int, std::map<std::string, t_serverConfig> > &configMap);
+void	removeLeadingWhitespaces(std::string &string);
 
 // template functions
 template<typename T> std::string toString(const T& value);
