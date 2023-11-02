@@ -10,15 +10,15 @@
 /*                                                                            */
 /* ************************************************************************** */
 
-#include "Server/Cluster.hpp"
+#include "Server/Server.hpp"
 
-Cluster::Cluster() {
+Server::Server() {
 	_maxFd = 0;
 	FD_ZERO(&_readSet);
 	FD_ZERO(&_writeSet);
 }
 
-Cluster::Cluster(std::map<int, std::map<std::string, t_serverConfig> > configMap)
+Server::Server(std::map<int, std::map<std::string, t_serverConfig> > configMap)
 {
 	_maxFd = 0;
 	FD_ZERO(&_readSet);
@@ -37,16 +37,16 @@ Cluster::Cluster(std::map<int, std::map<std::string, t_serverConfig> > configMap
 	}
 }
 
-Cluster::Cluster(const Cluster &other) : _readSet(), _writeSet(), _readSetCopy(), _writeSetCopy(), _maxFd() {
+Server::Server(const Server &other) : _readSet(), _writeSet(), _readSetCopy(), _writeSetCopy(), _maxFd() {
 	*this = other;
 }
 
-Cluster::~Cluster() {
+Server::~Server() {
 	for (std::map<int, Listener *>::iterator it = _listenerMap.begin(); it != _listenerMap.end(); it++)
 		delete it->second;
 }
 
-Cluster &Cluster::operator=(const Cluster &other) {
+Server &Server::operator=(const Server &other) {
 	_listenerMap = other._listenerMap;
 	_clientsMap = other._clientsMap;
 
@@ -60,7 +60,7 @@ Cluster &Cluster::operator=(const Cluster &other) {
 	return *this;
 }
 
-void Cluster::loop() {
+void Server::loop() {
 	while (true)
 	{
 		try {
@@ -68,7 +68,7 @@ void Cluster::loop() {
 			for (int fd = 0; fd <= _maxFd + 1; fd++)
 			{
 				if (FD_ISSET(fd, &_readSetCopy)) {
-					if(_listenerMap.count(fd))
+					if(_listenerMap[fd] != NULL)
 						addConnectionToServer(fd);
 					else
 						readRequestFromClient(fd);
@@ -83,7 +83,7 @@ void Cluster::loop() {
 	}
 }
 
-void Cluster::selectClientSockets()
+void Server::selectClientSockets()
 {
 	struct timeval timeout = {};
 	timeout.tv_sec = 5;
@@ -101,7 +101,7 @@ void Cluster::selectClientSockets()
 	}
 }
 
-void Cluster::addConnectionToServer(int socket) {
+void Server::addConnectionToServer(int socket) {
 	ClientSocket *clientSocket = _listenerMap[socket]->addNewConnection();
 	int clientSocketFD = clientSocket->getSocketFd();
 	FD_SET(clientSocketFD, &_readSet);
@@ -111,7 +111,7 @@ void Cluster::addConnectionToServer(int socket) {
 }
 
 
-void Cluster::addClientToMap(ClientSocket *client) {
+void Server::addClientToMap(ClientSocket *client) {
 	int socketFd = client->getSocketFd();
 
 	if (_clientsMap.count(socketFd) != 0)
@@ -121,7 +121,7 @@ void Cluster::addClientToMap(ClientSocket *client) {
 	_clientsMap[socketFd]->setConnectionTime(std::time(NULL));
 }
 
-void Cluster::readRequestFromClient(int clientFd) {
+void Server::readRequestFromClient(int clientFd) {
 	int listenerFd = _clientsMap[clientFd]->getSocketFd();
 	ClientSocket *client = _clientsMap[clientFd];
 	_clientsMap[listenerFd]->setConnectionTime(std::time(NULL));
@@ -137,17 +137,17 @@ void Cluster::readRequestFromClient(int clientFd) {
 	}
 }
 
-void Cluster::sendResponseToClient(int clientFd) {
+void Server::sendResponseToClient(int clientFd) {
 	_clientsMap[clientFd]->sendResponse();
 	closeConnection(_clientsMap[clientFd]);
 	_clientsMap.erase(clientFd);
 }
 
-void Cluster::handleLoopException(std::exception &exception) {
+void Server::handleLoopException(std::exception &exception) {
 	std::cerr << exception.what() << std::endl;
 }
 
-void Cluster::closeConnection(ClientSocket *client)
+void Server::closeConnection(ClientSocket *client)
 {
 	int socketFd = client->getSocketFd();
 	if (FD_ISSET(socketFd, &_readSet))

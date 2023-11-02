@@ -10,7 +10,7 @@
 /*                                                                            */
 /* ************************************************************************** */
 
-#include "Server/Cluster.hpp"
+#include "Server/Server.hpp"
 #include "Parser/Parser.hpp"
 #include "utils/utils.hpp"
 
@@ -27,7 +27,7 @@ int main(int argc, char **argv) {
 	try {
 		Parser parser(pathToConfigFile);
 
-		Cluster cluster(parser.getConfigMap());
+		Server cluster(parser.getConfigMap());
 		cluster.loop();
 	}
 	catch (std::exception &e) {

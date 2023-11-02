@@ -8,19 +8,19 @@
 # include "Socket/ClientSocket.hpp"
 
 
-class Cluster {
+class Server {
 public:
 	// constructors
-	Cluster();
+	Server();
 
-	Cluster(std::map<int, std::map<std::string, t_serverConfig> >);
-	Cluster(const Cluster &);
+	Server(std::map<int, std::map<std::string, t_serverConfig> >);
+	Server(const Server &);
 
 	// destructor
-	~Cluster();
+	~Server();
 
 	// operator overload
-	Cluster &operator=(const Cluster &other);
+	Server &operator=(const Server &other);
 
 	//member functions
 	void selectClientSockets();
@@ -49,4 +49,4 @@ private:
 };
 
 
-#endif //WEBSERV_CLUSTER_HPP
+#endif //WEBSERV_SERVER_HPP
