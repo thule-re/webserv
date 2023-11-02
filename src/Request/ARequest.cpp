@@ -22,9 +22,10 @@ ARequest::ARequest() : _location() {}
 
 ARequest::ARequest(ClientSocket *clientSocket): _clientSocket(clientSocket), _rawRequest(clientSocket->getRawRequest()), _location() {
 	_header = RequestHeader(_rawRequest.substr(0, _rawRequest.find(CRLF CRLF)));
+	std::string host = _header["Host"].substr(0, _header["Host"].find(':'));
 	_serverConfig = clientSocket->getServerConfigMap()["default"];
-	if (clientSocket->getServerConfigMap().count(_header["Host"]))
-		_serverConfig = clientSocket->getServerConfigMap()[_header["Host"]];
+	if (clientSocket->getServerConfigMap().count(host))
+		_serverConfig = clientSocket->getServerConfigMap()[host];
 	_location = _findLocation(_serverConfig, _header["Path"]);
 	if (_header["Path"].find("..") != std::string::npos)
 		throw ARequest::ARequestException(FORBIDDEN);

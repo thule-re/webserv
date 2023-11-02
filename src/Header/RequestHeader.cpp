@@ -73,6 +73,7 @@ void RequestHeader::_parseLine(const std::string &line) {
 	if (pos != std::string::npos) {
 		key = line.substr(0, pos);
 		value = line.substr(pos + 1, line.find('\r') - pos - 1);
+		removeLeadingWhitespaces(value);
 		_headerMap[key] = value;
 	}
 }

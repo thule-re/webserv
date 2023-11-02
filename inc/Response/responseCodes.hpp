@@ -100,7 +100,7 @@
 # define MSG_418 "I'm a teapot"
 
 // 5xx Listener Error
-# define MSG_500 "Internal Listener Error"
+# define MSG_500 "Internal Server Error"
 # define MSG_501 "Not Implemented"
 # define MSG_502 "Bad Gateway"
 # define MSG_503 "Service Unavailable"

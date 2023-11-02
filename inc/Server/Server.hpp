@@ -7,7 +7,6 @@
 # include "Listener/Listener.hpp"
 # include "Socket/ClientSocket.hpp"
 
-
 class Server {
 public:
 	// constructors

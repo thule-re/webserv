@@ -100,7 +100,7 @@ void CgiRequest::_setEnv() {
 	_env.push_back("REQUEST_URI=" + _header["Path"]);
 	_env.push_back("SCRIPT_NAME=" + _scriptPath);
 	_env.push_back("SERVER_NAME=" + _serverConfig.serverName);
-	// _env.push_back("SERVER_PORT=" + _clientSocket.getServerPort());
+	_env.push_back("SERVER_PORT=" + toString(_serverConfig.port));
 	_env.push_back("SERVER_PROTOCOL=" + _header["HTTP-Version"]);
 	_env.push_back("SERVER_SOFTWARE=webserv/1.0");
 }
@@ -117,7 +117,7 @@ void CgiRequest::_exportEnv() {
 }
 
 void CgiRequest::_writeCgiInput() {
-	write(_cgiInput[1], _rawRequest.c_str(), strtol(_header["Content-Length"].c_str(), NULL, 10));
+	write(_cgiInput[1], _rawRequest.substr(_rawRequest.find("\r\n\r\n"), _rawRequest.length() - _rawRequest.find("\r\n\r\n")).c_str(), strtol(_header["Content-Length"].c_str(), NULL, 10));
 }
 
 void CgiRequest::_readCgiOutput() {
@@ -161,9 +161,9 @@ void CgiRequest::_execCgi(Response *response) {
 		close(_cgiInput[1]);
 		close(_cgiInput[0]);
 		close(_cgiOutput[1]);
-		time_t now;
-		std::time(&now);
-		while (std::difftime(std::time(NULL), now) < 5) {
+		time_t start;
+		std::time(&start);
+		while (std::difftime(std::time(NULL), start) < g_timeout) {
 			waitpid(pid, &status, WNOHANG);
 			if (WIFEXITED(status))
 				break;
