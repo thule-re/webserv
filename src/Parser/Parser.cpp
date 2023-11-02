@@ -182,24 +182,23 @@ void	Parser::parseServerConfigs(std::string &rawConfig) {
 		if (i == 0) {
 			t_serverConfig	defaultServerConfig;
 			populateServerConfig(defaultServerConfig, serverBlocks[i]);
-			// todo: take out when working
 			defaultServerConfig.serverName = "default";
 			_configMap[defaultServerConfig.port][defaultServerConfig.serverName] = defaultServerConfig;
-			std::cout << "default Config: " << std::endl;
-			std::cout << "port: " << _configMap[defaultServerConfig.port][defaultServerConfig.serverName].port << std::endl;
-			std::cout << "serverName: " << _configMap[defaultServerConfig.port][defaultServerConfig.serverName].serverName << std::endl;
-			std::cout << "errorDir: " << _configMap[defaultServerConfig.port][defaultServerConfig.serverName].errorDir << std::endl;
-			std::cout << std::endl;
+//			std::cout << "default Config: " << std::endl;
+//			std::cout << "port: " << _configMap[defaultServerConfig.port][defaultServerConfig.serverName].port << std::endl;
+//			std::cout << "serverName: " << _configMap[defaultServerConfig.port][defaultServerConfig.serverName].serverName << std::endl;
+//			std::cout << "errorDir: " << _configMap[defaultServerConfig.port][defaultServerConfig.serverName].errorDir << std::endl;
+//			std::cout << std::endl;
 		}
 		t_serverConfig	serverConfig;
 		populateServerConfig(serverConfig, serverBlocks[i]);
-		std::cout << "other Configs: " << std::endl;
-		std::cout << "port: " << serverConfig.port << std::endl;
-		std::cout << "serverName: " << serverConfig.serverName << std::endl;
-		std::cout << "errorDir: " << serverConfig.errorDir << std::endl;
-		std::cout << "count: " << _configMap[serverConfig.port].count(serverConfig.serverName) << std::endl;
-		std::cout << "server name in config: " << _configMap[serverConfig.port][serverConfig.serverName].serverName << std::endl;
-		if (_configMap[serverConfig.port].count("test.com")) {
+//		std::cout << "other Configs: " << std::endl;
+//		std::cout << "port: " << serverConfig.port << std::endl;
+//		std::cout << "serverName: " << serverConfig.serverName << std::endl;
+//		std::cout << "errorDir: " << serverConfig.errorDir << std::endl;
+//		std::cout << "count: " << _configMap[serverConfig.port].count(serverConfig.serverName) << std::endl;
+//		std::cout << "server name in config: " << _configMap[serverConfig.port][serverConfig.serverName].serverName << std::endl;
+		if (_configMap[serverConfig.port].count(serverConfig.serverName) > 1) {
 			throw DuplicateServerNameException();
 		}
 		else
