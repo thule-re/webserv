@@ -155,3 +155,12 @@ void	printServerConfigMap(std::map<int, std::map<std::string, t_serverConfig> > 
 	portNum++;
 	}
 }
+
+void	removeLeadingWhitespaces(std::string &string) {
+
+	size_t	start = 0;
+	while (start < string.size() && (string[start] == ' ' || string[start] == '\t')) {
+		start++;
+	}
+	string = string.substr(start, string.size() - start);
+}
