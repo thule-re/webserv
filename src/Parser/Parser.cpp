@@ -22,8 +22,6 @@ Parser::Parser(const std::string &pathToConfig) {
 	parseGlobalVars(fileContent);
 	parseServerConfigs(fileContent);
 	printServerConfigMap(_configMap);
-	// todo: Some test maybe idk.
-	// checkForDuplicatePorts();
 }
 
 Parser::Parser(const Parser &other) {
@@ -52,11 +50,15 @@ const char *Parser::EmptyConfigFileException::what() const throw() {
 }
 
 const char *Parser::DuplicateServerNameException::what() const throw() {
-	return ("Error: Parser detected duplicate config block.");
+	return ("Error: Parser detected duplicate port-serverName combination.");
 }
 
 const char *Parser::InvalidGlobalValueException::what() const throw() {
 	return ("Error: Global value out of range or otherwise invalid.");
+}
+
+const char *Parser::InvalidPortException::what() const throw() {
+	return ("Error: Port value out of acceptable range or missing.");
 }
 
 const char *Parser::InvalidConfigException::what() const throw() {
@@ -77,14 +79,31 @@ std::string	getValStr(const int& key) {
 		case PORT:
 			return "port";
 		case ERRORDIR:
-			return ("ErrorDir");
+			return "error directory";
+		case PATH:
+			return "path";
+		case ROOT:
+			return "root directory";
+		case INDEX:
+			return "index file";
+		case CGI:
+			return "cgi extension";
+		case UPLOAD:
+			return "upload directory";
+		case REDIRECT:
+			return "http redirection";
+		case METHODS:
+			return "allowed methods";
+		case AUTOINDEX:
+			return "auto index";
 		default:
 			return "unspecificConfigValue";
 	}
 }
 
 const char *Parser::ValueMissingException::what() const throw() {
-	std::string	retString = "Error: No value found for: " + getValStr(_key);
+	std::string	retString = "Error in config file: At least one server directive is missing an instance of "
+							+ getValStr(_key);
 	const char	*retStringC = retString.c_str();
 	return (retStringC);
 }
@@ -97,8 +116,8 @@ const char *Parser::InvalidLocationException::what() const throw() {
 	return ("Error: No, empty or invalid location block in config.");
 }
 
-const char *Parser::InvalidPortException::what() const throw() {
-	return ("Error: Port value out of acceptable range or missing.");
+const char *Parser::NoServerConfigException::what() const throw() {
+	return ("Error: Couldn't find valid server block in config.");
 }
 
 //getters
@@ -147,9 +166,13 @@ void	Parser::extractTimeout(std::string &rawConfig) {
 
 	std::string timeoutStr = rawConfig.substr(start, end - start);
 	removeLeadingWhitespaces(timeoutStr);
-	g_timeout = atoi(timeoutStr.c_str());
-	if (g_timeout < 1 || g_timeout > 60)
-		throw InvalidGlobalValueException();
+	if (timeoutStr.empty())
+		return ;
+	else {
+		g_timeout = atoi(timeoutStr.c_str());
+		if (g_timeout < 1 || g_timeout > 60)
+			throw InvalidGlobalValueException();
+	}
 }
 
 void	Parser::extractMaxClients(std::string &rawConfig) {
@@ -160,9 +183,13 @@ void	Parser::extractMaxClients(std::string &rawConfig) {
 
 	std::string maxClientsStr = rawConfig.substr(start, end - start);
 	removeLeadingWhitespaces(maxClientsStr);
-	g_maxClients = atoi(maxClientsStr.c_str());
-	if (g_maxClients < 1 || g_maxClients > 1000)
-		throw InvalidGlobalValueException();
+	if (maxClientsStr.empty())
+		return ;
+	else {
+		g_maxClients = atoi(maxClientsStr.c_str());
+		if (g_maxClients < 1 || g_maxClients > 1000)
+			throw InvalidGlobalValueException();
+	}
 }
 
 void	Parser::extractMaxFileSize(std::string &rawConfig) {
@@ -171,11 +198,15 @@ void	Parser::extractMaxFileSize(std::string &rawConfig) {
 	size_t start = rawConfig.find("maxFileSize:") + 13;
 	size_t end = rawConfig.find(";\n", start);
 
-	std::string maxFileSize = rawConfig.substr(start, end - start);
-	removeLeadingWhitespaces(maxFileSize);
-	g_maxFileSize = atoi(maxFileSize.c_str());
-	if (g_maxFileSize < 1 || g_maxFileSize > 100000)
-		throw InvalidGlobalValueException();
+	std::string maxFileSizeStr = rawConfig.substr(start, end - start);
+	removeLeadingWhitespaces(maxFileSizeStr);
+	if (maxFileSizeStr.empty())
+		return ;
+	else {
+		g_maxFileSize = atoi(maxFileSizeStr.c_str());
+		if (g_maxFileSize < 1 || g_maxFileSize > 100000)
+			throw InvalidGlobalValueException();
+	}
 }
 
 void	Parser::parseServerConfigs(std::string &rawConfig) {
@@ -202,15 +233,15 @@ void	Parser::parseServerConfigs(std::string &rawConfig) {
 
 void	Parser::extractServerBlocks(std::vector<std::string> &serverBlocks, const std::string &rawConfig) {
 	size_t start = 0, end;
-	while((end = rawConfig.find("</server>", start)) != std::string::npos) {
+	while((end = rawConfig.find("</server", start)) != std::string::npos) {
 		serverBlocks.push_back(rawConfig.substr(start, end - start));
-		start = end + 10;
+		start = end + 9;
 		while ((start < rawConfig.length()) && (rawConfig[start] == ' '
 												|| rawConfig[start] == '\n'))
 			start++;
 	}
 	if (serverBlocks.empty())
-		throw InvalidConfigException();
+		throw NoServerConfigException();
 }
 
 void	Parser::populateServerConfig(t_serverConfig &serverConfig, std::string &serverBlock) {
@@ -238,8 +269,6 @@ std::string Parser::extractServerValue(int num, std::string key, std::string &se
 		valEnd++;
 	value = serverBlock.substr(valStart, (valEnd - valStart + 1));
 	removeLeadingWhitespaces(value);
-	if (value.empty())
-		throw InvalidConfigException();
 	if (serverBlock[valEnd] == '\n') {
 		throw MissingSemicolonException();
 	}

@@ -83,6 +83,10 @@ class Parser {
 		public:
 			virtual const char* what() const throw();
 		};
+		class NoServerConfigException : public std::exception {
+		public:
+			virtual const char* what() const throw();
+		};
 
 		// member functions
 		std::map<int, std::map<std::string, t_serverConfig> >&	getConfigMap();

@@ -34,14 +34,4 @@ typedef struct s_serverConfig {
 	std::map<std::string, t_locationConfig>	locationMap;
 }	t_serverConfig;
 
-# define RESET		"\033[0m"
-# define GREEN		"\033[32m"
-# define YELLOW		"\033[33m"
-# define BLUE		"\033[34m"
-# define RED		"\033[31m"
-# define MAGENTA	"\033[35m"
-# define CYAN		"\033[36m"
-# define UP			"\033[A"
-# define CUT		"\033[K"
-
 #endif

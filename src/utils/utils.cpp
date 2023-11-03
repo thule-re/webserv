@@ -114,7 +114,8 @@ void	printServerConfigMap(std::map<int, std::map<std::string, t_serverConfig> > 
 	int	portNum = 0;
 	for (portIt = configMap.begin(); portIt != configMap.end(); portIt++) {
 		int port = portIt->first;
-		std::cout << BLUE "###___portID: " << portNum << ", port: |" << port << "|___###" RESET << std::endl;
+		std::cout << std::endl;
+		std::cout << "┌PORTBLOCK: " << portNum << ", portMapKey: |" << port << "|" << std::endl;
 
 		// iterates over individual servers
 		std::map<std::string, t_serverConfig>& serverConfigsMap = portIt->second;
@@ -123,12 +124,12 @@ void	printServerConfigMap(std::map<int, std::map<std::string, t_serverConfig> > 
 		for (serverConfigsIt = serverConfigsMap.begin(); serverConfigsIt != serverConfigsMap.end(); serverConfigsIt++) {
 			std::string serverName = serverConfigsIt->first;
 			t_serverConfig &ServerConfig = serverConfigsIt->second;
-			std::cout << YELLOW "$$$___portID: " << portNum << ", serverID: " << serverNum << ", server: |"
-			<< serverName << "|___$$$" RESET << std::endl;
-			std::cout << YELLOW "serverName: |" << ServerConfig.serverName << "|" RESET << std::endl;
-			std::cout << YELLOW "port: |" << ServerConfig.port << "|" RESET << std::endl;
-			std::cout << YELLOW "errorDir: |" << ServerConfig.errorDir << "|" RESET << std::endl;
-			std::cout << YELLOW "$$$_____________________________________________$$$" RESET << std::endl;
+			std::cout <<"├── SERVERBLOCK: |" << serverNum << "| serverKey: |" << serverName
+						<< "| port: |" << portNum << "(" << port << ")|" << std::endl;
+			std::cout << "│   ├── serverName: |" << ServerConfig.serverName << "|" << std::endl;
+			std::cout << "│   ├── port: |" << ServerConfig.port << "|" << std::endl;
+			std::cout << "│   ├── errorDir: |" << ServerConfig.errorDir << "|" << std::endl;
+			std::cout << "│   └── LocationMap" << std::endl;
 
 			// iterates over locations
 			std::map<std::string, t_locationConfig>& locationMap = ServerConfig.locationMap;
@@ -137,23 +138,23 @@ void	printServerConfigMap(std::map<int, std::map<std::string, t_serverConfig> > 
 			for (locationConfigsIt = locationMap.begin(); locationConfigsIt != locationMap.end(); locationConfigsIt++) {
 				std::string locationPath = locationConfigsIt->first;
 				t_locationConfig &locationConfig = locationConfigsIt->second;
-				std::cout << GREEN "///___portID: " << portNum << ", serverID: " << serverNum
-				<< ", serverID: |" << serverName << "|, locationID: " << locationNum << ", locationMapKey: |"
-				<< locationPath << "|---///" RESET << std::endl;
-				std::cout << "path: |" << locationConfig.path << "|" << std::endl;
-				std::cout << "root: |" << locationConfig.root << "|" << std::endl;
-				std::cout << "index: |" << locationConfig.index << "|" << std::endl;
-				std::cout << "cgiExtension: |" << locationConfig.cgiExtension << "|" << std::endl;
-				std::cout << "upload: |" << locationConfig.upload << "|" << std::endl;
-				std::cout << "redirect: |" << locationConfig.redirect << "|" << std::endl;
-				std::cout << "allowedMethods: |" << locationConfig.allowedMethods << "|" << std::endl;
-				std::cout << "autoIndex: |" << locationConfig.autoIndex << "|" << std::endl;
+				std::cout << "│       ├── LOCATIONBLOCK: |" << locationNum << "| locationKey: |" << locationPath
+							<< "| server: |" << serverName << "| port: |" << port << "|" << std::endl;
+				std::cout << "│       │   ├── path: |" << locationConfig.path << "|" << std::endl;
+				std::cout << "│       │   ├── root: |" << locationConfig.root << "|" << std::endl;
+				std::cout << "│       │   ├── index: |" << locationConfig.index << "|" << std::endl;
+				std::cout << "│       │   ├── cgiExtension: |" << locationConfig.cgiExtension << "|" << std::endl;
+				std::cout << "│       │   ├── upload: |" << locationConfig.upload << "|" << std::endl;
+				std::cout << "│       │   ├── redirect: |" << locationConfig.redirect << "|" << std::endl;
+				std::cout << "│       │   ├── allowedMethods: |" << locationConfig.allowedMethods << "|" << std::endl;
+				std::cout << "│       │   └── autoIndex: |" << locationConfig.autoIndex << "|" << std::endl;
 				locationNum++;
 			}
 		serverNum++;
 		}
 	portNum++;
 	}
+	std::cout <<  std::endl << "   ├──────###----END OF CONFIG MAP----###──────┤" << std::endl << std::endl;
 }
 
 void	removeLeadingWhitespaces(std::string &string) {

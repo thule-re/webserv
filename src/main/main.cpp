@@ -3,10 +3,10 @@
 /*                                                        :::      ::::::::   */
 /*   main.cpp                                           :+:      :+:    :+:   */
 /*                                                    +:+ +:+         +:+     */
-/*   By: mtrautne <mtrautne@student.42wolfsburg.    +#+  +:+       +#+        */
+/*   By: mtrautne <mtrautne@student.42wolfsburg.d>  +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
-/*   Created: 2023/08/17 11:29:17 by treeps            #+#    #+#             */
-/*   Updated: 2023/09/28 11:45:54 by mtrautne         ###   ########.fr       */
+/*   Created: 2023/11/02 17:27:31 by mtrautne          #+#    #+#             */
+/*   Updated: 2023/11/03 12:54:42 by mtrautne         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -14,9 +14,9 @@
 #include "Parser/Parser.hpp"
 #include "utils/utils.hpp"
 
-int	g_maxClients = 1000;
-int	g_timeout = 1;
-int	g_maxFileSize = 100000;
+int	g_timeout = 20;
+int	g_maxClients = 200;
+int	g_maxFileSize = 10000;
 
 int main(int argc, char **argv) {
 	std::string	pathToConfigFile;
