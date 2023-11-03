@@ -165,3 +165,32 @@ void	removeLeadingWhitespaces(std::string &string) {
 	}
 	string = string.substr(start, string.size() - start);
 }
+
+std::string	getValStr(const int& key) {
+	switch (key) {
+		case SERVERNAME:
+			return "serverName";
+		case PORT:
+			return "port";
+		case ERRORDIR:
+			return "error directory";
+		case PATH:
+			return "path";
+		case ROOT:
+			return "root directory";
+		case INDEX:
+			return "index file";
+		case CGI:
+			return "cgi extension";
+		case UPLOAD:
+			return "upload directory";
+		case REDIRECT:
+			return "http redirection";
+		case METHODS:
+			return "allowed methods";
+		case AUTOINDEX:
+			return "auto index";
+		default:
+			return "unspecificConfigValue";
+	}
+}

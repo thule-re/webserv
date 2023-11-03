@@ -14,14 +14,17 @@
 
 Parser::Parser() {}
 
-Parser::Parser(const std::string &pathToConfig) {
-	std::string fileContent;
+Parser::Parser(int argc, char** argv) {
+	std::string	pathToConfigFile;
+	std::string	fileContent;
 
-	readConfigFile(pathToConfig, fileContent);
+	checkInput(argc, argv, pathToConfigFile);
+	readConfigFile(pathToConfigFile, fileContent);
 	removeComments(fileContent);
 	parseGlobalVars(fileContent);
 	parseServerConfigs(fileContent);
-	printServerConfigMap(_configMap);
+	if (g_verboseTrigger == 1)
+		printServerConfigMap(_configMap);
 }
 
 Parser::Parser(const Parser &other) {
@@ -40,85 +43,7 @@ Parser &Parser::operator=(const Parser &other) {
 	return (*this);
 }
 
-// exceptions
-const char *Parser::CantOpenConfigException::what() const throw() {
-	return ("Error: Parser can't open config file.");
-}
-
-const char *Parser::EmptyConfigFileException::what() const throw() {
-	return ("Error: Parser detected empty config file.");
-}
-
-const char *Parser::DuplicateServerNameException::what() const throw() {
-	return ("Error: Parser detected duplicate port-serverName combination.");
-}
-
-const char *Parser::InvalidGlobalValueException::what() const throw() {
-	return ("Error: Global value out of range or otherwise invalid.");
-}
-
-const char *Parser::InvalidPortException::what() const throw() {
-	return ("Error: Port value out of acceptable range or missing.");
-}
-
-const char *Parser::InvalidConfigException::what() const throw() {
-	return ("Error: Config for at least one server is incomplete.");
-}
-
-const char *Parser::MissingClosingBracketException::what() const throw() {
-	return ("Error: Missing closing brackets for location in config file.");
-}
-
-Parser::ValueMissingException::ValueMissingException(const int &missingKey)
-		: _key(missingKey) {}
-
-std::string	getValStr(const int& key) {
-	switch (key) {
-		case SERVERNAME:
-			return "serverName";
-		case PORT:
-			return "port";
-		case ERRORDIR:
-			return "error directory";
-		case PATH:
-			return "path";
-		case ROOT:
-			return "root directory";
-		case INDEX:
-			return "index file";
-		case CGI:
-			return "cgi extension";
-		case UPLOAD:
-			return "upload directory";
-		case REDIRECT:
-			return "http redirection";
-		case METHODS:
-			return "allowed methods";
-		case AUTOINDEX:
-			return "auto index";
-		default:
-			return "unspecificConfigValue";
-	}
-}
-
-const char *Parser::ValueMissingException::what() const throw() {
-	std::string	retString = "Error in config file: At least one server directive is missing an instance of "
-							+ getValStr(_key);
-	const char	*retStringC = retString.c_str();
-	return (retStringC);
-}
-
-const char *Parser::MissingSemicolonException::what() const throw() {
-	return ("Error: Missing semicolon in config.");
-}
-
-const char *Parser::InvalidLocationException::what() const throw() {
-	return ("Error: No, empty or invalid location block in config.");
-}
-
-const char *Parser::NoServerConfigException::what() const throw() {
-	return ("Error: Couldn't find valid server block in config.");
-}
+// exceptions: moved to ParserExceptions.hpp / ParserExceptions.cpp
 
 //getters
 std::map<int, std::map<std::string, t_serverConfig> >&	Parser::getConfigMap() {
@@ -126,6 +51,38 @@ std::map<int, std::map<std::string, t_serverConfig> >&	Parser::getConfigMap() {
 }
 
 //member functions
+
+void	Parser::checkInput(int argc, char** argv, std::string &pathToConfigFile) {
+	if (argc > 3) {
+		throw InvalidArgNumException();
+	}
+	if (argc == 1) {
+		std::cout << std::endl << BLUE "Info: No config file defined -> selected default file \"webserv.conf\"" RESET
+				<< std::endl << std::endl;
+		pathToConfigFile = "./config/webserv.conf";
+	}
+	else if (argc == 2) {
+		std::string argTwo = argv[1];
+		if (argTwo == "-v") {
+			std::cout << std::endl << BLUE "Info: No config file defined -> selected default file \"webserv.conf\"" RESET
+				<< std::endl << std::endl;
+			pathToConfigFile = "./config/webserv.conf";
+			g_verboseTrigger = 1;
+		}
+		else
+			pathToConfigFile = argv[1];
+	}
+	else if (argc == 3) {
+		std::string argTwo = argv[1];
+		if (argTwo != "-v")
+			throw InvalidArgNumException();
+		else {
+			g_verboseTrigger = 1;
+			pathToConfigFile = argv[2];
+		}
+	}
+}
+
 void	Parser::readConfigFile(const std::string &pathToConfig,
 									std::string &fileContent) {
 	std::ifstream	configFile(pathToConfig.c_str());
@@ -169,6 +126,8 @@ void	Parser::extractTimeout(std::string &rawConfig) {
 	if (timeoutStr.empty())
 		return ;
 	else {
+	std::stringstream ss;
+	ss << timeoutStr;
 		g_timeout = atoi(timeoutStr.c_str());
 		if (g_timeout < 1 || g_timeout > 60)
 			throw InvalidGlobalValueException();
@@ -236,24 +195,28 @@ void	Parser::extractServerBlocks(std::vector<std::string> &serverBlocks, const s
 	while((end = rawConfig.find("</server", start)) != std::string::npos) {
 		serverBlocks.push_back(rawConfig.substr(start, end - start));
 		start = end + 9;
+		// check if end before start
 		while ((start < rawConfig.length()) && (rawConfig[start] == ' '
 												|| rawConfig[start] == '\n'))
 			start++;
 	}
 	if (serverBlocks.empty())
-		throw NoServerConfigException();
+		throw	NoServerConfigException();
+	if (serverBlocks.size() > 10) {
+		throw	ExceededMaxServerNumberException();
+	}
 }
 
 void	Parser::populateServerConfig(t_serverConfig &serverConfig, std::string &serverBlock) {
 	serverConfig.serverName = extractServerValue(SERVERNAME, "serverName:", serverBlock);
 	serverConfig.errorDir = extractServerValue(ERRORDIR, "errorDir:", serverBlock);
 	serverConfig.port = atoi(extractServerValue(PORT, "port:", serverBlock).c_str());
-	if (serverConfig.port < 0 || serverConfig.port > 10000)
+	if (serverConfig.port < 0 || serverConfig.port > 65353)
 		throw InvalidPortException();
 	setLocations(serverConfig, serverBlock);
 }
 
-std::string Parser::extractServerValue(int num, std::string key, std::string &serverBlock) {
+std::string Parser::extractServerValue(int num, const std::string& key, std::string &serverBlock) {
 	size_t		valStart;
 	size_t		valEnd;
 	std::string	value;
@@ -262,13 +225,16 @@ std::string Parser::extractServerValue(int num, std::string key, std::string &se
 		throw ValueMissingException(num);
 	else
 		valStart = serverBlock.find(key);
-	valStart = serverBlock.find(':', valStart) + 2;
+	valStart = serverBlock.find(':', valStart) + 1;
 	valEnd = valStart;
 	while (valEnd < serverBlock.length() && serverBlock[valEnd + 1] != ';'
-		   && serverBlock[valEnd + 1] != '\n')
+			&& serverBlock[valEnd + 1] != '\n')
 		valEnd++;
 	value = serverBlock.substr(valStart, (valEnd - valStart + 1));
 	removeLeadingWhitespaces(value);
+	if (value.empty()) {
+		throw ValueMissingException(num);
+	}
 	if (serverBlock[valEnd] == '\n') {
 		throw MissingSemicolonException();
 	}
@@ -292,7 +258,6 @@ void	Parser::splitLocationBlocks(std::vector<std::string> &locationBlocks,
 									const std::string &configBlock) {
 	size_t	blockEnd = 0;
 	size_t	blockStart = configBlock.find("location", blockEnd);
-	size_t	numLocBlocks = 0;
 
 	while (blockStart < configBlock.length() && blockEnd < configBlock.length()) {
 		if (configBlock.find('}', blockStart) == std::string::npos ||
@@ -302,36 +267,38 @@ void	Parser::splitLocationBlocks(std::vector<std::string> &locationBlocks,
 		}
 		blockEnd = configBlock.find('}', blockStart);
 		locationBlocks.push_back(configBlock.substr(blockStart,
-											   (blockEnd - blockStart + 1)));
+												(blockEnd - blockStart + 1)));
 		blockStart = configBlock.find("location", blockEnd);
-		numLocBlocks++;
 	}
 }
 
 void	Parser::populateLocationConfig(t_locationConfig &locationConfig, std::string &locationBlock) {
 	locationConfig.path = extractPath(locationBlock);
 	locationConfig.autoIndex = extractAutoIndex(locationBlock);
-	locationConfig.root = extractLocationVariable("root:", locationBlock);
-	locationConfig.index = extractLocationVariable("index:", locationBlock);
-	locationConfig.cgiExtension = extractLocationVariable("cgiExtension:", locationBlock);
-	locationConfig.upload = extractLocationVariable("uploadDir:", locationBlock);
-	locationConfig.redirect = extractLocationVariable("httpRedir:", locationBlock);
-	locationConfig.allowedMethods = extractLocationVariable("methods:", locationBlock);
+	locationConfig.root = extractLocationVariable(ROOT, "root:", locationBlock);
+	locationConfig.index = extractLocationVariable(INDEX, "index:", locationBlock);
+	locationConfig.cgiExtension = extractLocationVariable(CGI, "cgiExtension:", locationBlock);
+	locationConfig.upload = extractLocationVariable(UPLOAD, "uploadDir:", locationBlock);
+	locationConfig.redirect = extractLocationVariable(REDIRECT, "httpRedir:", locationBlock);
+	locationConfig.allowedMethods = extractLocationVariable(METHODS, "methods:", locationBlock);
 }
 
 std::string	Parser::extractPath(const std::string &locationBlock) {
 	if (locationBlock.find("location") == std::string::npos)
-		return ("");
+		throw InvalidPathException();
 	size_t start = locationBlock.find("location") + 9;
 	size_t end = locationBlock.find('{', start);
 	std::string value = locationBlock.substr(start, end - start - 1);
 	removeLeadingWhitespaces(value);
+	if (value.empty())
+		throw InvalidPathException();
 	return (value);
 }
 
-std::string	Parser::extractLocationVariable(const std::string &variable, const std::string &locationBlock) {
+std::string	Parser::extractLocationVariable(const int varKey, const std::string &variable,
+											const std::string &locationBlock) {
 	if (locationBlock.find(variable) == std::string::npos)
-		return ("");
+		throw ValueMissingException(varKey);
 	size_t start = locationBlock.find(variable) + variable.size();
 	size_t end = locationBlock.find(';', start);
 	if (locationBlock.find('\n', start) < locationBlock.find(';', start))
@@ -342,10 +309,10 @@ std::string	Parser::extractLocationVariable(const std::string &variable, const s
 }
 
 bool	Parser::extractAutoIndex(const std::string &locationBlock) {
-	if (locationBlock.find("AutoIndex:") == std::string::npos) {
-		return ("");
+	if (locationBlock.find("autoIndex:") == std::string::npos) {
+		throw ValueMissingException(AUTOINDEX);
 	}
-	size_t start = locationBlock.find("AutoIndex:") + 11;
+	size_t start = locationBlock.find("autoIndex:") + 11;
 	size_t end = locationBlock.find(';', start);
 	if (locationBlock.find('\n', start) < locationBlock.find(';', start))
 		throw MissingSemicolonException();

@@ -28,6 +28,7 @@ FILES		=	main/main \
 				Header/ResponseHeader \
 				Listener/Listener \
 				Parser/Parser \
+				Parser/ParserExceptions \
 				Request/ARequest \
 				Request/CgiRequest \
 				Request/DELETERequest \
@@ -43,8 +44,10 @@ HEADER		=	Header/AHeader \
 				Header/RequestHeader \
 				Header/ResponseHeader \
 				Listener/Listener \
-				Parser/Parser \
 				Parser/configStructs \
+				Parser/errorCodes \
+				Parser/Parser \
+				Parser/ParserExceptions \
 				Request/ARequest \
 				Request/CgiRequest \
 				Request/DELETERequest \

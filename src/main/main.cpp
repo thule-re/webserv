@@ -17,16 +17,12 @@
 int	g_timeout = 20;
 int	g_maxClients = 200;
 int	g_maxFileSize = 10000;
+int	g_verboseTrigger = 0;
 
 int main(int argc, char **argv) {
-	std::string	pathToConfigFile;
-	if (argc != 2)
-		pathToConfigFile = "./config/webserv.conf";
-	else
-		pathToConfigFile = argv[1];
-	try {
-		Parser parser(pathToConfigFile);
 
+	try {
+		Parser parser(argc, argv);
 		Server cluster(parser.getConfigMap());
 		cluster.loop();
 	}

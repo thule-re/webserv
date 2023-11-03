@@ -13,6 +13,10 @@
 #ifndef PARSER_HPP
 # define PARSER_HPP
 
+# define BLUE "\x1B[34m"
+# define RED "\x1B[31m"
+# define RESET "\x1B[0m"
+
 # include <string>
 # include <iostream>
 # include <fstream>
@@ -21,16 +25,18 @@
 # include <map>
 # include "Parser/errorCodes.hpp"
 # include "Parser/configStructs.hpp"
+# include "Parser/ParserExceptions.hpp"
 # include "utils/utils.hpp"
 
 extern int	g_maxClients;
 extern int	g_timeout;
 extern int	g_maxFileSize;
+extern int	g_verboseTrigger;
 
 class Parser {
 	public:
 		// constructors
-		Parser(const std::string &pathToConfig);
+		Parser(int argc, char** argv);
 		Parser(const Parser &other);
 
 		// destructor
@@ -39,54 +45,7 @@ class Parser {
 		// operator overload
 		Parser &operator=(const Parser &other);
 
-		// exceptions
-		class CantOpenConfigException : public std::exception {
-		public:
-			const char *what() const throw();
-		};
-		class EmptyConfigFileException: public std::exception {
-		public:
-			const char *what() const throw();
-		};
-		class DuplicateServerNameException: public std::exception {
-		public:
-			const char *what() const throw();
-		};
-		class InvalidGlobalValueException: public std::exception {
-		public:
-			const char *what() const throw();
-		};
-		class InvalidConfigException: public std::exception {
-		public:
-			const char *what() const throw();
-		};
-		class ValueMissingException : public std::exception {
-		public:
-			virtual const char *what() const throw();
-			ValueMissingException(const int &missingKey);
-		private:
-			int	_key;
-		};
-		class MissingSemicolonException : public std::exception {
-		public:
-			virtual const char* what() const throw();
-		};
-		class MissingClosingBracketException : public std::exception {
-		public:
-			virtual const char* what() const throw();
-		};
-		class InvalidLocationException : public std::exception {
-		public:
-			virtual const char* what() const throw();
-		};
-		class InvalidPortException : public std::exception {
-		public:
-			virtual const char* what() const throw();
-		};
-		class NoServerConfigException : public std::exception {
-		public:
-			virtual const char* what() const throw();
-		};
+		// exceptions: moved to ParserExceptions.hpp / ParserExceptions.cpp
 
 		// member functions
 		std::map<int, std::map<std::string, t_serverConfig> >&	getConfigMap();
@@ -99,6 +58,7 @@ class Parser {
 
 		static void	removeComments(std::string &fileContent);
 
+		static void	checkInput(int argc, char** argv, std::string &pathToConfigFile);
 		static void	readConfigFile(const std::string &pathToConfig, std::string &fileContent);
 
 		// global variable parsing
@@ -110,17 +70,18 @@ class Parser {
 		// server parsing
 		static void			extractServerBlocks(std::vector<std::string> &serverBlocks,
 										const std::string &rawConfig);
-		void				populateServerConfig(t_serverConfig &server, std::string &serverBlock);
-		static std::string	extractServerValue(int num, std::string key, std::string &serverBlock);
+		static void				populateServerConfig(t_serverConfig &server, std::string &serverBlock);
+		static std::string	extractServerValue(int num, const std::string& key, std::string &serverBlock);
 
 		// location parsing
-		void				setLocations(t_serverConfig &serverConfig, const std::string &configBlock);
+		static void				setLocations(t_serverConfig &serverConfig, const std::string &configBlock);
 		static void			splitLocationBlocks(std::vector<std::string> &locationBlocks,
 										const std::string &configBlock);
 		static void				populateLocationConfig(t_locationConfig &locationConfig, std::string &locationBlock);
 		static std::string	extractPath(const std::string &locationBlock);
 		static bool			extractAutoIndex(const std::string &locationBlock);
-		static std::string	extractLocationVariable(const std::string &variable, const std::string &locationBlock);
+		static std::string	extractLocationVariable(int varKey, const std::string &variable,
+													const std::string &locationBlock);
 };
 
 #endif
