@@ -57,16 +57,16 @@ void	Parser::checkInput(int argc, char** argv, std::string &pathToConfigFile) {
 		throw InvalidArgNumException();
 	}
 	if (argc == 1) {
-		std::cout << std::endl << BLUE "Info: No config file defined -> selected default file \"webserv.conf\"" RESET
+		std::cout << std::endl << BLUE "Info: No config file defined -> selected default file \"default.conf\"" RESET
 				<< std::endl << std::endl;
-		pathToConfigFile = "./config/webserv.conf";
+		pathToConfigFile = "./config/default.conf";
 	}
 	else if (argc == 2) {
 		std::string argTwo = argv[1];
 		if (argTwo == "-v") {
-			std::cout << std::endl << BLUE "Info: No config file defined -> selected default file \"webserv.conf\"" RESET
+			std::cout << std::endl << BLUE "Info: No config file defined -> selected default file \"default.conf\"" RESET
 				<< std::endl << std::endl;
-			pathToConfigFile = "./config/webserv.conf";
+			pathToConfigFile = "./config/default.conf";
 			g_verboseTrigger = 1;
 		}
 		else
