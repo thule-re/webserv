@@ -68,7 +68,7 @@ SRCS 		= 	$(addsuffix .cpp, $(addprefix $(SRC_DIR)/, $(FILES)))
 OBJS 		= 	$(addsuffix .o, $(addprefix $(OBJ_DIR)/, $(FILES)))
 
 NAME		=	webserv
-FLAGS		=	-Wall -Werror -Wextra -g #-std=c++98 -pedantic
+FLAGS		=	-Wall -Werror -Wextra -std=c++98 -pedantic -g
 INC			=	-I $(INC_DIR)
 
 all: $(NAME)

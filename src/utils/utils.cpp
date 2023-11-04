@@ -110,6 +110,10 @@ std::string getHTTPErrorMessages(int statusCode) {
 void	printServerConfigMap(std::map<int, std::map<std::string, t_serverConfig> > &configMap) {
 	std::map<int, std::map<std::string, t_serverConfig> >::iterator		portIt; // Iterator for all elements on port level
 
+	std::cout << "┌GLOBAL VARS" << std::endl;
+	std::cout << "├── Timeout: " << g_timeout << std::endl;
+	std::cout << "├── maxClients: " << g_maxClients << std::endl;
+	std::cout << "└── maxFileSize: " << g_maxFileSize << std::endl;
 	// iterates over ports
 	int	portNum = 0;
 	for (portIt = configMap.begin(); portIt != configMap.end(); portIt++) {
