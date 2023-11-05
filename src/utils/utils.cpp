@@ -198,3 +198,15 @@ std::string	getValStr(const int& key) {
 			return "unspecificConfigValue";
 	}
 }
+
+int		stringToInt(const std::string &string) {
+	std::istringstream stream(string);
+	int number;
+
+	if (stream >> number)
+		return number;
+	else{
+		std::string	invalidInteger = RED "Error: " + string + " is not a valid integer." RESET;
+		throw std::invalid_argument(invalidInteger);
+	}
+}

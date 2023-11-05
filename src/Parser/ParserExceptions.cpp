@@ -69,10 +69,18 @@ const char *InvalidPathException::what() const throw() {
 	return (RED "Error: Invalid location path in config." RESET);
 }
 
-const char *NoServerConfigException::what() const throw() {
+const char *NoValidServerConfigException::what() const throw() {
 	return (RED "Error: No valid server block in config." RESET);
 }
 
 const char *ExceededMaxServerNumberException::what() const throw() {
-	return (RED "Error: Too many servers in config (max. 10)." RESET);
+	return (RED "Error: Too many servers in config. (max. 10)" RESET);
+}
+
+const char *ServerBlockSeparatorException::what() const throw() {
+	return (RED "Error: Server block delimiter missing or incorrectly set up." RESET);
+}
+
+const char *EmptyServerBlockException::what() const throw() {
+	return (RED "Error: Empty server block detected." RESET);
 }

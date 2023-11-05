@@ -42,6 +42,7 @@ class InvalidGlobalValueException: public std::exception {
 public:
 	const char *what() const throw();
 };
+
 class InvalidConfigException: public std::exception {
 public:
 	const char *what() const throw();
@@ -80,12 +81,22 @@ public:
 	virtual const char* what() const throw();
 };
 
-class NoServerConfigException : public std::exception {
+class NoValidServerConfigException : public std::exception {
 public:
 	virtual const char* what() const throw();
 };
 
 class ExceededMaxServerNumberException : public std::exception {
+public:
+	virtual const char* what() const throw();
+};
+
+class ServerBlockSeparatorException : public std::exception {
+public:
+	virtual const char* what() const throw();
+};
+
+class EmptyServerBlockException : public std::exception {
 public:
 	virtual const char* what() const throw();
 };

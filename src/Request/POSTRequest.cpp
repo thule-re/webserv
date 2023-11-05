@@ -36,7 +36,7 @@ Response *POSTRequest::handle() {
 	out.close();
 
 	_getBoundary();
-	if (atoi(_header["Content-Length"].c_str()) > g_maxFileSize)
+	if (stringToInt(_header["Content-Length"]) > g_maxFileSize)
 		throw ARequest::ARequestException(REQUEST_ENTITY_TOO_LARGE);
 	_getFileData();
 	_getFilename();

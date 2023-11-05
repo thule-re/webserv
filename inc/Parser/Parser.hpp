@@ -26,12 +26,12 @@
 # include "Parser/errorCodes.hpp"
 # include "Parser/configStructs.hpp"
 # include "Parser/ParserExceptions.hpp"
+# include "Parser/parserUtils.hpp"
 # include "utils/utils.hpp"
 
 extern int	g_maxClients;
 extern int	g_timeout;
 extern int	g_maxFileSize;
-extern int	g_verboseTrigger;
 
 class Parser {
 	public:
@@ -58,7 +58,8 @@ class Parser {
 
 		static void	removeComments(std::string &fileContent);
 
-		static void	checkInput(int argc, char** argv, std::string &pathToConfigFile);
+		static void	checkInput(int argc, char** argv, std::string &pathToConfigFile,
+								int &verboseTrigger);
 		static void	readConfigFile(const std::string &pathToConfig, std::string &fileContent);
 
 		// global variable parsing

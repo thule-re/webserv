@@ -40,6 +40,7 @@ std::string	getValStr(const int& key);
 
 // template functions
 template<typename T> std::string toString(const T& value);
+int						stringToInt(const std::string &string);
 
 # include "utils.tpp"
 

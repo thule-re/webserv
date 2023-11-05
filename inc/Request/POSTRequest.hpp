@@ -18,6 +18,7 @@
 # include <fcntl.h>
 
 # include "ARequest.hpp"
+# include "utils/utils.hpp"
 
 class POSTRequest: public ARequest {
 public:

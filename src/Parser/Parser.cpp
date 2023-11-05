@@ -17,13 +17,14 @@ Parser::Parser() {}
 Parser::Parser(int argc, char** argv) {
 	std::string	pathToConfigFile;
 	std::string	fileContent;
+	int 		verboseTrigger = 0;
 
-	checkInput(argc, argv, pathToConfigFile);
+	checkInput(argc, argv, pathToConfigFile, verboseTrigger);
 	readConfigFile(pathToConfigFile, fileContent);
 	removeComments(fileContent);
 	parseGlobalVars(fileContent);
 	parseServerConfigs(fileContent);
-	if (g_verboseTrigger == 1)
+	if (verboseTrigger == 1)
 		printServerConfigMap(_configMap);
 }
 
@@ -52,7 +53,8 @@ std::map<int, std::map<std::string, t_serverConfig> >&	Parser::getConfigMap() {
 
 //member functions
 
-void	Parser::checkInput(int argc, char** argv, std::string &pathToConfigFile) {
+void	Parser::checkInput(int argc, char** argv, std::string &pathToConfigFile,
+							int &verboseTrigger) {
 	if (argc > 3) {
 		throw InvalidArgNumException();
 	}
@@ -67,7 +69,7 @@ void	Parser::checkInput(int argc, char** argv, std::string &pathToConfigFile) {
 			std::cout << std::endl << BLUE "Info: No user defined config, default file \"default.conf\" was selected" RESET
 				<< std::endl << std::endl;
 			pathToConfigFile = "./config/default.conf";
-			g_verboseTrigger = 1;
+			verboseTrigger = 1;
 		}
 		else
 			pathToConfigFile = argv[1];
@@ -77,7 +79,7 @@ void	Parser::checkInput(int argc, char** argv, std::string &pathToConfigFile) {
 		if (argTwo != "-v")
 			throw InvalidArgNumException();
 		else {
-			g_verboseTrigger = 1;
+			verboseTrigger = 1;
 			pathToConfigFile = argv[2];
 		}
 	}
@@ -126,9 +128,7 @@ void	Parser::extractTimeout(std::string &rawConfig) {
 	if (timeoutStr.empty())
 		return ;
 	else {
-	std::stringstream ss;
-	ss << timeoutStr;
-		g_timeout = atoi(timeoutStr.c_str());
+		g_timeout = stringToInt(timeoutStr);
 		if (g_timeout < 1 || g_timeout > 60)
 			throw InvalidGlobalValueException();
 	}
@@ -145,7 +145,7 @@ void	Parser::extractMaxClients(std::string &rawConfig) {
 	if (maxClientsStr.empty())
 		return ;
 	else {
-		g_maxClients = atoi(maxClientsStr.c_str());
+		g_maxClients = stringToInt(maxClientsStr);
 		if (g_maxClients < 1 || g_maxClients > 1000)
 			throw InvalidGlobalValueException();
 	}
@@ -162,7 +162,7 @@ void	Parser::extractMaxFileSize(std::string &rawConfig) {
 	if (maxFileSizeStr.empty())
 		return ;
 	else {
-		g_maxFileSize = atoi(maxFileSizeStr.c_str());
+		g_maxFileSize = stringToInt(maxFileSizeStr);
 		if (g_maxFileSize < 1 || g_maxFileSize > 100000)
 			throw InvalidGlobalValueException();
 	}
@@ -192,25 +192,32 @@ void	Parser::parseServerConfigs(std::string &rawConfig) {
 
 void	Parser::extractServerBlocks(std::vector<std::string> &serverBlocks, const std::string &rawConfig) {
 	size_t start = 0, end;
-	while((end = rawConfig.find("</server", start)) != std::string::npos) {
-		serverBlocks.push_back(rawConfig.substr(start, end - start));
+	size_t	serverNum = 0;
+		checkBasicServerBlockIntegrity(rawConfig);
+	while((end = rawConfig.find("</server>", start)) != std::string::npos) {
+		checkServerBlockSeparators(rawConfig, start, end);
+		if (serverNum == 0)
+			start = rawConfig.find("<server>", start);
+		std::string	serverBlock = rawConfig.substr(start, end - start);
+		if (serverBlock.empty())
+			throw EmptyServerBlockException();
+		serverBlocks.push_back(serverBlock);
 		start = end + 9;
-		// check if end before start
 		while ((start < rawConfig.length()) && (rawConfig[start] == ' '
-												|| rawConfig[start] == '\n'))
+				|| rawConfig[start] == '\n'))
 			start++;
+		if (serverNum >= 10)
+			throw	ExceededMaxServerNumberException();
+		serverNum++;
 	}
 	if (serverBlocks.empty())
-		throw	NoServerConfigException();
-	if (serverBlocks.size() > 10) {
-		throw	ExceededMaxServerNumberException();
-	}
+		throw	NoValidServerConfigException();
 }
 
 void	Parser::populateServerConfig(t_serverConfig &serverConfig, std::string &serverBlock) {
 	serverConfig.serverName = extractServerValue(SERVERNAME, "serverName:", serverBlock);
 	serverConfig.errorDir = extractServerValue(ERRORDIR, "errorDir:", serverBlock);
-	serverConfig.port = atoi(extractServerValue(PORT, "port:", serverBlock).c_str());
+	serverConfig.port = stringToInt(extractServerValue(PORT, "port:", serverBlock));
 	if (serverConfig.port < 0 || serverConfig.port > 65353)
 		throw InvalidPortException();
 	setLocations(serverConfig, serverBlock);
@@ -227,8 +234,8 @@ std::string Parser::extractServerValue(int num, const std::string& key, std::str
 		valStart = serverBlock.find(key);
 	valStart = serverBlock.find(':', valStart) + 1;
 	valEnd = valStart;
-	while (valEnd < serverBlock.length() && serverBlock[valEnd + 1] != ';'
-			&& serverBlock[valEnd + 1] != '\n')
+	while (valEnd < serverBlock.length() && serverBlock[valEnd] != ';'
+			&& serverBlock[valEnd + 1] != ';' && serverBlock[valEnd + 1] != '\n')
 		valEnd++;
 	value = serverBlock.substr(valStart, (valEnd - valStart + 1));
 	removeLeadingWhitespaces(value);
