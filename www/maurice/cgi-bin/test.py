@@ -33,6 +33,10 @@ print("<main><h1> Hello Program! </h2>")
 
 form = cgi.FieldStorage()
 
+if (form.getvalue("happy") and form.getvalue("sad")):
+    print("<h1> You can't be both happy and sad! Make up your</h1>")
+    exit(0)
+
 if form.getvalue("name"):
     name = form.getvalue("name")
     print("<h1>Hello " + name + "!</h1><br />")
