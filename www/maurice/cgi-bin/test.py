@@ -7,8 +7,8 @@ print("<html lang='en'><head><meta charset='UTF-8'>")
 print("<head><title>webserv CGI</title>")
 print("<link rel='stylesheet' type='text/css' href='../default.css'></head>")
 print("<header><h1>Welcome to our webserv website</h1></header>")
-print("<nav><ul><li><a href='/'>Home</a></li><li><a href='upload.html'>Upload</a></li>")
-print("<li><a href='nonexistent.html'>Try Me!</a></li><li><a href='cgi.html'>CGI</a></li></ul></nav>")
+print("<nav><ul><li><a href='/'>Home</a></li><li><a href='/upload.html'>Upload</a></li>")
+print("<li><a href='nonexistent.html'>Try Me!</a></li><li><a href='/cgi.html'>CGI</a></li></ul></nav>")
 print("<main><h1> Hello Program! </h1>")
 
 # Using the inbuilt methods
