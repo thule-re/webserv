@@ -262,6 +262,8 @@ void	Parser::setLocations(t_serverConfig &serverConfig, const std::string &confi
 		else
 			serverConfig.locationMap[locationConfig.path] = locationConfig;
 	}
+	if (serverConfig.locationMap.count("/") == 0)
+		throw NoRootLocationException();
 }
 
 void	Parser::splitLocationBlocks(std::vector<std::string> &locationBlocks,

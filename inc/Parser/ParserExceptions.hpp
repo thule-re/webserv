@@ -106,8 +106,12 @@ public:
 	virtual const char* what() const throw();
 };
 
-
 class DuplicateLocationNameException : public std::exception {
+public:
+	virtual const char* what() const throw();
+};
+
+class NoRootLocationException : public std::exception {
 public:
 	virtual const char* what() const throw();
 };
