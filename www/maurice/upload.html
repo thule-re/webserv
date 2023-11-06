@@ -1,0 +1,30 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <title>webserv upload</title>
+    <link rel="stylesheet" type="text/css" href="upload.css">
+</head>
+<body>
+<header>
+    <h1>Welcome to our webserv website</h1>
+</header>
+<nav>
+    <ul>
+        <li><a href="upload.html">Upload</a></li>
+        <li><a href="nonexistent.html">Try Me!</a></li>
+        <li><a href="cgi.html">CGI</a></li>
+    </ul>
+</nav>
+    <h1>Upload a File</h1>
+    <form method="post" enctype="multipart/form-data">
+        <label for="file">Choose a file:  </label>
+        <input type="file" name="file" id="file">
+        <br><br>
+        <input type="submit" value="Upload File">
+    </form>
+<footer>
+    <p>&copy; 2023 The Real webserv. All rights reserved.</p>
+</footer>
+</body>
+</html>

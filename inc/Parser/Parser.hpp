@@ -75,7 +75,7 @@ class Parser {
 		static std::string	extractServerValue(int num, const std::string& key, std::string &serverBlock);
 
 		// location parsing
-		static void				setLocations(t_serverConfig &serverConfig, const std::string &configBlock);
+		static void			setLocations(t_serverConfig &serverConfig, const std::string &configBlock);
 		static void			splitLocationBlocks(std::vector<std::string> &locationBlocks,
 										const std::string &configBlock);
 		static void				populateLocationConfig(t_locationConfig &locationConfig, std::string &locationBlock);

@@ -46,6 +46,7 @@ nav ul li a {
 /* main content style */
 main {
 	padding: 20px;
+	color: #fff;
 }
 
 /* footer style */
@@ -74,4 +75,20 @@ footer p {
 /* hover effect to navigation links */
 nav ul li a:hover {
 	color: #ff9900;
+}
+
+h1 {
+	color: #fff;
+}
+
+a {
+	color: #bbb;
+}
+
+form {
+	color: #bbb;
+}
+
+form input[type="submit"] {
+	margin-left: 103px;
 }

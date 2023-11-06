@@ -1,0 +1,31 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <title>webserv CGI add</title>
+    <link rel="stylesheet" type="text/css" href="cgi.css">
+</head>
+<body>
+    <header>
+        <h1>Welcome to our webserv website</h1>
+    </header>
+    <nav>
+        <ul>
+            <li><a href="upload.html">Upload</a></li>
+            <li><a href="nonexistent.html">Try Me!</a></li>
+            <li><a href="cgi.html">CGI</a></li>
+        </ul>
+    </nav>
+    <form action="cgi-bin/add.py" method="POST" enctype='multipart/form-data'>
+        <fieldset>
+            <legend>Enter two numbers to add</legend>
+            <label>First Number: <input type="number" name="num1"></label><br/>
+            <label>Second Number: <input type="number" name="num2"></label><br/>
+            <button>Add</button>
+        </fieldset>
+    </form>
+</body>
+<footer>
+    <p>&copy; 2023 The Real webserv. All rights reserved.</p>
+</footer>
+</html>

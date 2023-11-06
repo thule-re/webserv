@@ -59,15 +59,15 @@ void	Parser::checkInput(int argc, char** argv, std::string &pathToConfigFile,
 		throw InvalidArgNumException();
 	}
 	if (argc == 1) {
-		std::cout << std::endl << BLUE "Info: No user defined config, default file \"default.conf\" was selected" RESET
-				<< std::endl << std::endl;
+		std::cout  << BLUE "Info: No user defined config, default file \"default.conf\" was selected" RESET
+				<< std::endl;
 		pathToConfigFile = "./config/default.conf";
 	}
 	else if (argc == 2) {
 		std::string argTwo = argv[1];
 		if (argTwo == "-v") {
-			std::cout << std::endl << BLUE "Info: No user defined config, default file \"default.conf\" was selected" RESET
-				<< std::endl << std::endl;
+			std::cout << BLUE "Info: No user defined config, default file \"default.conf\" was selected" RESET
+				<< std::endl;
 			pathToConfigFile = "./config/default.conf";
 			verboseTrigger = 1;
 		}
@@ -257,13 +257,17 @@ void	Parser::setLocations(t_serverConfig &serverConfig, const std::string &confi
 	for (size_t i = 0; i < locationBlocks.size(); i++) {
 		t_locationConfig	locationConfig;
 		populateLocationConfig(locationConfig, locationBlocks[i]);
-		serverConfig.locationMap[locationConfig.path] = locationConfig;
+		if (serverConfig.locationMap.count(locationConfig.path) != 0)
+			throw DuplicateLocationNameException();
+		else
+			serverConfig.locationMap[locationConfig.path] = locationConfig;
 	}
 }
 
 void	Parser::splitLocationBlocks(std::vector<std::string> &locationBlocks,
 									const std::string &configBlock) {
 	size_t	blockEnd = 0;
+	size_t	blockNum = 0;
 	size_t	blockStart = configBlock.find("location", blockEnd);
 
 	while (blockStart < configBlock.length() && blockEnd < configBlock.length()) {
@@ -276,6 +280,9 @@ void	Parser::splitLocationBlocks(std::vector<std::string> &locationBlocks,
 		locationBlocks.push_back(configBlock.substr(blockStart,
 												(blockEnd - blockStart + 1)));
 		blockStart = configBlock.find("location", blockEnd);
+		if (blockNum > 10)
+			throw ExceededMaxLocationNumberException();
+		blockNum++;
 	}
 }
 

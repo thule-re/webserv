@@ -84,3 +84,12 @@ const char *ServerBlockSeparatorException::what() const throw() {
 const char *EmptyServerBlockException::what() const throw() {
 	return (RED "Error: Empty server block detected." RESET);
 }
+
+const char *ExceededMaxLocationNumberException::what() const throw() {
+	return (RED "Error: Too many locations in at least one server block"
+				". (max. 10)" RESET);
+}
+
+const char *DuplicateLocationNameException::what() const throw() {
+	return (RED "Error: Duplicate location name detected." RESET);
+}
