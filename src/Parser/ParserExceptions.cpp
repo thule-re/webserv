@@ -93,3 +93,7 @@ const char *ExceededMaxLocationNumberException::what() const throw() {
 const char *DuplicateLocationNameException::what() const throw() {
 	return (RED "Error: Duplicate location name detected." RESET);
 }
+
+const char *NoRootLocationException::what() const throw() {
+	return (RED "Error: Root (location /) missing in at least one server block." RESET);
+}

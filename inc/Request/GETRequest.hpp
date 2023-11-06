@@ -38,6 +38,7 @@ private:
 
 	// member functions
 	std::string _getDirectoryListing(const std::string& path);
+	static std::string _polishPath(std::string& path);
 };
 
 #endif
