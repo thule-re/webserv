@@ -33,7 +33,7 @@ print("<main><h1> Hello Program! </h2>")
 
 form = cgi.FieldStorage()
 
-if (form.getvalue("happy") and form.getvalue("sad")):
+if form.getvalue("happy") and form.getvalue("sad"):
     print("<h1> You can't be both happy and sad! Make up your</h1>")
     exit(0)
 
