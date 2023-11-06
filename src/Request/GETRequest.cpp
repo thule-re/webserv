@@ -61,10 +61,12 @@ std::string GETRequest::_getDirectoryListing(const std::string& path) {
 	DIR *dir;
 	struct dirent *entry;
 	if ((dir = opendir (path.c_str())) != NULL) {
-		body += "<html><head><title>Index of " + _location.path + path.substr(_location.root.length()) + "</title></head><body><h1>Index of " + _location.path + path.substr(_location.root.length()) + "</h1><hr><pre>";
+		std::string finalPath = _location.path + path.substr(_location.root.length());
+		_polishPath(finalPath);
+		body += "<html><head><title>Index of " + finalPath + "</title></head><body><h1>Index of " + finalPath + "</h1><hr><pre>";
 		entry = readdir (dir);
 		while (entry) {
-			body += "<a href=\"" + _location.path + path.substr(_location.root.length()) + "/" + entry->d_name + "\">" + entry->d_name + "</a><br>";
+			body += "<a href=\"" + finalPath + "/" + entry->d_name + "\">" + entry->d_name + "</a><br>";
 			entry = readdir (dir);
 		}
 		body += "</pre><hr></body></html>";
@@ -73,4 +75,12 @@ std::string GETRequest::_getDirectoryListing(const std::string& path) {
 		throw ARequest::ARequestException(NOT_FOUND);
 	}
 	return (body);
+}
+
+std::string GETRequest::_polishPath(std::string& path) {
+	while (path.find("//") != std::string::npos)
+		replaceAll(path, "//", "/");
+	if (path.back() == '/')
+		path.pop_back();
+	return (path);
 }

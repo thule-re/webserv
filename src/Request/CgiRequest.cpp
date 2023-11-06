@@ -151,9 +151,18 @@ void CgiRequest::_execCgi(Response *response) {
 		close(_cgiOutput[0]);
 		close(_cgiInput[0]);
 		close(_cgiOutput[1]);
-
 		_exportEnv();
-		if (execve(_scriptPath.c_str(), NULL, _envp) == -1)
+		std::string scriptPath = _scriptPath;
+		std::string scriptName = _scriptPath.substr(_scriptPath.find_last_of('/') + 1);
+		while (scriptPath.back() != '/')
+			scriptPath.pop_back();
+		scriptPath = "./" + scriptPath;
+		if (chdir(scriptPath.c_str()) == 1)
+		{
+			write(2, "chdir error\n", 12);
+			exit(1);
+		}
+		if (execve(scriptName.c_str(), NULL, _envp) == -1)
 			exit(1);
 	} else {
 		if (_header["Method"] == "POST")
