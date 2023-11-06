@@ -4,27 +4,12 @@ import cgi
 import os
 
 print("<html lang='en'><head><meta charset='UTF-8'>")
-print("<title>webserv CGI</title>")
-print("<style> body, h1, h2, h3, p, ul, li {margin: 0; padding: 0;}")
-print("body {background-color: #444;font-family: Arial, sans-serif;}")
-print("header {background-color: #64b3e3; color: #fff; text-align: center; padding: 20px;}")
-print("nav ul {list-style: none;background-color: #333;text-align: center;padding: 10px;}")
-print("nav ul li {display: inline;margin-right: 10px;}")
-print("nav ul li a {color: #fff; text-decoration: none;}")
-print("main {padding: 20px;color: #fff;}")
-print("footer {background-color: #333;color: #fff; text-align: center; padding: 10px; position: fixed;")
-print("left: 0; bottom: 0; width: 100%;}")
-print("main p {margin-bottom: 20px; line-height: 1.6;}")
-print("footer p {font-size: 12px;}")
-print("nav ul li a:hover {color: #ff9900;}")
-print("h1 {color: #fff;}")
-print("form {color: #bbb;}")
-print("checkbox {margin-left: 103px;}")
-print("button {margin-left: 103px;}</style>")
+print("<head><title>webserv CGI</title>")
+print("<link rel='stylesheet' type='text/css' href='../default.css'></head>")
 print("<header><h1>Welcome to our webserv website</h1></header>")
 print("<nav><ul><li><a href='/'>Home</a></li><li><a href='upload.html'>Upload</a></li>")
 print("<li><a href='nonexistent.html'>Try Me!</a></li><li><a href='cgi.html'>CGI</a></li></ul></nav>")
-print("<main><h1> Hello Program! </h2>")
+print("<main><h1> Hello Program! </h1>")
 
 # Using the inbuilt methods
 # os.write(2, b"Hello World!\n")
@@ -34,7 +19,7 @@ print("<main><h1> Hello Program! </h2>")
 form = cgi.FieldStorage()
 
 if form.getvalue("happy") and form.getvalue("sad"):
-    print("<h1> You can't be both happy and sad! Make up your</h1>")
+    print("<h1> You can't be both happy and sad! Make up your mind!</h1>")
     exit(0)
 
 if form.getvalue("name"):
