@@ -16,7 +16,7 @@
 
 int	g_timeout = 20;
 int	g_maxClients = 200;
-int	g_maxFileSize = 10000;
+int	g_maxFileSize = 100000;
 
 int main(int argc, char **argv) {
 
