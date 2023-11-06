@@ -29,7 +29,7 @@ HTTP protocol, and C++ programming.
 
 - **HTTP/1.1 Compatible**: The server is compliant with the HTTP/1.1 protocol, capable of parsing incoming requests and generating appropriate responses.
 - **Dynamic Content**: Support for server-side scripting, enabling dynamic content generation using Common Gateway Interface (CGI).
-- **Static Content**: Efficiently serve static files (HTML, CSS, images, etc.) to clients.
+- **Static Content**: Efficiently serve static files (HTML, CSS, JS etc.) to clients.
 - **Configurable**: The server's behavior is determined by a configuration file, allowing you to specify settings such as the listening port, server name, and more.
 
 ## Getting Started
@@ -38,7 +38,7 @@ HTTP protocol, and C++ programming.
 
 Before you begin, ensure you have met the following requirements:
 
-- A C++ compiler (e.g., `g++`)
+- A C++ compiler (e.g., `c++`)
 - Unix-based operating system (Linux or macOS)
 
 ### Installation
