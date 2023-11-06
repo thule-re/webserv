@@ -83,8 +83,9 @@ ssize_t ClientSocket::readRequest() {
 
 	bytesReceived = recv(_socketFd, buffer, BUFFER_SIZE, 0);
 	if (bytesReceived < 0) {
-		std::cerr << "Error reading from client socket" << std::endl;
-		exit(1);
+		throw ClientSocket::ClientSocketReadException();
+	} else if (bytesReceived == 0) {
+		throw ClientSocket::ClientSocketConnectionClosedException();
 	}
 	_rawRequest += buffer;
 	return (bytesReceived);
@@ -119,4 +120,13 @@ t_serverConfig ClientSocket::parseServerConfig() {
 	if (_serverConfigMap.count(host))
 		return (_serverConfigMap[host]);
 	return (_serverConfigMap["default"]);
+}
+
+// exceptions
+const char *ClientSocket::ClientSocketReadException::what() const throw() {
+	return ("ClientSocket Error: Error reading from socket");
+}
+
+const char *ClientSocket::ClientSocketConnectionClosedException::what() const throw() {
+	return ("ClientSocket Error: Connection closed by client");
 }

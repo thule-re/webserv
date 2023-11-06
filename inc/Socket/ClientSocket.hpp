@@ -69,6 +69,14 @@ private:
 	std::map<std::string, t_serverConfig>	_serverConfigMap;
 	Response								*_response;
 
+	class ClientSocketReadException : public std::exception {
+	public:
+		virtual const char *what() const throw();
+	};
+	class ClientSocketConnectionClosedException : public std::exception {
+	public:
+		virtual const char *what() const throw();
+	};
 };
 
 #endif

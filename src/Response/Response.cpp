@@ -39,11 +39,19 @@ Response &Response::operator=(const Response &other) {
 // member functions
 void Response::send() {
 	std::string response = _header.exportHeader() + CRLF + _body;
-	::send(_clientSocket->getSocketFd(), response.c_str(), response.length(), 0);
+	int ret = ::send(_clientSocket->getSocketFd(), response.c_str(), response.length(), 0);
+	if (ret == -1)
+	{
+		_clientSocket->closeSocket();
+		delete _clientSocket;
+		throw Response::ResponseFailedException();
+	}
+	else if (ret == 0)
+		throw Response::ResponseConnectionClosedException();
 }
 
 void Response::buildErrorPage(int statusCode) {
-	std::string path = _serverConfig.errorDir + "/error" + toString(statusCode) + ".html";
+	std::string path = _serverConfig.locationMap["/"].root + "/" + _serverConfig.errorDir + "/error" + toString(statusCode) + ".html";
 	_header["HTTP-Status-Code"] = toString(statusCode);
 	_header["HTTP-Status-Message"] = getHTTPErrorMessages(statusCode);
 	_header["Content-Type"] = "text/html";
@@ -97,4 +105,12 @@ ClientSocket *Response::getClientSocket() const {
 
 std::string Response::getBody() const {
 	return (_body);
+}
+
+const char *Response::ResponseFailedException::what() const throw() {
+	return ("Response failed");
+}
+
+const char *Response::ResponseConnectionClosedException::what() const throw() {
+	return ("Response failed: connection closed");
 }

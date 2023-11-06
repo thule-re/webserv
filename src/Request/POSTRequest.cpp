@@ -28,7 +28,6 @@ POSTRequest &POSTRequest::operator=(const POSTRequest &other) {
 }
 
 Response *POSTRequest::handle() {
-	Response *response = new Response(_clientSocket);
 	std::cerr << "POSTRequest::handle()" << std::endl;
 
 	std::ofstream out("rawRequest.txt");
@@ -42,7 +41,7 @@ Response *POSTRequest::handle() {
 	_getFilename();
 	_checkFilename();
 	_writeDataToOutfile();
-	return (response);
+	throw ARequest::ARequestException(CREATED);
 }
 
 void POSTRequest::_checkFilename()

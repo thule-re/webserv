@@ -131,6 +131,15 @@ private:
 
 	// member functions
 	void defaultErrorPage(int statusCode);
+
+	class ResponseFailedException : public std::exception {
+	public:
+		virtual const char *what() const throw();
+	};
+	class ResponseConnectionClosedException : public std::exception {
+	public:
+		virtual const char *what() const throw();
+	};
 };
 
 #endif
