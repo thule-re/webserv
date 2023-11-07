@@ -59,15 +59,11 @@ void	Parser::checkInput(int argc, char** argv, std::string &pathToConfigFile,
 		throw InvalidArgNumException();
 	}
 	if (argc == 1) {
-		std::cout  << BLUE "Info: No user defined config, default file \"default.conf\" was selected" RESET
-				<< std::endl;
 		pathToConfigFile = "./config/default.conf";
 	}
 	else if (argc == 2) {
 		std::string argTwo = argv[1];
 		if (argTwo == "-v") {
-			std::cout << BLUE "Info: No user defined config, default file \"default.conf\" was selected" RESET
-				<< std::endl;
 			pathToConfigFile = "./config/default.conf";
 			verboseTrigger = 1;
 		}
@@ -92,6 +88,7 @@ void	Parser::readConfigFile(const std::string &pathToConfig,
 		throw CantOpenConfigException();
 	fileContent = std::string((std::istreambuf_iterator<char>(configFile)),
 					(std::istreambuf_iterator<char>()));
+	configFile.close();
 	if (fileContent.empty())
 		throw EmptyConfigFileException();
 }
@@ -163,7 +160,7 @@ void	Parser::extractMaxFileSize(std::string &rawConfig) {
 		return ;
 	else {
 		g_maxFileSize = stringToInt(maxFileSizeStr);
-		if (g_maxFileSize < 1 || g_maxFileSize > 10000000)
+		if (g_maxFileSize < 1 || g_maxFileSize > INT32_MAX)
 			throw InvalidGlobalValueException();
 	}
 }

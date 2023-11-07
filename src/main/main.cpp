@@ -19,14 +19,13 @@ int	g_maxClients = 200;
 int	g_maxFileSize = 100000;
 
 int main(int argc, char **argv) {
-
 	try {
 		Parser parser(argc, argv);
 		Server server(parser.getConfigMap());
-		server.loop();
+		//server.loop();
 	}
 	catch (std::exception &e) {
-		std::cout << e.what() << std::endl;
+		std::cerr << e.what() << std::endl;
 		return (1);
 	}
 	return (0);

@@ -77,7 +77,7 @@ void CgiRequest::_getPathInfo() {
 	size_t pos = path.find('.');
 	size_t addPath = path.find('/', pos);
 	size_t queryString = path.find('?', pos);
-	if (queryString != std::string::npos)
+	if (queryString != std::string::npos && addPath != std::string::npos)
 		_pathInfo = path.substr(addPath, queryString - addPath);
 	else if (addPath != std::string::npos)
 		_pathInfo = path.substr(addPath);
@@ -158,10 +158,7 @@ void CgiRequest::_execCgi(Response *response) {
 			scriptPath.pop_back();
 		scriptPath = "./" + scriptPath;
 		if (chdir(scriptPath.c_str()) == 1)
-		{
-			write(2, "chdir error\n", 12);
 			exit(1);
-		}
 		if (execve(scriptName.c_str(), NULL, _envp) == -1)
 			exit(1);
 	} else {
@@ -181,7 +178,7 @@ void CgiRequest::_execCgi(Response *response) {
 		{
 			kill(pid, SIGKILL);
 			close(_cgiOutput[0]);
-			throw ARequest::ARequestException(INTERNAL_SERVER_ERROR);
+			throw ARequest::ARequestException(GATEWAY_TIMEOUT);
 		}
 		if (WEXITSTATUS(status) == 1) {
 			close(_cgiOutput[0]);

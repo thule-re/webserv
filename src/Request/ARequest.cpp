@@ -93,7 +93,7 @@ bool ARequest::_isCgiPath(const t_serverConfig& serverConfig, const std::string 
 	size_t pos = path.find_last_of('.');
 	if (pos == std::string::npos)
 		return (false);
-	std::string extension = path.substr(pos);
+	std::string extension = path.substr(pos, path.find('?') - pos);
 	if (location.cgiExtension.find(extension) != std::string::npos)
 		return (true);
 	return (false);
@@ -124,8 +124,13 @@ void ARequest::_expandPath() {
 		path.replace(0, _location.path.length(), _location.root + "/");
 	if (path[path.length() - 1] == '/' && path.length() > 1)
 		path = path.substr(0, path.length() - 1);
-	if (_isDirectory(path) && !_location.index.empty())
-		path += "/" + _location.index;
+	if (_isDirectory(path))
+	{
+		if (path == _location.root)
+			path += "/" + _location.index;
+		else if (!_location.autoIndex)
+			throw ARequest::ARequestException(FORBIDDEN);
+	}
 	_header["Path"] = path;
 }
 

@@ -37,7 +37,7 @@
 # include "Socket/ClientSocket.hpp"
 
 # define MAX_CLIENT_CONNECTIONS 100
-# define BUFFER_SIZE 1024
+# define BUFFER_SIZE 9216
 
 class Listener {
 public:

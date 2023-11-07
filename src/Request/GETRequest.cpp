@@ -35,8 +35,13 @@ Response *GETRequest::handle() {
 	std::cout << "GETRequest::handle()" << std::endl;
 
 	std::string path = _header["Path"];
-	if (_location.autoIndex && _isDirectory(path))
-		response->setBody(_getDirectoryListing(path));
+	if (_isDirectory(path))
+	{
+		if (_location.autoIndex)
+			response->setBody(_getDirectoryListing(path));
+		else if (_location.index.empty())
+			throw ARequest::ARequestException(FORBIDDEN);
+	}
 	else
 	{
 		std::ifstream file(path.c_str());
