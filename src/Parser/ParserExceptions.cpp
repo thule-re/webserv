@@ -35,11 +35,7 @@ const char *InvalidGlobalValueException::what() const throw() {
 }
 
 const char *InvalidPortException::what() const throw() {
-	return (RED "Error: Port value out of acceptable range or missing." RESET);
-}
-
-const char *InvalidConfigException::what() const throw() {
-	return (RED "Error: Config for at least one server is incomplete." RESET);
+	return (RED "Error: Port value out of range or otherwise invalid." RESET);
 }
 
 const char *MissingClosingBracketException::what() const throw() {

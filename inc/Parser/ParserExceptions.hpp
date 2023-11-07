@@ -10,7 +10,6 @@
 /*                                                                            */
 /* ************************************************************************** */
 
-
 #ifndef PARSEREXCEPTIONS_HPP
 # define PARSEREXCEPTIONS_HPP
 
@@ -39,11 +38,6 @@ public:
 };
 
 class InvalidGlobalValueException: public std::exception {
-public:
-	const char *what() const throw();
-};
-
-class InvalidConfigException: public std::exception {
 public:
 	const char *what() const throw();
 };
