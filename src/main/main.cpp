@@ -22,7 +22,7 @@ int main(int argc, char **argv) {
 	try {
 		Parser parser(argc, argv);
 		Server server(parser.getConfigMap());
-		//server.loop();
+		server.loop();
 	}
 	catch (std::exception &e) {
 		std::cerr << e.what() << std::endl;
