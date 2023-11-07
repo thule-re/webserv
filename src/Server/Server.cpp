@@ -86,7 +86,7 @@ void Server::loop() {
 void Server::selectClientSockets()
 {
 	struct timeval timeout = {};
-	timeout.tv_sec = 5;
+	timeout.tv_sec = g_timeout;
 	timeout.tv_usec = 0;
 
 	FD_ZERO(&_readSetCopy);
@@ -125,10 +125,16 @@ void Server::readRequestFromClient(int clientFd) {
 	int listenerFd = _clientsMap[clientFd]->getSocketFd();
 	ClientSocket *client = _clientsMap[clientFd];
 	_clientsMap[listenerFd]->setConnectionTime(std::time(NULL));
-	// addClientToMap(socket);
 
-	ssize_t bytesReceived = client->readRequest();
-	if (bytesReceived < BUFFER_SIZE || client->isCompleteRequest())
+	try {
+		client->readRequest();
+	} catch (std::exception &e) {
+		closeConnection(client);
+		delete client;
+		_clientsMap.erase(clientFd);
+		return;
+	}
+	if (client->isCompleteRequest())
 	{
 		FD_CLR(listenerFd, &_readSet);
 		FD_SET(listenerFd, &_writeSet);

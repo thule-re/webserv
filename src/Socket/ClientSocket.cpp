@@ -78,7 +78,7 @@ void ClientSocket::closeSocket() const {
 }
 
 ssize_t ClientSocket::readRequest() {
-	char buffer[BUFFER_SIZE];
+	char buffer[BUFFER_SIZE + 1];
 	ssize_t bytesReceived;
 
 	bytesReceived = recv(_socketFd, buffer, BUFFER_SIZE, 0);
@@ -87,6 +87,7 @@ ssize_t ClientSocket::readRequest() {
 	} else if (bytesReceived == 0) {
 		throw ClientSocket::ClientSocketConnectionClosedException();
 	}
+	buffer[bytesReceived] = '\0';
 	_rawRequest += buffer;
 	return (bytesReceived);
 }

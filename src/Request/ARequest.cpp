@@ -129,13 +129,13 @@ void ARequest::_unchunkBody() {
 	std::string body = _rawRequest.substr(_rawRequest.find(CRLF CRLF) + 4);
 	std::string unchunkedBody;
 	size_t chunkSize;
-	size_t newlinePos;
+	size_t chunkStart;
 	while (body.length() > 0) {
-		chunkSize = strtol(body.c_str(), NULL, 16);
+		chunkSize = strtol(body.substr(0, body.find(CRLF)).c_str(), NULL, 16);
 		if (chunkSize == 0)
 			break;
-		newlinePos = body.find(CRLF);
-		body = body.substr(newlinePos + 2);
+		chunkStart = body.find(CRLF) + 2;
+		body = body.substr(chunkStart);
 		unchunkedBody += body.substr(0, chunkSize);
 		body = body.substr(chunkSize + 2);
 	}

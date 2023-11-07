@@ -47,7 +47,11 @@ void Response::send() {
 		throw Response::ResponseFailedException();
 	}
 	else if (ret == 0)
+	{
+		_clientSocket->closeSocket();
+		delete _clientSocket;
 		throw Response::ResponseConnectionClosedException();
+	}
 }
 
 void Response::buildErrorPage(int statusCode) {

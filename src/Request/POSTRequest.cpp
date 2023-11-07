@@ -30,9 +30,9 @@ POSTRequest &POSTRequest::operator=(const POSTRequest &other) {
 Response *POSTRequest::handle() {
 	std::cerr << "POSTRequest::handle()" << std::endl;
 
-	std::ofstream out("rawRequest.txt");
-	out << _rawRequest;
-	out.close();
+	// std::ofstream out("rawRequest.txt");
+	// out << _rawRequest;
+	// out.close();
 
 	_getBoundary();
 	if (stringToInt(_header["Content-Length"]) > g_maxFileSize)

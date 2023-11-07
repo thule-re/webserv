@@ -163,7 +163,7 @@ void	Parser::extractMaxFileSize(std::string &rawConfig) {
 		return ;
 	else {
 		g_maxFileSize = stringToInt(maxFileSizeStr);
-		if (g_maxFileSize < 1 || g_maxFileSize > 100000)
+		if (g_maxFileSize < 1 || g_maxFileSize > 10000000)
 			throw InvalidGlobalValueException();
 	}
 }
