@@ -22,8 +22,8 @@ int main(int argc, char **argv) {
 
 	try {
 		Parser parser(argc, argv);
-		Server cluster(parser.getConfigMap());
-		cluster.loop();
+		Server server(parser.getConfigMap());
+		server.loop();
 	}
 	catch (std::exception &e) {
 		std::cout << e.what() << std::endl;

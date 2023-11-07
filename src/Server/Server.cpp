@@ -18,7 +18,7 @@ Server::Server() {
 	FD_ZERO(&_writeSet);
 }
 
-Server::Server(std::map<int, std::map<std::string, t_serverConfig> > configMap)
+Server::Server(std::map<int, std::map<std::string, t_serverConfig> > &configMap)
 {
 	_maxFd = 0;
 	FD_ZERO(&_readSet);

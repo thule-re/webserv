@@ -12,7 +12,7 @@ public:
 	// constructors
 	Server();
 
-	Server(std::map<int, std::map<std::string, t_serverConfig> >);
+	Server(std::map<int, std::map<std::string, t_serverConfig> > &);
 	Server(const Server &);
 
 	// destructor
