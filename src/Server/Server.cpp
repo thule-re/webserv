@@ -128,10 +128,10 @@ void Server::readRequestFromClient(int clientFd) {
 
 	try {
 		client->readRequest();
-	} catch (std::exception &e) {
+	}
+	catch (std::exception &e) {
+		std::cerr << e.what() << std::endl;
 		closeConnection(client);
-		delete client;
-		_clientsMap.erase(clientFd);
 		return;
 	}
 	if (client->isCompleteRequest())

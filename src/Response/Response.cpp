@@ -41,17 +41,9 @@ void Response::send() {
 	std::string response = _header.exportHeader() + CRLF + _body;
 	int ret = ::send(_clientSocket->getSocketFd(), response.c_str(), response.length(), 0);
 	if (ret == -1)
-	{
-		_clientSocket->closeSocket();
-		delete _clientSocket;
 		throw Response::ResponseFailedException();
-	}
 	else if (ret == 0)
-	{
-		_clientSocket->closeSocket();
-		delete _clientSocket;
 		throw Response::ResponseConnectionClosedException();
-	}
 }
 
 void Response::buildErrorPage(int statusCode) {

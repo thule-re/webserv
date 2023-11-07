@@ -62,6 +62,10 @@ ARequest *ARequest::newRequest(ClientSocket *client) {
 	if (serverConfigMap.count(host))
 		serverConfig = serverConfigMap[host];
 	t_locationConfig locationConfig = _findLocation(serverConfig, header["Path"]);
+	if (header["Host"].empty())
+		throw ARequest::ARequestException(BAD_REQUEST);
+	if (strtol(header["Content-Length"].c_str(), NULL, 10) > g_maxFileSize)
+		throw ARequest::ARequestException(REQUEST_ENTITY_TOO_LARGE);
 	if (header["Method"].empty() || header["Path"].empty() || header["HTTP-Version"].empty())
 		throw ARequest::ARequestException(BAD_REQUEST);
 	else if (header["HTTP-Version"] != "HTTP/1.1")
