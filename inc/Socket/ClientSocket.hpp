@@ -65,6 +65,7 @@ private:
 	time_t									_connectionTime;
 
 	std::string								_rawRequest;
+	size_t									_requestLength;
 
 	std::map<std::string, t_serverConfig>	_serverConfigMap;
 	Response								*_response;

@@ -18,6 +18,7 @@ ClientSocket::ClientSocket() : _socketFd(0), _connectionTime(), _response() {}
 ClientSocket::ClientSocket(int socketFd, std::map<std::string, t_serverConfig> &serverConfigMap):
 							_socketFd(socketFd),
 							_connectionTime(time(NULL)),
+							_requestLength(0),
 							_serverConfigMap(serverConfigMap),
 							_response(NULL)
 							{}
@@ -38,6 +39,7 @@ ClientSocket &ClientSocket::operator=(const ClientSocket &other) {
 	_rawRequest = other._rawRequest;
 	_serverConfigMap = other._serverConfigMap;
 	_response = other._response;
+	_requestLength = other._requestLength;
 	return (*this);
 }
 
@@ -89,6 +91,7 @@ ssize_t ClientSocket::readRequest() {
 	}
 	buffer[bytesReceived] = '\0';
 	_rawRequest += buffer;
+	_requestLength += bytesReceived;
 	return (bytesReceived);
 }
 
@@ -96,7 +99,7 @@ bool ClientSocket::isCompleteRequest() const {
 	RequestHeader header(_rawRequest.substr(0, _rawRequest.find(CRLF CRLF)));
 	if (header["Method"] == "POST") {
 		size_t contentLength = std::strtol(header["Content-Length"].c_str(), NULL, 10);
-		if (_rawRequest.substr(_rawRequest.find(CRLF CRLF)).length() < contentLength)
+		if (_requestLength < contentLength + _rawRequest.find(CRLF CRLF) + 4)
 			return (false);
 	}
 	if (header["Transfer-Encoding"] == "chunked") {
@@ -107,6 +110,8 @@ bool ClientSocket::isCompleteRequest() const {
 }
 
 void ClientSocket::sendResponse() {
+	_requestLength = 0;
+	_rawRequest.clear();
 	_response->send();
 	delete _response;
 }
